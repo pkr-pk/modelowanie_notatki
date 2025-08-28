@@ -1,4 +1,4 @@
-# Enterprise Risk Management System
+# Rozdział 3: Enterprise Risk Management System
 
 ## 3.5 Miary ryzyka
 

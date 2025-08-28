@@ -18,3 +18,6 @@ parts:
   - caption: Actuarial Aspects of ERM for Insurance Companies
     chapters:
     - file: chapters/Actuarial_Aspects_of_ERM_for_Insurance_Companies/chapter_03
+  - caption: Krajowy Standard Aktuarialny Polskiego Stowarzyszenia Aktuariuszy
+    chapters:
+    - file: chapters/Krajowy_Standard_Aktuarialny_Polskiego_Stowarzyszenia_Aktuariuszy/chapter_02
