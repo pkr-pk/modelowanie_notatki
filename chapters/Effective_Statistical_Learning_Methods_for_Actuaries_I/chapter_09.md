@@ -1,6 +1,6 @@
-# **Rozdział 9: Modele Wartości Ekstremalnych**
+# Rozdział 9: Modele Wartości Ekstremalnych
 
-## **9.1 Wprowadzenie**
+## 9.1 Wprowadzenie
 
 Podobnie jak w innych dziedzinach wrażliwych na obserwacje ekstremalne, na przykład w hydrologii i klimatologii, standardowe techniki statystyczne zawodzą przy analizie dużych szkód znajdujących się daleko w ogonie rozkładu ciężkości szkód. Dzieje się tak, ponieważ aktuariusz chce wnioskować o ekstremalnym zachowaniu rozkładów szkód, czyli w obszarze próby, w którym jest bardzo mało punktów danych, jeśli w ogóle.
 
@@ -22,9 +22,9 @@ Gdy głównym przedmiotem zainteresowania jest ogon rozkładu ciężkości szkó
 
 ***
 
-## **9.5 Podejście POT (Peak Over Threshold)**
+## 9.5 Podejście POT (Peak Over Threshold)
 
-### **9.5.1 Zasada**
+### 9.5.1 Zasada
 
 Tradycyjne podejście do EVT opiera się na granicznych rozkładach wartości ekstremalnych. W tym ujęciu model dla ekstremalnych strat bazuje na możliwej parametrycznej formie granicznego rozkładu maksimów. Bardziej elastyczny model jest znany jako metoda „Peak Over Threshold” (w skrócie POT). To podejście jest alternatywą dla analizy maksimów w badaniu zachowań ekstremalnych. Zasadniczo, POT analizuje serię nadwyżek ponad wysoki próg $u$. 
 
@@ -46,7 +46,7 @@ $$ \bar{F}(u + z) \approx \bar{F}(u) [1 - G_{\hat{\xi}; \hat{\tau}}(z)] $$
 które wydaje się być dokładne dla wystarczająco dużego progu $u$ i dowolnego $z \ge 0$. Wzory na ogon rozkładu oparte na Uogólnionym Rozkładzie Pareto, takie jak te wyprowadzone w następnej sekcji, okazują się więc użyteczne, gdy aktuariusz ma do czynienia z ekstremalnymi wartościami zmiennej odpowiedzi. 
 
 ---
-### **9.5.2 Wzory na Ogon Rozkładu**
+### 9.5.2 Wzory na Ogon Rozkładu
 
 Jeśli ogon rozkładu Y jest Uogólnionym Rozkładem Pareto, aktuariusz jest w stanie wyprowadzić szereg użytecznych tożsamości, jak pokazano poniżej. Jeśli $F_u(y) = G_{\xi, \tau}(y)$ dla $0 \le y < \omega − u$, jak sugeruje twierdzenie Pickandsa-Balkemy-de Haana, to dla $y \ge u$,
 
@@ -83,7 +83,7 @@ $$ = \frac{F^{-1}_Y(p)}{1 - \xi} + \frac{\tau - \xi u}{1 - \xi} $$
 gdzie $F^{-1}_Y(p)$ zostało wyprowadzone we wcześniejszym wzorze. 
 
 ---
-### **9.5.3 Estymatory Ogona**
+### 9.5.3 Estymatory Ogona
 
 Twierdzenie Pickandsa-Balkemy-de Haana pokazuje, że (pod warunkiem, że $u$ jest wystarczająco duże) potencjalnym estymatorem dla rozkładu nadwyżki szkody $F_u(x)$ jest $G_{\hat{\xi};\hat{\tau}}(x)$. Wybór odpowiedniego progu $u$ zostanie omówiony w następnych sekcjach. Zatem, $G_{\hat{\xi};\hat{\tau}}(x)$ przybliża warunkowy rozkład strat, pod warunkiem, że przekraczają one próg $u$. Estymatory kwantyli wyprowadzone z tej krzywej są warunkowymi estymatorami kwantyli, które wskazują na skalę strat, jakich można doświadczyć, gdyby próg $u$ został przekroczony. Gdy interesują nas estymatory bezwarunkowych kwantyli, konieczne jest powiązanie bezwarunkowej dystrybuanty $F$ z $G_{\hat{\xi};\hat{\tau}}$ poprzez $F_u$. 
 
@@ -106,7 +106,7 @@ $$ \hat{E}[Y | Y > F^{-1}(p)] = \frac{\hat{F}^{-1}(p)}{1 - \hat{\xi}} + \frac{\h
 gdzie wstawiamy wyżej wymienione wyrażenie dla $\hat{F}^{-1}(p)$. 
 
 ---
-### **9.5.4 Zastosowania do Pozostałego Czasu Życia**
+### 9.5.4 Zastosowania do Pozostałego Czasu Życia
 
 Analiza pozostałego czasu życia w starszym wieku jest zgodna z metodą POT, gdzie próg $u$ odpowiada pewnemu zaawansowanemu wiekowi $x$. Przenosząc to na grunt ubezpieczeń na życie, pozostały czas życia $T − x$ w wieku $x$, pod warunkiem $T > x$, ma rozkład zgodny z
 
@@ -167,9 +167,9 @@ $$ \hat{\mu}_x = \frac{1}{\hat{\tau} + \hat{\xi}(x - x^*)}. $$
 Należy zauważyć, że $\hat{\mu}_x$ dąży do $\infty$, gdy wiek $x$ zbliża się do skończonego punktu końcowego $\hat{\omega}$, ponieważ żadna osoba nie może przeżyć poza wiek $\omega$. 
 
 ---
-### **9.5.5 Wybór Progu dla Uogólnionego Rozkładu Pareto**
+### 9.5.5 Wybór Progu dla Uogólnionego Rozkładu Pareto
 
-#### **9.5.5.1 Zasada**
+#### 9.5.5.1 Zasada
 Wybór odpowiedniego progu $u$, powyżej którego przybliżenie Uogólnionym Rozkładem Pareto ma zastosowanie, jest z pewnością bardzo trudnym zadaniem. W tej sekcji przedstawiamy czytelnikowi pewne ogólne zasady w tym zakresie, odsyłając do literatury po szczegółowe podejścia stosowane w konkretnych sytuacjach. Często techniki wyboru progu dostarczają jedynie zakresu rozsądnych wartości, dlatego zaleca się jednoczesne stosowanie kilku z nich w celu uzyskania bardziej wiarygodnych wyników. 
 
 Przy wyborze optymalnego progu $u$, powyżej którego przybliżenie Uogólnionym Rozkładem Pareto jest słuszne dla rozkładu nadwyżek, należy wziąć pod uwagę dwa czynniki: 
@@ -187,7 +187,7 @@ z tym samym parametrem indeksu $\xi$, dla dowolnego $u > 0$. Mówiąc prościej,
 
 Właściwość stabilności (9.7) Uogólnionego Rozkładu Pareto zapewnia, że wykres estymatorów $\hat{\xi}$ obliczonych przy rosnących progach ujawnia estymacje, które stabilizują się, gdy osiągnięty zostanie najmniejszy próg, dla którego zachowanie Uogólnionego Rozkładu Pareto jest słuszne. Można to sprawdzić graficznie i pozwala to aktuariuszowi określić najmniejszy próg $u$, powyżej którego Uogólniony Rozkład Pareto stanowi dobre przybliżenie ogona. 
 
-#### **9.5.5.2 Zastosowanie do Ciężkości Szkód**
+#### 9.5.5.2 Zastosowanie do Ciężkości Szkód
 Zgodnie z praktyką rynkową, koncentrujemy się na ciężkościach szkód przekraczających 1 000 000 franków belgijskich (około 25 000 €), co odpowiada 13.83-krotności obserwowanej średniej ciężkości szkody. Kwantyl 97.5% rozkładu Gamma o średniej i wariancji odpowiadających ich empirycznym odpowiednikom wynosi 360 481.7 franków belgijskich, podczas gdy kwantyle 99% i 99.5% wynoszą odpowiednio 1 937 007 i 4 004 094 franków belgijskich. Odpowiednie wartości dla rozkładu Odwrotnego Gaussa to 409 671.3 franków belgijskich, 1 403 344 franków belgijskich i 2 952 146 franków belgijskich. Widzimy więc, że rozkłady ED używane do modelowania umiarkowanych strat znacznie wykraczają poza najniższy rozważany próg, jeśli analiza POT rozpoczyna się od 1 000 000 franków belgijskich. 
 
 Wykres indeksu Pareto dla ciężkości szkód w ubezpieczeniach komunikacyjnych przedstawiono na Rys. 9.7. Został on wygenerowany za pomocą funkcji `tcplot` z pakietu R `POT`. Widzimy tam, że oszacowane indeksy wydają się być względnie stabilne, co jest zgodne z twierdzeniem Pickandsa-Balkemy-de Haana. Przedziały ufności są jednak dość szerokie. Ogólnie rzecz biorąc, wykres ten nie dostarcza aktuariuszowi wielu wskazówek co do wyboru progu. 
@@ -214,7 +214,7 @@ gdzie $\bar{y}$ i $s^2$ są średnią i wariancją z próby. Można również wy
 
 Przy progu ustalonym na 2 471 312 franków belgijskich, otrzymujemy $\hat{\xi} = 0.2718819$, co oznacza, że mamy do czynienia z rozkładem o grubym ogonie. Odpowiadające mu $\tau = 7 655 438$. Należy zauważyć, że $\hat{\xi}$ rzeczywiście odpowiada plateau widocznemu na wykresie indeksu Pareto przedstawionym na Rys. 9.7. 
 
-#### **9.5.5.3 Zastosowanie w Ubezpieczeniach na Życie**
+#### 9.5.5.3 Zastosowanie w Ubezpieczeniach na Życie
 Przejdźmy teraz do modelowania skrajnych czasów życia. Wykresy indeksu Pareto dla czasów życia przedstawiono na Rys. 9.9, oddzielnie dla mężczyzn i kobiet. Narzędzia graficzne są trudniejsze do interpretacji w porównaniu z ciężkościami szkód. Odsyłamy czytelnika do Gbari i in. (2017a) w celu określenia progu wiekowego $x^*$ takiego że przybliżenie (9.5) jest wystarczająco dokładne dla $x \ge x^*$ za pomocą kilku zautomatyzowanych procedur. Zgodnie z ich wnioskami, możemy ustawić $x^*$ na 98.89 dla mężczyzn i 100.89 dla kobiet. Wartości te wydają się rozsądne, biorąc pod uwagę wykresy indeksu Pareto przedstawione na Rys. 9.9. Estymaty największej wiarygodności parametrów Uogólnionego Rozkładu Pareto można znaleźć w Tabeli 9.4 wraz z błędami standardowymi. 
 
 Oszacowany wiek graniczny ω jest dany wzorem

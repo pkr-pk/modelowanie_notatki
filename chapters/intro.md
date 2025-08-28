@@ -1,4 +1,4 @@
-# Egzaminy aktuarialne
+# Notatki z modelowania
 
 ```{tableofcontents}
 ```
