@@ -1,4 +1,0 @@
-# Matematyka finansowa
-
-```{tableofcontents}
-```

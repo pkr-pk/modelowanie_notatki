@@ -5,12 +5,7 @@ format: jb-book
 root: chapters/intro
 options:
   numbered: 1
-chapters:
-- file: chapters/prawdopodobienstwo_statystyka/intro
-  sections:
-  - file: chapters/prawdopodobienstwo_statystyka/egzamin_002
-  - file: chapters/prawdopodobienstwo_statystyka/egzamin_001
-- file: chapters/finansowa/intro
-  sections:
-  - file: chapters/finansowa/egzamin_002
-  - file: chapters/finansowa/egzamin_001
+parts:
+  - caption: Effective Statistical Learning Methods for Actuaries I
+    chapters:
+    - file: chapters/Effective_Statistical_Learning_Methods_for_Actuaries_I/chapter_09
