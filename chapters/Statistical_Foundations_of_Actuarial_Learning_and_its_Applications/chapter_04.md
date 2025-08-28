@@ -2,7 +2,7 @@
 
 ## 4.3 Bootstrap
 
-Metoda bootstrap została wynaleziona przez Efrona i Tibshiraniega. Bootstrap jest używany do symulacji nowych danych albo z dystrybuanty empirycznej $\hat{F}_n$, albo z estymowanego modelu $F(·; \hat{\theta})$. Pozwala to na przykład na ocenę zewnętrznej wartości oczekiwanej w ogólnej stracie dewiacyjnej (GL) (4.32), co wymaga modelu danych dla $Y_n.
+Metoda bootstrap została wynaleziona przez Efrona i Tibshiraniega. Bootstrap jest używany do symulacji nowych danych albo z dystrybuanty empirycznej $\hat{F}_n$, albo z estymowanego modelu $F(·; \hat{\theta})$. Pozwala to na przykład na ocenę zewnętrznej wartości oczekiwanej w ogólnej stracie dewiacyjnej (GL) (4.32), co wymaga modelu danych dla $Y_n$.
 
 ***
 ### 4.3.1 Nieparametryczna symulacja bootstrap
