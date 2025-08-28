@@ -12,3 +12,6 @@ parts:
   - caption: Regression Modeling with Actuarial and Financial Applications
     chapters:
     - file: chapters/Regression_Modeling_with_Actuarial_and_Financial_Applications/chapter_07
+  - caption: An Introduction to Statistical Learning withApplications in R
+    chapters:
+    - file: chapters/An_Introduction_to_Statistical_Learning_with_Applications_in_R/chapter_02
