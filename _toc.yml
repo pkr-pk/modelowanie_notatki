@@ -15,6 +15,9 @@ parts:
   - caption: An Introduction to Statistical Learning withApplications in R
     chapters:
     - file: chapters/An_Introduction_to_Statistical_Learning_with_Applications_in_R/chapter_02
+  - caption: Statistical Foundations of Actuarial Learning and its Applications
+    chapters:
+    - file: chapters/Statistical_Foundations_of_Actuarial_Learning_and_its_Applications/chapter_04
   - caption: Actuarial Aspects of ERM for Insurance Companies
     chapters:
     - file: chapters/Actuarial_Aspects_of_ERM_for_Insurance_Companies/chapter_03
