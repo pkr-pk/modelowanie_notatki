@@ -9,6 +9,9 @@ parts:
   - caption: Effective Statistical Learning Methods for Actuaries I
     chapters:
     - file: chapters/Effective_Statistical_Learning_Methods_for_Actuaries_I/chapter_09
+  - caption: Loss Models From Data to Decisions
+    chapters:
+    - file: chapters/Loss_Models_From_Data_to_Decisions/chapter_15
   - caption: Regression Modeling with Actuarial and Financial Applications
     chapters:
     - file: chapters/Regression_Modeling_with_Actuarial_and_Financial_Applications/chapter_07
