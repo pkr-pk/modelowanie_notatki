@@ -1,5 +1,25 @@
 # Rozdział 7: Wychodząc poza liniowość
 
+## 7.4 Splajny regresyjne
+
+### 7.4.3 Podstawowa reprezentacja splajnów
+
+Splajny regresyjne, które właśnie widzieliśmy w poprzedniej sekcji, mogły wydawać się nieco skomplikowane: jak dopasować wielomian odcinkowy stopnia $d$ przy ograniczeniu, że musi on (i ewentualnie jego pierwsze $d − 1$ pochodne) być ciągły? Okazuje się, że możemy użyć modelu bazowego (7.7) do reprezentacji splajnu regresyjnego. Splajn sześcienny z $K$ węzłami można zamodelować jako
+
+$$y_i = \beta_0 + \beta_1 b_1(x_i) + \beta_2 b_2(x_i) + \dots + \beta_{K+3} b_{K+3}(x_i) + \epsilon_i, \quad (7.9)$$
+
+dla odpowiedniego wyboru funkcji bazowych $b_1, b_2,...,b_{K+3}$. Model (7.9) można następnie dopasować metodą najmniejszych kwadratów.
+
+Podobnie jak istniało kilka sposobów reprezentacji wielomianów, istnieje również wiele równoważnych sposobów reprezentacji splajnów sześciennych przy użyciu różnych wyborów funkcji bazowych w (7.9). Najbardziej bezpośrednim sposobem reprezentacji splajnu sześciennego przy użyciu (7.9) jest rozpoczęcie od bazy dla wielomianu sześciennego – mianowicie, $x$, $x^2$, i $x^3$ – a następnie dodanie jednej **obciętej potęgowej funkcji bazowej** na każdy węzeł. Obcięta potęgowa funkcja bazowa jest zdefiniowana jako
+
+$$h(x, \xi) = (x - \xi)^3_+ = \begin{cases} (x - \xi)^3 & \text{jeśli } x > \xi \\ 0 & \text{w przeciwnym razie}, \end{cases} \quad (7.10)$$
+
+gdzie $\xi$ jest węzłem. Można wykazać, że dodanie składnika postaci $\beta_4h(x, \xi)$ do modelu (7.8) dla wielomianu sześciennego doprowadzi do nieciągłości tylko w trzeciej pochodnej w punkcie $\xi$; funkcja pozostanie ciągła, z ciągłymi pierwszą i drugą pochodną, w każdym z węzłów.
+
+Innymi słowy, aby dopasować splajn sześcienny do zbioru danych z $K$ węzłami, wykonujemy regresję metodą najmniejszych kwadratów z wyrazem wolnym i $3 + K$ predyktorami postaci $X, X^2, X^3, h(X, \xi_1), h(X, \xi_2),...,h(X, \xi_K)$, gdzie $\xi_1,..., \xi_K$ to węzły. Sprowadza się to do estymacji łącznie $K + 4$ współczynników regresji; z tego powodu dopasowanie splajnu sześciennego z $K$ węzłami wykorzystuje $K+ 4$ stopnie swobody.
+
+Niestety, splajny mogą mieć dużą wariancję na krańcach zakresu predyktorów — to znaczy, gdy X przyjmuje bardzo małą lub bardzo dużą wartość. Rysunek 7.4 pokazuje dopasowanie do danych `Wage` z trzema węzłami. Widzimy, że przedziały ufności w obszarze brzegowym wydają się dość niestabilne. **Splajn naturalny** to splajn regresyjny z dodatkowymi ograniczeniami brzegowymi: funkcja musi być liniowa na krańcach (w obszarze, gdzie X jest mniejsze od najmniejszego węzła lub większe od największego węzła). To dodatkowe ograniczenie oznacza, że splajny naturalne generalnie dają bardziej stabilne estymacje na krańcach. Na Rysunku 7.4, naturalny splajn sześcienny jest również pokazany jako czerwona linia. Zauważ, że odpowiadające mu przedziały ufności są węższe.
+
 ## 7.7 Uogólnione Modele Addytywne
 
 W rozdziałach 7.1–7.6 przedstawiliśmy szereg metod elastycznego przewidywania odpowiedzi $Y$ na podstawie pojedynczego predyktora $X$. Metody te można postrzegać jako rozszerzenia prostej regresji liniowej. W tym miejscu zbadamy problem elastycznego przewidywania $Y$ na podstawie kilku predyktorów, $X_1,...,X_p$. Stanowi to rozszerzenie wielokrotnej regresji liniowej.

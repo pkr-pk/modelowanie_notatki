@@ -8,6 +8,7 @@ options:
 parts:
   - caption: Effective Statistical Learning Methods for Actuaries I
     chapters:
+    - file: chapters/Effective_Statistical_Learning_Methods_for_Actuaries_I/chapter_06
     - file: chapters/Effective_Statistical_Learning_Methods_for_Actuaries_I/chapter_09
   - caption: Loss Models From Data to Decisions
     chapters:
