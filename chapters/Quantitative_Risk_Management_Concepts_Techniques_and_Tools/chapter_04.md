@@ -39,3 +39,49 @@ gdzie wartości $\hat{\mu}_t$ są czasami nazywane wartościami dopasowanymi. Oc
 Reszty $(\hat{\epsilon}_t)$ powinny zachowywać się jak realizacja procesu białego szumu, ponieważ takie jest nasze założenie modelowe dla innowacji, a to można ocenić, konstruując ich korelogram. Jeśli w korelogramie nadal widoczne są dowody korelacji seryjnej, sugeruje to, że dobry model ARMA nie został jeszcze znaleziony. Co więcej, możemy użyć testów portmanteau, aby formalnie przetestować, czy reszty zachowują się jak realizacja procesu ścisłego białego szumu. Jeśli reszty zachowują się jak ścisły biały szum, dalsze modelowanie szeregów czasowych nie jest wymagane; jeśli zachowują się jak biały szum, ale nie ścisły biały szum, mogą być wymagane modele zmienności z sekcji 4.2.
 
 Zazwyczaj możliwe jest znalezienie więcej niż jednego rozsądnego modelu ARMA dla danych, a do podjęcia decyzji o ogólnie najlepszym modelu lub modelach mogą być wymagane formalne techniki porównywania modeli. Można zastosować kryterium informacyjne Akaike lub jedną z wielu wariacji tego kryterium, które są często preferowane dla szeregów czasowych.
+
+### 4.1.5 Predykcja
+
+Istnieje wiele podejść do prognozowania lub przewidywania szeregów czasowych, a my podsumujemy dwa, które łatwo rozszerzają się na przypadek modeli GARCH. Pierwsza strategia wykorzystuje dopasowane modele ARMA (lub ARIMA) i jest czasami nazywana podejściem Boxa-Jenkinsa. Druga strategia to bezmodelowe podejście do prognozowania, znane jako wygładzanie wykładnicze, które jest powiązane z techniką wykładniczo ważonej średniej kroczącej do przewidywania zmienności.
+
+*Prognozowanie przy użyciu modeli ARMA.* Rozważmy odwracalny model ARMA i jego reprezentację w (4.11). Niech $\mathcal{F}_t$ oznacza historię procesu aż do czasu $t$ włącznie, jak poprzednio, i załóżmy, że innowacje $(\epsilon_t)_{t \in Z}$ mają własność różnicy martyngałowej względem $(\mathcal{F}_t)_{t \in Z}$.
+
+Dla problemu prognozowania wygodnie będzie oznaczyć naszą próbkę *n* danych jako $X_{t-n+1},...,X_t$. Zakładamy, że są to realizacje zmiennych losowych podążających za określonym modelem ARMA. Naszym celem jest przewidzenie $X_{t+1}$ lub, ogólniej, $X_{t+h}$, a naszą prognozę oznaczymy jako $P_tX_{t+h}$. Opisana metoda zakłada, że mamy dostęp do nieskończonej historii procesu do czasu *t* i wyprowadza wzór, który jest następnie aproksymowany dla naszej skończonej próbki.
+
+Jako predyktor $X_{t+h}$ używamy warunkowej wartości oczekiwanej $E(X_{t+h} | \mathcal{F}_t)$. Spośród wszystkich prognoz $P_tX_{t+h}$ opartych na nieskończonej historii procesu do czasu *t*, ten predyktor minimalizuje średniokwadratowy błąd prognozy $E((X_{t+h} - P_tX_{t+h})^2)$.
+
+Podstawowa idea polega na tym, że dla $h \ge 1$, prognoza $E(X_{t+h} | \mathcal{F}_t)$ jest rekurencyjnie oceniana w kategoriach $E(X_{t+h-1} | \mathcal{F}_t)$. Wykorzystujemy fakt, że $E(\epsilon_{t+h} | \mathcal{F}_t) = 0$ (własność różnicy martyngałowej innowacji) oraz że zmienne losowe $(X_s)_{s \le t}$ i $(\epsilon_s)_{s \le t}$ są "znane" w czasie *t*. Założenie odwracalności (4.10) zapewnia, że innowacja $\epsilon_t$ może być zapisana jako funkcja nieskończonej historii procesu $(X_s)_{s \le t}$. Aby zilustrować to podejście, wystarczy rozważyć model ARMA(1, 1), a uogólnienie na modele ARMA(p, q) jest proste.
+
+**Przykład 4.15 (prognozowanie dla modelu ARMA(1, 1)).** Załóżmy, że do danych dopasowano model ARMA(1, 1) w postaci (4.11), a jego parametry $\mu$, $\phi_1$ i $\theta_1$ zostały określone. Nasza prognoza jednokrokowa dla $X_{t+1}$ to
+
+$$E(X_{t+1} | \mathcal{F}_t) = \mu_{t+1} = \mu + \phi_1(X_t - \mu) + \theta_1\epsilon_t,$$
+
+ponieważ $E(\epsilon_{t+1} | \mathcal{F}_t) = 0$. Dla prognozy dwukrokowej otrzymujemy
+
+$$\begin{align*}
+E(X_{t+2} | \mathcal{F}_t) = E(\mu_{t+2} | \mathcal{F}_t) &= \mu + \phi_1(E(X_{t+1} | \mathcal{F}_t) - \mu) \\
+&= \mu + \phi_1^2(X_t - \mu) + \phi_1\theta_1\epsilon_t,
+\end{align*}$$
+
+a ogólnie mamy
+
+$$E(X_{t+h} | \mathcal{F}_t) = \mu + \phi_1^h(X_t - \mu) + \phi_1^{h-1}\theta_1\epsilon_t.$$
+
+Nie znając wszystkich historycznych wartości $(X_s)_{s \le t}$, tego predyktora nie można ocenić dokładnie, ponieważ nie znamy dokładnie $\epsilon_t$, ale można go dokładnie przybliżyć, jeśli *n* jest odpowiednio duże. Najprostszym sposobem jest podstawienie reszty modelu $\hat{\epsilon}_t$ obliczonej z (4.13) w miejsce $\epsilon_t$. Zauważmy, że $\lim_{h \to \infty} E(X_{t+h} | \mathcal{F}_t) = \mu$, prawie na pewno, więc prognoza zbiega do estymacji bezwarunkowej średniej procesu dla dłuższych horyzontów czasowych.
+
+*Wygładzanie wykładnicze.* Jest to popularna technika stosowana zarówno do prognozowania szeregów czasowych, jak i estymacji trendu. Tutaj niekoniecznie zakładamy, że dane pochodzą z modelu stacjonarnego, chociaż zakładamy, że w modelu nie ma deterministycznego składnika sezonowego. Ogólnie rzecz biorąc, metoda ta jest mniej odpowiednia dla szeregów zwrotów z często zmieniającymi się znakami i lepiej nadaje się do niezróżnicowanych szeregów cen lub wartości. Stanowi ona podstawę bardzo powszechnej metody prognozowania zmienności.
+
+Załóżmy, że nasze dane reprezentują realizacje zmiennych losowych $Y_{t-n+1},...,Y_t$, rozważane bez odniesienia do żadnego konkretnego modelu parametrycznego. Jako prognozę dla $Y_{t+1}$ używamy prognozy w postaci
+
+$$P_tY_{t+1} = \sum_{i=0}^{n-1} \lambda(1 - \lambda)^i Y_{t-i}, \quad  \text{gdzie} \quad 0 < \lambda < 1.$$
+
+W ten sposób ważymy dane od najnowszych do najstarszych za pomocą sekwencji wykładniczo malejących wag, które sumują się do prawie jedności. Łatwo można obliczyć, że
+
+$$\begin{align*}
+P_tY_{t+1} = \sum_{i=0}^{n-1} \lambda(1 - \lambda)^i Y_{t-i} & = \lambda Y_t + (1 - \lambda) \sum_{j=0}^{n-2} \lambda(1 - \lambda)^j Y_{t-1-j} \\
+&= \lambda Y_t + (1 - \lambda)P_{t-1}Y_t, \quad (4.14)
+\end{align*}$$
+
+więc prognoza w czasie $t$ jest otrzymywana z prognozy w czasie $t - 1$ za pomocą prostego schematu rekurencyjnego. Wybór $\lambda$ jest subiektywny; im większa wartość, tym większą wagę przywiązuje się do najnowszej obserwacji. Badania walidacji empirycznej na różnych zbiorach danych mogą być użyte do określenia wartości $\lambda$, która daje dobre wyniki; Chatfield (2003) podaje, że w praktyce powszechnie stosowane są wartości od 0.1 do 0.3.
+
+Zauważmy, że chociaż metoda ta jest powszechnie postrzegana jako technika prognozowania bezmodelowego, można wykazać, że jest to naturalna metoda prognozowania oparta na warunkowej wartości oczekiwanej dla niestacjonarnego modelu ARIMA(0, 1, 1).
