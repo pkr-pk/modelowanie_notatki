@@ -27,6 +27,7 @@ parts:
     - file: chapters/Statistical_Foundations_of_Actuarial_Learning_and_its_Applications/chapter_04
   - caption: Quantitative Risk Management Concepts Techniques and Tools
     chapters:
+    - file: chapters/Quantitative_Risk_Management_Concepts_Techniques_and_Tools/chapter_04
     - file: chapters/Quantitative_Risk_Management_Concepts_Techniques_and_Tools/chapter_05
   - caption: Actuarial Aspects of ERM for Insurance Companies
     chapters:
