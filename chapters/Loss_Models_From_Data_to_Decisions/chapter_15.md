@@ -169,3 +169,47 @@ Dla Zbioru Danych B obciętego w punkcie 50, wielkość próby wynosi 19. Warto�
 ***
 
 Zarówno dla tego testu, jak i dla następującego po nim testu Andersona-Darlinga, wartości krytyczne są poprawne tylko wtedy, gdy hipoteza zerowa w pełni określa model. Gdy zbiór danych jest używany do estymacji parametrów dla rozkładu z hipotezy zerowej (jak w przykładzie), poprawna wartość krytyczna jest mniejsza. Dla obu testów zmiana zależy od konkretnego rozkładu, który jest hipotezą, a może nawet od konkretnych prawdziwych wartości parametrów.
+
+### 15.4.4 Test ilorazu wiarygodności
+
+Alternatywnym pytaniem do „Czy populacja mogła pochodzić z rozkładu A?” jest „Czy rozkład B jest bardziej odpowiednim przedstawieniem populacji niż rozkład A?”. Bardziej formalnie:
+
+$H_0$: Dane pochodzą z populacji o rozkładzie A.
+
+$H_1$: Dane pochodzą z populacji o rozkładzie B.
+
+Aby przeprowadzić formalny test hipotez, rozkład A musi być szczególnym przypadkiem rozkładu B, na przykład wykładniczy w porównaniu z gamma. Prosty sposób na ukończenie tego testu jest następujący.
+
+**Definicja 15.1** **Test ilorazu wiarygodności** przeprowadza się w następujący sposób. Po pierwsze, niech funkcja wiarygodności będzie zapisana jako $L(\theta)$. Niech $\theta_0$ będzie wartością parametrów, która maksymalizuje funkcję wiarygodności. Jednakże, można rozważać tylko te wartości parametrów, które mieszczą się w hipotezie zerowej. Niech $L_0 = L(\theta_0)$. Niech $\theta_1$ będzie estymatorem największej wiarygodności, gdzie parametry mogą przyjmować wszystkie możliwe wartości z hipotezy alternatywnej, a następnie niech $L_1 = L(\theta_1)$. Statystyką testową jest $T = 2 \ln(L_1/L_0) = 2(\ln L_1 - \ln L_0)$. Hipoteza zerowa jest odrzucana, jeśli $T > c$, gdzie $c$ jest obliczane z $\alpha = \text{Pr}(T > c)$, gdzie $T$ ma rozkład chi-kwadrat z liczbą stopni swobody równą liczbie wolnych parametrów w modelu z hipotezy alternatywnej minus liczba wolnych parametrów w modelu z hipotezy zerowej.
+
+Ten test ma pewien sens. Gdy prawdziwa jest hipoteza alternatywna, wymuszenie wyboru parametru z hipotezy zerowej powinno dać znacznie niższą wartość wiarygodności.
+
+**Przykład 15.9**
+
+Chcesz przetestować hipotezę, że populacja, z której pochodzi Zbiór Danych B (używając oryginalnej największej obserwacji), ma średnią inną niż 1.200. Załóż, że populacja ma rozkład gamma i przeprowadź test ilorazu wiarygodności na poziomie istotności 5%. Określ również wartość p.
+
+Hipotezy są następujące:
+
+$H_0$: rozkład gamma ze średnią $\mu = 1.200$,
+
+$H_1$: rozkład gamma ze średnią $\mu \neq 1.200$.
+
+Z wcześniejszej pracy wiemy, że estymatory największej wiarygodności to $\hat{\alpha} = 0.55616$ i $\hat{\theta} = 2.561.1$. Logarytm wiarygodności w maksimum wynosi $\ln L_1 = -162.293$. Następnie należy zmaksymalizować wiarygodność, ale tylko dla tych wartości $\alpha$ i $\theta$, dla których $\alpha\theta = 1.200$. To ograniczenie oznacza, że $\alpha$ może przyjmować dowolne wartości dodatnie, ale $\theta = 1.200/\alpha$. Zatem, przy hipotezie zerowej, jest tylko jeden wolny parametr. Funkcja wiarygodności jest zmaksymalizowana przy $\hat{\alpha} = 0.54955$ i $\hat{\theta} = 2.183.6$. Logarytm wiarygodności w tym maksimum wynosi $\ln L_0 = -162.466$. Statystyką testową jest $T = 2(-162.293 + 162.466) = 0.346$. Dla rozkładu chi-kwadrat z jednym stopniem swobody, wartość krytyczna wynosi 3.8415. Ponieważ $0.346 < 3.8415$, hipoteza zerowa nie jest odrzucana. Prawdopodobieństwo, że zmienna losowa chi-kwadrat z jednym stopniem swobody przekroczy 0.346 wynosi 0.556, co jest wartością p wskazującą na niewielkie poparcie dla hipotezy alternatywnej.
+
+**Tabela 15.11** Sześć użytecznych modeli dla Przykładu 15.10.
+| Model | Liczba parametrów | Ujemny logarytm wiarygodności | $\chi^2$ | $p$-value |
+|---|---|---|---|---|
+| Ujemny dwumianowy | 2 | 5348.04 | 8.77 | 0.0125 |
+| ZM logarytmiczny | 2 | 5343.79 | 4.92 | 0.1779 |
+| Poissona-odwrotny Gaussa | 2 | 5343.51 | 4.54 | 0.2091 |
+| ZM ujemny dwumianowy | 3 | 5343.62 | 4.65 | 0.0979 |
+| Geometryczno-ujemny dwumianowy | 3 | 5342.70 | 1.96 | 0.3754 |
+| Poisson-ETNB | 3 | 5342.51 | 2.75 | 0.2525 |
+
+**Przykład 15.10**
+
+(Ciąg dalszy Przykładu 6.3) Członkowie klasy (a, b, 0) nie byli wystarczający do opisania tych danych. Określ odpowiedni model.
+
+Do danych dopasowano trzynaście różnych rozkładów. Wyniki tego procesu ujawniły sześć modeli z wartościami p powyżej 0.01 dla testu zgodności chi-kwadrat. Informacje o tych modelach podano w Tabeli 15.11. Test ilorazu wiarygodności wskazuje, że trójparametrowy model o najmniejszym ujemnym logarytmem wiarygodności (Poisson-ETNB) nie jest znacząco lepszy od dwuparametrowego modelu Poissona-odwrotnego Gaussa. Ten ostatni wydaje się być doskonałym wyborem.
+
+Kuszące jest użycie tego testu, gdy rozkład alternatywny ma po prostu więcej parametrów niż rozkład zerowy. W takich przypadkach test może nie być odpowiedni. Na przykład, jest możliwe, że dwuparametrowy model lognormalny będzie miał wyższą wartość logarytmu wiarygodności niż trójparametrowy model Burra, co skutkuje ujemną statystyką testową, wskazując, że rozkład chi-kwadrat nie jest odpowiedni. Gdy rozkład zerowy jest granicznym (a nie szczególnym) przypadkiem rozkładu alternatywnego, test nadal może być używany, ale rozkład statystyki testowej jest teraz mieszaniną rozkładów chi-kwadrat. Niezależnie od tego, nadal jest rozsądne używanie „testu” do podejmowania decyzji w tych przypadkach, pod warunkiem, że jest jasne, iż formalny test hipotez nie został przeprowadzony.
