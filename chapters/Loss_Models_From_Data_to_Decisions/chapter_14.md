@@ -26,6 +26,7 @@ Ten wzór odzwierciedla fakt, że liczba narażonych na ryzyko w $y_i$ jest licz
 
 Poniższy przykład liczbowy ilustruje te idee.
 
+---
 **Przykład 14.5**
 
 Określ liczby narażonych na ryzyko dla danych w Tabeli 14.8. Obserwacje oznaczone gwiazdką (*) zostały ocenzurowane przy tej wartości.
@@ -58,6 +59,7 @@ Pierwszym krokiem jest podsumowanie danych przy użyciu wcześniej zdefiniowanej
 
 Jak zauważono wcześniej, obliczenie zbioru ryzyka nie wymaga dokładnych wartości cenzurowanych obserwacji, a jedynie przedziału, w którym się znajdują. Na przykład, gdyby ocenzurowana obserwacja 7 była przy wartości 6, wynikowe liczby narażonych na ryzyko nie zmieniłyby się (ponieważ $b_4$ nadal równałoby się jeden).
 
+---
 Należy zauważyć, że jeśli nie ma cenzurowania, tak że $b_i = 0$ dla wszystkich $i$, to dane są kompletne i można użyć technik z sekcji 14.1. Jako takie, podejście z tej sekcji można uznać za uogólnienie.
 
 Teraz przedstawimy heurystyczne wyprowadzenie dobrze znanego uogólnienia empirycznej funkcji dystrybucji. Estymator ten jest nazywany **estymatorem Kaplana-Meiera** lub **estymatorem iloczynu granicznego**.
@@ -158,6 +160,7 @@ Można to zapisać bardziej zwięźle jako $S_n(y) = \prod_{i|y_i \le y} (1 - \h
 | $6$ | $9$ | $4$ | $8$ | $0.533(1 - 4/8) = 0.267$ |
 | $7$ | $12$ | $2$ | $3$ | $0.267(1 - 2/3) = 0.089$ |
 
+---
 **Przykład 14.6**
 
 Skonstruuj estymator Kaplana-Meiera dla $S(y)$, używając danych z Przykładu 14.5. Wskaż, jak zmieniłaby się odpowiedź, gdyby $s_7 = 3$ i $b_7 = 0$.
@@ -168,18 +171,21 @@ $$ S_{20}(y) = \begin{cases} 1, & y < 1, \\ 0.950, & 1 \le y < 2, \\ 0.900, & 2 
 
 Ze zmianą wartości mamy $y_{max} = y_7 = 12$ i $S_{20}(y) = 0.267(1-3/3) = 0$ dla $y=12$.
 
+---
 Teraz omawiamy estymację dla $y \ge y_{max}$. Po pierwsze, zauważmy, że jeśli $s_k = r_k$ (brak cenzurowanych obserwacji w $y_k$), to $S_n(y_k) = 0$ i $S_n(y) = 0$ dla $y \ge y_k$ jest oczywiście (jedynym) oczywistym wyborem. Jeśli jednak $S_n(y_k) > 0$, jak w poprzednim przykładzie, nie ma danych empirycznych do oszacowania $S(y)$ dla $y \ge y_{max}$, i potrzebne są estymacje ogona dla $y \ge y_{max}$ (często nazywane **korektami ogona**). Istnieją trzy popularne ekstrapolacje:
 * **Korekta ogona Efrona** zakłada, że $S_n(y) = 0$ dla $y \ge y_{max}$.
 * **Klein i Moeschberger** zakładają, że $S_n(y) = S_n(y_k)$ dla $y_k \le y < \gamma$ i $S_n(y) = 0$ dla $y \ge \gamma$, gdzie $\gamma > y_{max}$ jest prawdopodobnym górnym limitem dla podstawowej zmiennej losowej. Na przykład, w badaniu śmiertelności ludzkiej, limit ten może wynosić 120 lat.
 * **Wykładnicza korekta ogona Browna, Hollandera i Korwara** zakłada, że $S_n(y_{max}) = S_n(y_k)$ oraz że $S_n(y) = e^{-\hat{\beta}y}$ dla $y \ge y_{max}$. Przy $y = y_{max}$, $\hat{\beta} = -\ln S_n(y_k)/y_{max}$, a zatem
 $$ S_n(y) = e^{y[\ln S_n(y_k)]/y_{max}} = [S_n(y_k)]^{y/y_{max}}, \quad y \ge y_{max}. $$
 
+---
 **Przykład 14.7**
 
 Zastosuj wszystkie trzy metody korekty ogona do danych użytych w Przykładzie 14.6. Załóż, że $\gamma = 22$.
 
 Metoda Efrona daje $S_{20}(y) = 0, y \ge 15$. Z $\gamma = 22$, metoda Kleina i Moeschbergera daje $S_{20}(y) = 0.089, 15 \le y < 22$, i $S_{20}(y) = 0, y \ge 22$. Wykładnicza korekta ogona daje $S_{20}(y) = (0.089)^{y/15}, y \ge 15$.
 
+---
 Zauważmy, że jeśli nie ma cenzurowania ($b_i = 0$ dla wszystkich $i$), to $r_{i+1} = r_i - s_i$, a dla $y_j \le y < y_{j+1}$
 
 $$ S_n(y) = \prod_{i=1}^j \frac{r_i - s_i}{r_i} = \prod_{i=1}^j \frac{r_{i+1}}{r_i} = \frac{r_{j+1}}{r_1}. $$
@@ -206,6 +212,7 @@ Oznacza to, że $\hat{H}(y) = \sum\limits_{i|y_i \le y} \hat{\lambda}_i$ dla $y 
 | $6$ | $9$ | $4$ | $8$ | $0.570 + 4/8 = 1.070$ |
 | $7$ | $12$ | $2$ | $3$ | $1.070 + 2/3 = 1.737$ |
 
+---
 **Przykład 14.8**
 
 Określ estymatory Nelsona-Åalena dla danych z Przykładu 14.6. Nadal zakładaj $\gamma = 22$.
@@ -216,6 +223,7 @@ $$ \hat{S}_{20}(y) = \begin{cases} 1, & y < 1, \\ e^{-0.050} = 0.951, & 1 \le y 
 
 Jeśli chodzi o korektę ogona, metoda Efrona daje $S_{20}(y) = 0, y \ge 15$. Metoda Kleina i Moeschbergera daje $S_{20}(y) = 0.176, 15 \le y < 22$, i $S_{20}(y) = 0, y \ge 22$. Wykładnicza korekta ogona daje $S_{20}(y) = (0.176)^{y/15}, y \ge 15$.
 
+---
 Aby ocenić jakość obu estymatorów, rozważymy teraz estymację wariancji. Przypomnijmy, że dla $y < y_{max}$, estymator Kaplana-Meiera można wyrazić jako
 
 $$ S_n(y) = \prod_{i|y_i \le y} (1-\hat{\lambda}_i), $$
@@ -336,6 +344,7 @@ to znaczy, oszacowana wariancja wynosi
 
 $$\widehat{\text{Var}}[\hat{S}(y)] = [\hat{S}(y)]^2 \sum_{i|y_i \le y} \frac{s_i(r_i - s_i)}{r_i^3}, \quad y < y_{\text{max}}.$$
 
+---
 **Przykład 14.9**
 
 Dla danych z Przykładu 14.5, oszacuj wariancję estymatorów Kaplana-Meiera dla $S(2)$ i $S(9)$, oraz estymatora Nelsona-Åalena dla $S(2)$.
@@ -350,6 +359,7 @@ a dla estymatora Nelsona-Åalena,
 
 $$ \widehat{\text{Var}}[\hat{S}(2)] = [\hat{S}(2)]^2\left[\frac{1(19)}{20^3} + \frac{1(18)}{19^3}\right] = (0.902)^2(0.00500) = 0.00407. $$
 
+---
 Estymacje wariancji dla $y \ge y_{\text{max}}$ zależą od zastosowanej korekty ogona. Metoda Efrona daje estymatę równą 0, co nie jest interesujące w obecnym kontekście. Dla wykładniczej korekty ogona w przypadku Kaplana-Meiera, mamy dla $y \ge y_{\text{max}}$, $S_n(y) = S_n(y_k)^{y/y_{\text{max}}}$, a metoda delta z $f(x) = x^{y/y_{\text{max}}}$ daje
 
 $$\widehat{\text{Var}}[S_n(y)] = \left[ \frac{y}{y_{\text{max}}} S_n(y_k)^{\frac{y}{y_{\text{max}}}-1} \right]^2 \widehat{\text{Var}}[S_n(y_k)]$$
@@ -394,14 +404,17 @@ $$= S_n(y)^U, \quad U = \exp \left[ \frac{1.96\sqrt{\hat{v}}}{S_n(y) \ln S_n(y)}
 
 Podobnie, dolna granica to $S_n(y)^{1/U}$. Ten przedział zawsze będzie mieścił się w zakresie 0–1 i jest określany jako **przekształcony logarytmicznie przedział ufności**.
 
+---
 **Przykład 14.10**
 
 Skonstruuj 95% przekształcony logarytmicznie przedział ufności dla $S(2)$ w Przykładzie 14.9 na podstawie estymatora Kaplana–Meiera.
 
 W tym przypadku, $S_{20}(2) = 0.9$, a $U = \exp \left[ \frac{1.96(0.06708)}{0.90 \ln 0.90} \right] = 0.24994$. Dolna granica to $(0.90)^{1/U} = 0.65604$, a górna granica to $(0.90)^U = 0.97401$.
 
+---
 Dla estymatora Nelsona–Åalena, podobny przekształcony logarytmicznie przedział ufności dla $H(y)$ ma końce $\hat{H}(y)U$, gdzie $U = \exp[\pm 1.96 \sqrt{\widehat{\text{Var}}[\hat{H}(y)]} / \hat{H}(y)]$. Wykładniczenie ujemnych wartości tych końców daje odpowiadający przedział dla $S(y)$.
 
+---
 **Przykład 14.11**
 
 Skonstruuj 95% liniowe i przekształcone logarytmicznie przedziały ufności dla $H(2)$ w Przykładzie 14.9 na podstawie estymatora Nelsona–Åalena. Następnie skonstruuj 95% przekształcony logarytmicznie przedział ufności dla $S(2)$.
@@ -425,3 +438,5 @@ $$(0.10263)(0.25916) = 0.02660 \quad \text{do} \quad (0.10263)(3.85865) = 0.3960
 Odpowiadający przedział dla $S(2)$ rozciąga się od
 
 $$\exp(-0.39601) = 0.67300 \quad \text{do} \quad \exp(-0.02660) = 0.97375.$$
+
+---
