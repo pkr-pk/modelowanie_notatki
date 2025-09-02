@@ -293,3 +293,63 @@ Dla uproszczenia, rozważmy model IGARCH(1, 1). Używamy (4.28), aby stwierdzić
 $$\nabla X_t^2 = X_t^2 - X_{t-1}^2 = \alpha_0 - (1-\alpha_1)V_{t-1} + V_t,$$
 
 gdzie $V_t$ jest sekwencją szumu zdefiniowaną przez $V_t = \sigma_t^2(Z_t^2 - 1)$ oraz $\sigma_t^2 = \alpha_0 + \alpha_1 X_{t-1}^2 + (1-\alpha_1)\sigma_{t-1}^2$. To równanie przypomina model ARIMA(0, 1, 1) (zobacz (4.12)) dla $X_t^2$, chociaż szum $V_t$ nie jest białym szumem, ani, ściśle mówiąc, nie jest różnicą martyngałową zgodnie z Definicją 4.6. $E(V_t | \mathcal{F}_{t-1})$ jest niezdefiniowane, ponieważ $E(\sigma_t^2) = E(X_t^2) = \infty$, i w związku z tym $E|V_t|$ jest niezdefiniowane.
+
+### 4.2.3 Proste Rozszerzenia Modelu GARCH
+
+Zaproponowano wiele wariantów i rozszerzeń podstawowego modelu GARCH. Wspominamy tylko o kilku.
+
+**Modele ARMA z błędami GARCH.** Ustawiamy błąd ARMA $\epsilon_t$ równy $\sigma_t Z_t$, gdzie $\sigma_t$ podlega specyfikacji zmienności GARCH w terminach historycznych wartości $\epsilon_t$. Daje nam to elastyczną rodzinę modeli ARMA z błędami GARCH, która łączy cechy obu klas modeli.
+
+**Definicja 4.22.** Proces $(X_t)_{t \in \mathbb{Z}}$ jest procesem ARMA($p_1$, $q_1$) z błędami GARCH($p_2$, $q_2$), jeśli jest stacjonarny w sensie kowariancji i spełnia równania różnicowe postaci
+
+$$X_t = \mu_t + \sigma_t Z_t,$$
+$$\mu_t = \mu + \sum_{i=1}^{p_1} \phi_i(X_{t-i} - \mu) + \sum_{j=1}^{q_1} \theta_j(X_{t-j} - \mu_{t-j}),$$
+$$\sigma_t^2 = \alpha_0 + \sum_{i=1}^{p_2} \alpha_i(X_{t-i} - \mu_{t-i})^2 + \sum_{j=1}^{q_2} \beta_j \sigma_{t-j}^2. $$
+
+gdzie $\alpha_0 > 0$, $\alpha_i \ge 0$, $i = 1, \dots, p_2$, $\beta_j \ge 0$, $j=1, \dots, q_2$, oraz $\sum_{i=1}^{p_2} \alpha_i + \sum_{j=1}^{q_2} \beta_j < 1$.
+
+Aby zachować spójność z poprzednią definicją procesu ARMA, wbudowujemy warunek stacjonarności kowariancyjnej dla błędów GARCH w definicję. Aby proces ARMA był przyczynowym i odwracalnym procesem liniowym, tak jak poprzednio, wielomiany $\tilde{\phi}(z) = 1 - \phi_1 z - \dots - \phi_{p_1} z^{p_1}$ oraz $\tilde{\theta}(z) = 1 + \theta_1 z + \dots + \theta_{q_1} z^{q_1}$ nie powinny mieć wspólnych pierwiastków ani pierwiastków wewnątrz koła jednostkowego.
+
+Niech $(\mathcal{F}_t)_{t \in \mathbb{Z}}$ oznacza naturalną filtrację $(X_t)_{t \in \mathbb{Z}}$ i załóżmy, że model ARMA jest odwracalny. Odwracalność procesu ARMA zapewnia, że $\mu_t$ jest $\mathcal{F}_{t-1}$-mierzalne, tak jak w (4.11). Ponadto, ponieważ $\sigma_t$ zależy od nieskończonej historii $(X_s - \mu_s)_{s \le t-1}$, odwracalność ARMA zapewnia również, że $\sigma_t$ jest $\mathcal{F}_{t-1}$-mierzalne. Proste obliczenia pokazują, że $\mu_t = E(X_t | \mathcal{F}_{t-1})$ oraz $\sigma_t^2 = \text{var}(X_t | \mathcal{F}_{t-1})$, więc $\mu_t$ i $\sigma_t^2$ są warunkową średnią i wariancją nowego procesu.
+
+*GARCH z dźwignią.* Jednym z głównych zarzutów wobec standardowych modeli ARCH i GARCH jest sztywno symetryczny sposób, w jaki zmienność reaguje na ostatnie stopy zwrotu, niezależnie od ich znaku. Teoria ekonomii sugeruje, że informacje rynkowe powinny mieć asymetryczny wpływ na zmienność, według którego złe wiadomości prowadzące do spadku wartości kapitału własnego firmy mają tendencję do zwiększania zmienności. Zjawisko to zostało nazwane *efektem dźwigni*, ponieważ spadek wartości kapitału własnego powoduje wzrost wskaźnika zadłużenia do kapitału własnego, czyli tak zwanej dźwigni finansowej firmy, i w konsekwencji powinien sprawić, że akcje staną się bardziej zmienne. Na mniej teoretycznym poziomie wydaje się rozsądne, że spadające wartości akcji mogą prowadzić do wyższego poziomu nerwowości inwestorów niż wzrosty wartości o tej samej wielkości.
+
+Jedną z metod dodania efektu dźwigni do modelu GARCH(1, 1) jest wprowadzenie dodatkowego parametru do równania zmienności (4.24), aby otrzymać
+
+$$\sigma_t^2 = \alpha_0 + \alpha_1(X_{t-1} + \delta|X_{t-1}|)^2 + \beta_1\sigma_{t-1}^2. \quad (4.29)$$
+
+Zakładamy, że $\delta \in [-1, 1]$ oraz $\alpha_1 \ge 0$, tak jak w modelu GARCH(1, 1). Zauważmy, że (4.29) można zapisać jako
+
+$$\sigma_t^2 = \begin{cases} \alpha_0 + \alpha_1(1 + \delta)^2 X_{t-1}^2 + \beta_1\sigma_{t-1}^2, & X_{t-1} \ge 0, \\ \alpha_0 + \alpha_1(1 - \delta)^2 X_{t-1}^2 + \beta_1\sigma_{t-1}^2, & X_{t-1} < 0, \end{cases}$$
+
+a stąd, że
+
+$$\frac{\partial \sigma_t^2}{\partial X_{t-1}^2} = \begin{cases} \alpha_1(1 + \delta)^2, & X_{t-1} \ge 0, \\ \alpha_1(1 - \delta)^2, & X_{t-1} < 0. \end{cases}$$
+
+Reakcja zmienności na wielkość ostatniej stopy zwrotu zależy od znaku tej stopy zwrotu i generalnie oczekujemy, że $\delta < 0$, więc złe wiadomości mają większy wpływ.
+
+*Progowy GARCH.* Zauważmy, że (4.29) można łatwo przepisać w postaci
+
+$$\sigma_t^2 = \alpha_0 + \tilde{\alpha}_1 X_{t-1}^2 + \tilde{\delta} I_{\{X_{t-1} < 0\}} X_{t-1}^2 + \beta_1 \sigma_{t-1}^2, \quad (4.30)$$
+
+gdzie $\tilde{\alpha}_1 = \alpha_1(1+\delta)^2$ oraz $\tilde{\delta} = -4\delta\alpha_1$. Równanie (4.30) przedstawia najczęstszą wersję progowego modelu GARCH (lub TGARCH). W efekcie, ustalono próg na poziomie zerowym, i w czasie *t* dynamika zależy od tego, czy poprzednia wartość procesu $X_{t-1}$ (lub innowacji $Z_{t-1}$) była poniżej czy powyżej tego progu. Jednakże, możliwe jest również ustawienie niezerowych progów w modelach TGARCH, więc reprezentuje to bardziej ogólną klasę modeli niż GARCH z dźwignią.
+
+W mniej popularnej wersji progowego GARCH, współczynniki efektów GARCH zależą od znaków poprzednich wartości procesu; daje to proces pierwszego rzędu postaci
+
+$$\sigma_t^2 = \alpha_0 + \alpha_1 X_{t-1}^2 + \beta_1 \sigma_{t-1}^2 + \delta I_{\{X_{t-1} < 0\}} \sigma_{t-1}^2. \quad (4.31)$$
+
+**Uwaga 4.23.** Należy również zauważyć, że kolejnym sposobem na wprowadzenie asymetrii do modelu GARCH jest jawne użycie asymetrycznego rozkładu innowacji (aczkolwiek znormalizowanego tak, aby miał średnią 0 i wariancję 1). Rozkłady kandydujące mogą pochodzić z uogólnionej rodziny hiperbolicznej z Sekcji 6.2.3.
+
+### 4.2.4 Dopasowywanie Modeli GARCH do Danych
+
+*Konstruowanie funkcji wiarygodności.* W praktyce, najczęściej stosowanym podejściem do dopasowywania modeli GARCH do danych jest metoda największej wiarygodności. Rozważymy kolejno dopasowanie modeli ARCH(1) i GARCH(1, 1), z czego łatwo wynika dopasowanie ogólnych modeli ARCH(p) i GARCH(p, q).
+
+Dla modeli ARCH(1) i GARCH(1, 1), załóżmy, że mamy łącznie n + 1 wartości danych $X_0, X_1, \dots, X_n$. Warto przypomnieć, że możemy zapisać łączną gęstość odpowiednich zmiennych losowych jako
+
+$$f_{X_0, \dots, X_n}(x_0, \dots, x_n) = f_{X_0}(x_0) \prod_{t=1}^{n} f_{X_t|X_{t-1}, \dots, x_0}(x_t | x_{t-1}, \dots, x_0). \quad (4.32)$$
+
+Dla czystego procesu ARCH(1), który jest markowowski pierwszego rzędu, gęstości warunkowe $f_{X_t|X_{t-1}, \dots, x_0}$ w (4.32) zależą od przeszłości jedynie poprzez wartość $\sigma_t$ lub, równoważnie, $X_{t-1}$. Gęstość warunkowa jest łatwa do obliczenia jako
+
+$$f_{X_t|X_{t-1}, \dots, x_0}(x_t | x_{t-1}, \dots, x_0) = f_{X_t|X_{t-1}}(x_t | x_{t-1}) = \frac{1}{\sigma_t} f_Z\left(\frac{x_t}{\sigma_t}\right), \quad (4.33)$$
+
+gdzie $\sigma_t = (\alpha_0 + \alpha_1 x_{t-1}^2)^{1/2}$, a $f_Z(z)$ oznacza gęstość innowacji $(Z_t)_{t \in \mathbb{Z}}$. Przypomnijmy, że musi ona mieć średnią 0 i wariancję 1, a typowymi wyborami byłyby standardowa gęstość normalna lub gęstość rozkładu *t*-Studenta przeskalowana tak, aby miała jednostkową wariancję.
