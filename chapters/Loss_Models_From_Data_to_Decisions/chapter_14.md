@@ -438,5 +438,3 @@ $$(0.10263)(0.25916) = 0.02660 \quad \text{do} \quad (0.10263)(3.85865) = 0.3960
 Odpowiadający przedział dla $S(2)$ rozciąga się od
 
 $$\exp(-0.39601) = 0.67300 \quad \text{do} \quad \exp(-0.02660) = 0.97375.$$
-
----

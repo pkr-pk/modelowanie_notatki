@@ -1,6 +1,6 @@
 # Rozdział 7: Poza modelowanie średniej: Podwójne modele GLM i GAM dla położenia, skali i kształtu (GAMLSS)
 
-### **7.3 Modelowanie dyspersji: podwójne GLM**
+## **7.3 Modelowanie dyspersji: podwójne GLM**
 
 GLM narzucają, że parametr dyspersji $\phi$ musi być taki sam dla każdej osoby. Stąd wariancja odpowiedzi $Var[Y_i] = \phi\nu_iV(\mu_i)$ może zmieniać się wraz z czynnikami ryzyka tylko jako funkcja średniej $\mu_i$. Podwójne GLM unikają tego ograniczenia. Dokładniej, w podwójnym GLM parametr dyspersji
 
