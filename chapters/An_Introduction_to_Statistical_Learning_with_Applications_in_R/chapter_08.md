@@ -182,3 +182,11 @@ Chociaż szczegóły wykraczają poza zakres tej książki, okazuje się, że me
 
 Stosując BART, musimy wybrać liczbę drzew K, liczbę iteracji B i liczbę iteracji wypalania L. Zazwyczaj wybieramy duże wartości dla B i K, oraz umiarkowaną wartość dla L: na przykład K = 200, B = 1000 i L = 100 to rozsądny wybór. Wykazano, że BART ma bardzo imponującą wydajność "out-of-box" — czyli działa dobrze przy minimalnym strojeniu.
 
+### 8.2.5 Podsumowanie Metod Zespołowych Drzew
+
+Drzewa są atrakcyjnym wyborem słabego ucznia dla metody zespołowej z wielu powodów, w tym ich elastyczności i zdolności do obsługi predyktorów mieszanych typów (tj. jakościowych i ilościowych). Poznaliśmy teraz cztery podejścia do dopasowywania zespołu drzew: bagging, lasy losowe, boosting i BART.
+
+* W **baggingu**, drzewa są rozwijane niezależnie na losowych próbkach obserwacji. W konsekwencji drzewa mają tendencję do bycia do siebie dość podobnymi. Zatem bagging może utknąć w lokalnych optimach i nie udać mu się dokładnie zbadać przestrzeni modeli.
+* W **lasach losowych**, drzewa są ponownie rozwijane niezależnie na losowych próbkach obserwacji. Jednakże, każdy podział w każdym drzewie jest wykonywany przy użyciu losowego podzbioru cech, co dekoreluje drzewa i prowadzi do dokładniejszego zbadania przestrzeni modeli w porównaniu z baggingiem.
+* W **boostingu**, używamy tylko oryginalnych danych i nie losujemy żadnych próbek. Drzewa są rozwijane sukcesywnie, przy użyciu podejścia "wolnego" uczenia: każde nowe drzewo jest dopasowywane do sygnału, który pozostał po wcześniejszych drzewach, i jest kurczone, zanim zostanie użyte.
+* W **BART**, ponownie używamy tylko oryginalnych danych i rozwijamy drzewa sukcesywnie. Jednakże, każde drzewo jest perturbowane, aby uniknąć lokalnych minimów i osiągnąć dokładniejsze zbadanie przestrzeni modeli.
