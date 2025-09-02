@@ -381,3 +381,65 @@ Podobne podejście można zastosować do opracowania funkcji wiarygodności dla 
 $$L(\theta; \mathbf{X}) = \prod_{t=1}^{n} \frac{1}{\sigma_t} f_Z\left(\frac{X_t - \mu_t}{\sigma_t}\right),$$
 
 gdzie $\sigma_t$ jest zgodne ze specyfikacją GARCH z Definicji 4.22, a $\mu_t$ jest zgodne ze specyfikacją ARMA, a wszystkie nieznane parametry (w tym ewentualnie nieznane parametry rozkładu innowacji) zostały zebrane w wektorze $\theta$. Moglibyśmy oczywiście rozważać również modele z efektem dźwigni lub progowymi.
+
+*Wyprowadzanie estymatorów parametrów.* Rozważmy zatem funkcję log-wiarygodności postaci
+
+$$\ln L(\theta; \mathbf{X}) = \sum_{t=1}^{n} l_t(\theta), \quad (4.35)$$
+
+gdzie $l_t$ oznacza wkład do log-wiarygodności pochodzący z *t*-tej obserwacji. Estymator największej wiarygodności $\hat{\theta}$ maksymalizuje (warunkową) log-wiarygodność w (4.35) i, będąc na ogół lokalnym maksimum, rozwiązuje równania wiarygodności
+
+$$\frac{\partial}{\partial\theta} \ln L(\theta; \mathbf{X}) = \sum_{t=1}^{n} \frac{\partial l_t(\theta)}{\partial\theta} = \mathbf{0}, \quad (4.36)$$
+
+gdzie lewa strona jest również znana jako *wektor scoringowy* warunkowej wiarygodności. Równania (4.36) są zwykle rozwiązywane numerycznie przy użyciu tak zwanych zmodyfikowanych procedur Newtona-Raphsona. Szczególną metodą, szeroko stosowaną w modelach GARCH, jest metoda BHHH autorstwa Berndt i in. (1974).
+
+Opisując zachowanie estymatorów parametrów w kolejnych akapitach, rozróżniamy dwie sytuacje. W pierwszej sytuacji zakładamy, że dopasowany model został *poprawnie wyspecyfikowany*, tzn. dane są rzeczywiście generowane przez model szeregu czasowego o zarówno założonej formie dynamicznej, jak i rozkładzie innowacji. Opisujemy asymptotyczne zachowanie estymatorów największej wiarygodności (MLE) przy tej idealizacji.
+
+W drugiej sytuacji zakładamy, że dopasowano poprawną formę dynamiczną, ale błędnie założono, że innowacje mają rozkład normalny (Gaussa). Przy tej błędnej specyfikacji procedura dopasowania modelu jest znana jako *quasi-największa wiarygodność (QML)*, a uzyskane estymatory to QMLE. Zasadniczo, gaussowska funkcja wiarygodności jest traktowana jako funkcja celu do maksymalizacji, a nie jako właściwa funkcja wiarygodności; nasza intuicja podpowiada, że może to nadal dawać rozsądne estymatory parametrów, i okazuje się, że tak jest przy odpowiednich założeniach dotyczących prawdziwego rozkładu innowacji.
+
+*Własności estymatorów największej wiarygodności (MLE).* W tym miejscu warto przypomnieć teorię rozkładu asymptotycznego dla estymatorów MLE w klasycznym przypadku iid, która jest podsumowana w Sekcji A.3. Wyniki asymptotyczne, które podajemy dla modeli GARCH, mają podobną formę do wyników w przypadku iid, ale ważne jest, aby zdać sobie sprawę, że nie jest to proste zastosowanie tych wyników. Asymptotyka została oddzielnie i żmudnie wyprowadzona w serii prac, do których wstępne odniesienia podano w Uwagach i Komentarzach. Podamy wyniki dla czystych modeli GARCH bez komponentów ARMA lub dodatkowej struktury dźwigni, które zostały rygorystycznie zbadane, ale forma wyników będzie miała bardziej ogólne zastosowanie.
+
+Dla czystego modelu GARCH(p, q) z innowacjami gaussowskimi można wykazać, że (zakładając, że model został poprawnie wyspecyfikowany)
+
+$$\sqrt{n}(\hat{\theta}_n - \theta) \xrightarrow{d} N_{p+q+1}(0, I(\theta)^{-1}),$$
+
+gdzie
+
+$$I(\theta) = E\left(\frac{\partial l_t(\theta)}{\partial\theta} \frac{\partial l_t(\theta)}{\partial\theta'}\right) = -E\left(\frac{\partial^2 l_t(\theta)}{\partial\theta \partial\theta'}\right) \quad (4.37)$$
+
+jest macierzą informacji Fishera wynikającą z pojedynczej obserwacji. Zatem mamy zgodne i asymptotycznie normalne estymatory parametrów GARCH. W praktyce, oczekiwana macierz informacji $I(\theta)$ jest aproksymowana przez obserwowaną macierz informacji, i tutaj moglibyśmy przyjąć obserwowaną macierz informacji pochodzącą z jednej z równoważnych postaci dla oczekiwanej macierzy informacji w (4.37). To znaczy, moglibyśmy użyć
+
+$$\hat{I}(\theta) = \frac{1}{n} \sum_{t=1}^{n} \left(\frac{\partial l_t(\theta)}{\partial\theta} \frac{\partial l_t(\theta)}{\partial\theta'}\right) \quad \text{lub} \quad \hat{J}(\theta) = -\frac{1}{n} \sum_{t=1}^{n} \frac{\partial^2 l_t(\theta)}{\partial\theta \partial\theta'}, \quad (4.38)$$
+
+gdzie pierwsza macierz ma tak zwaną postać *iloczynu zewnętrznego*, a druga ma postać *hesjanu*. Macierze te są estymowane przez obliczenie ich wartości w punktach MLE, aby otrzymać $\hat{I}(\hat{\theta})$ lub $\hat{J}(\hat{\theta})$. W praktyce, pochodne log-wiarygodności w punkcie MLE są często aproksymowane przy użyciu różnic pierwszego i drugiego rzędu.
+
+Jeśli model jest poprawnie wyspecyfikowany, estymatory $\hat{I}(\hat{\theta})$ i $\hat{J}(\hat{\theta})$ powinny być w dużej mierze podobne, będąc estymatorami opartymi na dwóch różnych wyrażeniach dla tej samej macierzy informacji Fishera. W praktyce, moglibyśmy również estymować $I(\theta)$ za pomocą $\hat{J}(\hat{\theta})\hat{I}(\hat{\theta})^{-1}\hat{J}(\hat{\theta})$, co zapowiada tak zwany *estymator kanapkowy*, który jest używany w procedurze QML.
+
+*Własności estymatorów QMLE.* W tym podejściu zakładamy, że prawdziwy mechanizm generujący dane to model GARCH(p, q) z innowacjami niegaussowskimi, ale próbujemy estymować parametry procesu, maksymalizując funkcję wiarygodności dla modelu GARCH(p, q) z innowacjami gaussowskimi. Nadal uzyskujemy zgodne estymatory parametrów modelu i, jeśli prawdziwy rozkład innowacji ma skończony moment czwartego rzędu, ponownie uzyskujemy asymptotyczną normalność; jednakże, forma asymptotycznej macierzy kowariancji ulega zmianie.
+
+Rozróżniamy teraz macierze $I(\theta)$ i $J(\theta)$, dane przez
+
+$$I(\theta) = E\left(\frac{\partial l_t(\theta)}{\partial\theta} \frac{\partial l_t(\theta)}{\partial\theta'}\right), \quad J(\theta) = -E\left(\frac{\partial^2 l_t(\theta)}{\partial\theta \partial\theta'}\right),$$
+
+gdzie wartość oczekiwana jest teraz obliczana względem prawdziwego modelu (a nie błędnie wyspecyfikowanego modelu gaussowskiego). Macierze $I(\theta)$ i $J(\theta)$ na ogół różnią się (chyba że model gaussowski jest poprawny). Można wykazać, że
+
+$$\sqrt{n}(\hat{\theta}_n - \theta) \xrightarrow{d} N_{p+q+1}(0, J(\theta)^{-1}I(\theta)J(\theta)^{-1}), \quad (4.39)$$
+
+i mówi się, że asymptotyczna macierz kowariancji ma postać kanapkową; można ją estymować za pomocą $\hat{J}(\hat{\theta})^{-1}\hat{I}(\hat{\theta})\hat{J}(\hat{\theta})^{-1}$, gdzie $\hat{I}(\hat{\theta})$ i $\hat{J}(\hat{\theta})$ są zdefiniowane w (4.38). Jeśli procedury sprawdzania modelu... sugerują, że dynamika została odpowiednio opisana przez model GARCH, ale założenie o rozkładzie normalnym wydaje się wątpliwe, wówczas błędy standardowe dla estymatów parametrów powinny być oparte na tym estymacie macierzy kowariancji.
+
+*Sprawdzanie modelu.* Podobnie jak w przypadku modeli ARMA, zwyczajowo sprawdza się dopasowane modele GARCH za pomocą reszt. Rozważamy ogólny model ARMA-GARCH postaci $X_t - \mu_t = \epsilon_t = \sigma_t Z_t$, z $\mu_t$ i $\sigma_t$ jak w Definicji 4.22. W tym modelu rozróżniamy reszty *niestandaryzowane* i *standaryzowane*. Te pierwsze to reszty $\hat{\epsilon}_1, \dots, \hat{\epsilon}_n$ z części ARMA modelu; są one obliczane przy użyciu podejścia z (4.13) i zgodnie z hipotetycznym modelem powinny zachowywać się jak realizacja czystego procesu GARCH. Te ostatnie są zrekonstruowanymi realizacjami SWN (ścisłego białego szumu), który, jak się zakłada, napędza część GARCH modelu, i są obliczane z tych pierwszych przez
+
+$$\hat{Z}_t = \hat{\epsilon}_t / \hat{\sigma}_t, \quad \hat{\sigma}_t^2 = \hat{\alpha}_0 + \sum_{i=1}^{p_2} \hat{\alpha}_i \hat{\epsilon}_{t-i}^2 + \sum_{j=1}^{q_2} \hat{\beta}_j \hat{\sigma}_{t-j}^2. \quad (4.40)$$
+
+Aby użyć (4.40), potrzebujemy pewnych wartości początkowych, a jednym z rozwiązań jest ustawienie wymaganych wartości początkowych $\hat{\epsilon}_t$ równych zero, a wymaganych wartości początkowych zmienności $\hat{\sigma}_t$ równych wariancji z próby lub zero. Ponieważ na kilka pierwszych wartości będą miały wpływ te wartości początkowe, jak również wartości początkowe wymagane do obliczenia reszt niestandaryzowanych, można je zignorować w późniejszych analizach.
+
+Reszty standaryzowane powinny zachowywać się jak SWN i można to zbadać, tworząc korelogramy wartości surowych i bezwzględnych oraz stosując testy portmanteau dla ścisłego białego szumu, jak opisano w Sekcji 4.1.3.
+
+Zakładając, że hipoteza SWN nie została odrzucona, a zatem dynamika została zadowalająco uchwycona, można również zbadać poprawność rozkładu użytego w dopasowaniu ML za pomocą wykresów Q-Q i testów zgodności dla rozkładu normalnego lub skalowanego *t*. Jeśli funkcja wiarygodności oparta na rozkładzie normalnym dobrze estymuje dynamikę, ale reszty nie zachowują się jak obserwacje iid ze standardowego rozkładu normalnego, można przyjąć filozofię dopasowania QML, a błędy standardowe można estymować za pomocą estymatora kanapkowego wynikającego z (4.39) powyżej.
+
+Otwiera to możliwość *analiz dwuetapowych*, gdzie najpierw dynamika jest estymowana metodami QML, a następnie rozkład innowacji jest modelowany przy użyciu reszt z modelu dynamicznego jako danych. Pierwszy etap jest czasami nazywany *wstępnym wybielaniem* danych. W drugim etapie możemy rozważyć użycie modeli o grubszych ogonach niż rozkład normalny, które pozwalają również na pewną asymetrię w innowacjach.
+
+Wadą podejścia dwuetapowego jest to, że błąd z modelowania szeregów czasowych przenosi się na dopasowanie rozkładu w drugim etapie, a ogólny błąd jest trudny do oszacowania, ale procedura prowadzi do większej przejrzystości w budowaniu modelu i pozwala nam oddzielić zadania modelowania zmienności i modelowania szoków napędzających proces. W wielowymiarowym modelowaniu czynników ryzyka może to być użyteczne podejście pragmatyczne.
+
+**Przykład 4.24 (Model GARCH dla log-zwrotów Microsoft).** Rozważmy dzienne log-zwroty Microsoftu za okres 1997-2000 (1009 wartości), jak pokazano na Rysunku 4.5. Chociaż zwroty surowe nie wykazują dowodów seryjnej korelacji (patrz Rysunek 4.6), ich wartości bezwzględne wykazują seryjną korelację i nie przechodzą testu Ljung-Boxa (opartego na pierwszych dziesięciu estymowanych korelacjach) na poziomie 5%.
+
+Dla tych danych modele ze studentyzowanymi innowacjami *t* są wyraźnie preferowane w stosunku do modeli z innowacjami gaussowskimi, więc przyjmujemy podejście ML do dopasowywania modeli z innowacjami *t*. Porównujemy standardowy model GARCH(1, 1) (z stałą średnią) z modelami, które zawierają strukturę ARMA (AR(1), MA(1) i ARMA(1, 1)) dla średniej warunkowej; struktura ARMA wydaje się oferować niewielką poprawę w modelu, a podstawowy model GARCH(1, 1) jest faworyzowany w porównaniu Akaike. Jednakże, model z wyrazem dźwigni jak w (4.29) wydaje się oferować poprawę. Zarówno surowe, jak i bezwzględne standaryzowane reszty uzyskane z tego modelu nie wykazują wizualnych dowodów korelacji seryjnej (zobacz ponownie Rysunek 4.6) i przechodzą testy Ljunga-Boxa. Estymowany parametr stopni swobody (skalowanego)...
