@@ -85,3 +85,41 @@ Lasy losowe przezwyciężają ten problem, zmuszając każdy podział do rozważ
 Główną różnicą między baggingiem a lasami losowymi jest wybór rozmiaru podzbioru predyktorów m. Na przykład, jeśli las losowy jest budowany przy użyciu $m = p$, to sprowadza się to po prostu do baggingu. Na danych Heart, lasy losowe używające $m = \sqrt{p}$ prowadzą do redukcji zarówno błędu testowego, jak i błędu OOB w porównaniu z baggingiem (Rysunek 8.8).
 
 Użycie małej wartości m w budowaniu lasu losowego będzie zazwyczaj pomocne, gdy mamy dużą liczbę skorelowanych predyktorów. Zastosowaliśmy lasy losowe do wysoko wymiarowego zbioru danych biologicznych, składającego się z pomiarów ekspresji 4718 genów, zmierzonych na próbkach tkanek od 349 pacjentów. U ludzi jest około 20 000 genów, a poszczególne geny mają różne poziomy aktywności, czyli ekspresji, w określonych komórkach, tkankach i warunkach biologicznych. W tym zbiorze danych każda z próbek pacjentów ma etykietę jakościową z 15 różnymi poziomami: albo normalna, albo 1 z 14 różnych typów raka. Naszym celem było użycie lasów losowych do przewidywania typu raka na podstawie 500 genów o największej wariancji w zbiorze treningowym. Losowo podzieliliśmy obserwacje na zbiór treningowy i testowy, i zastosowaliśmy lasy losowe do zbioru treningowego dla trzech różnych wartości liczby zmiennych do podziału m. Wyniki przedstawiono na Rysunku 8.10. Stopa błędu pojedynczego drzewa wynosi 45.7 %, a stopa błędu zerowego (null rate) 75.4 %. Widzimy, że użycie 400 drzew jest wystarczające, aby uzyskać dobrą wydajność, a wybór $m = \sqrt{p}$ dał w tym przykładzie niewielką poprawę błędu testowego w porównaniu z baggingiem ($m = p$). Podobnie jak w przypadku baggingu, lasy losowe nie ulegną przeuczeniu, jeśli zwiększymy B, więc w praktyce używamy wartości B wystarczająco dużej, aby stopa błędu się ustabilizowała.
+
+### 8.2.3 Boosting
+
+Teraz omówimy **boosting**, kolejne podejście do poprawy predykcji wynikających z drzewa decyzyjnego. Podobnie jak bagging, boosting jest ogólnym podejściem, które można zastosować do wielu metod uczenia statystycznego w regresji lub klasyfikacji. Tutaj ograniczamy naszą dyskusję o boostingu do kontekstu drzew decyzyjnych.
+
+Przypomnijmy, że bagging polega na tworzeniu wielu kopii oryginalnego zbioru danych treningowych za pomocą bootstrapu, dopasowywaniu osobnego drzewa decyzyjnego do każdej kopii, a następnie łączeniu wszystkich drzew w celu stworzenia jednego modelu predykcyjnego. Warto zauważyć, że każde drzewo jest budowane na bootstrapowym zbiorze danych, niezależnie od innych drzew. Boosting działa w podobny sposób, z tym że drzewa są rozwijane sekwencyjnie: każde drzewo jest rozwijane przy użyciu informacji z wcześniej rozwiniętych drzew. Boosting nie wykorzystuje próbkowania bootstrapowego; zamiast tego każde drzewo jest dopasowywane do zmodyfikowanej wersji oryginalnego zbioru danych.
+
+Rozważmy najpierw przypadek regresji. Podobnie jak bagging, boosting polega na łączeniu dużej liczby drzew decyzyjnych, $\hat{f}^1,..., \hat{f}^B$. Boosting jest opisany w Algorytmie 8.2.
+
+Jaka jest idea tej procedury? W przeciwieństwie do dopasowania jednego dużego drzewa decyzyjnego do danych, co sprowadza się do intensywnego dopasowania danych i potencjalnego przeuczenia, podejście boostingowe uczy się powoli. Mając bieżący model, dopasowujemy drzewo decyzyjne do reszt (residuals) z modelu. Oznacza to, że dopasowujemy drzewo, używając bieżących reszt, a nie zmiennej wynikowej Y, jako odpowiedzi. Następnie dodajemy to nowe drzewo decyzyjne do dopasowanej funkcji, aby zaktualizować reszty. Każde z tych drzew może być dość małe, z zaledwie kilkoma węzłami końcowymi, co jest określone przez parametr d w algorytmie. Dopasowując małe drzewa do reszt, powoli ulepszamy $\hat{f}$ w obszarach, w których nie radzi sobie dobrze. Parametr kurczenia (shrinkage) $\lambda$ jeszcze bardziej spowalnia ten proces, pozwalając na wykorzystanie większej liczby drzew o różnych kształtach do analizy reszt. Ogólnie rzecz biorąc, metody uczenia statystycznego, które uczą się powoli, mają tendencję do dobrego działania. Zauważmy, że w boostingu, w przeciwieństwie do baggingu, konstrukcja każdego drzewa silnie zależy od drzew, które już zostały rozwinięte.
+
+Właśnie opisaliśmy proces boosting drzew regresyjnych. Boosting drzew klasyfikacyjnych przebiega w podobny, ale nieco bardziej złożony sposób, a szczegóły pominiemy tutaj.
+
+Boosting ma trzy parametry strojenia:
+1.  **Liczba drzew B.** W przeciwieństwie do baggingu i lasów losowych, boosting może ulec przeuczeniu, jeśli B jest zbyt duże, chociaż to przeuczenie ma tendencję do powolnego występowania, jeśli w ogóle. Używamy walidacji krzyżowej, aby wybrać B.
+2.  **Parametr kurczenia (shrinkage) $\lambda$**, mała dodatnia liczba. Kontroluje on tempo, w jakim uczy się boosting. Typowe wartości to 0.01 lub 0.001, a właściwy wybór może zależeć od problemu. Bardzo małe $\lambda$ może wymagać użycia bardzo dużej wartości B, aby osiągnąć dobrą wydajność.
+3.  **Liczba podziałów d w każdym drzewie**, która kontroluje złożoność zespołu boostingowego. Często $d = 1$ działa dobrze, w którym to przypadku każde drzewo jest **pniem** (stump), składającym się z jednego podziału. W tym przypadku zespół pni z boostingiem dopasowuje model addytywny, ponieważ każdy składnik obejmuje tylko jedną zmienną. Ogólniej, d to **głębokość interakcji** i kontroluje rząd interakcji modelu boostingowego, ponieważ d podziałów może obejmować co najwyżej d zmiennych.
+
+> **Algorytm 8.2 Boosting dla drzew regresyjnych**
+> 1.  Ustaw $\hat{f}(x)=0$ i $r_i = y_i$ dla wszystkich $i$ w zbiorze treningowym.
+>
+> 2.  Dla $b = 1, 2,...,B$, powtarzaj:
+>     * (a) Dopasuj drzewo $\hat{f}^b$ z $d$ podziałami ($d + 1$ węzłów końcowych) do danych treningowych $(X, r).$
+>
+>     * (b) Zaktualizuj $\hat{f}$, dodając skurczoną wersję nowego drzewa:
+>
+>      $$\hat{f}(x) \leftarrow \hat{f}(x) + \lambda \hat{f}^b(x). \quad (8.10)$$
+>
+>     * (c) Zaktualizuj reszty,
+>
+>     $$r_i \leftarrow r_i - \lambda \hat{f}^b(x_i). \quad (8.11)$$
+>
+> 3.  Zwróć model boostingowy,
+>
+>     $$\hat{f}(x) = \sum_{b=1}^{B} \lambda \hat{f}^b(x). \quad (8.12)$$
+
+Na Rysunku 8.11 zastosowaliśmy boosting do 15-klasowego zbioru danych ekspresji genów, w celu opracowania klasyfikatora, który potrafi odróżnić klasę normalną od 14 klas nowotworowych. Wyświetlamy błąd testowy jako funkcję całkowitej liczby drzew i głębokości interakcji d. Widzimy, że proste pnie o głębokości interakcji równej jeden działają dobrze, jeśli uwzględni się ich wystarczającą liczbę. Ten model przewyższa model o głębokości dwa, a oba przewyższają las losowy. Podkreśla to jedną różnicę między boostingiem a lasami losowymi: w boostingu, ponieważ wzrost danego drzewa uwzględnia inne drzewa, które już zostały rozwinięte, zazwyczaj wystarczają mniejsze drzewa. Używanie mniejszych drzew może również pomóc w interpretowalności; na przykład użycie pni prowadzi do modelu addytywnego.
+
