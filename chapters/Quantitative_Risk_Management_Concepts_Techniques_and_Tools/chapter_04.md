@@ -85,3 +85,134 @@ P_tY_{t+1} = \sum_{i=0}^{n-1} \lambda(1 - \lambda)^i Y_{t-i} & = \lambda Y_t + (
 więc prognoza w czasie $t$ jest otrzymywana z prognozy w czasie $t - 1$ za pomocą prostego schematu rekurencyjnego. Wybór $\lambda$ jest subiektywny; im większa wartość, tym większą wagę przywiązuje się do najnowszej obserwacji. Badania walidacji empirycznej na różnych zbiorach danych mogą być użyte do określenia wartości $\lambda$, która daje dobre wyniki; Chatfield (2003) podaje, że w praktyce powszechnie stosowane są wartości od 0.1 do 0.3.
 
 Zauważmy, że chociaż metoda ta jest powszechnie postrzegana jako technika prognozowania bezmodelowego, można wykazać, że jest to naturalna metoda prognozowania oparta na warunkowej wartości oczekiwanej dla niestacjonarnego modelu ARIMA(0, 1, 1).
+
+## 4.2 Modele GARCH dla Zmiennej Wariancji
+
+Najważniejsze modele dla dziennych szeregów czasowych zmian czynników ryzyka zostały omówione w tej sekcji. Podajemy definicje modeli ARCH (autoregresyjnej warunkowej heteroskedastyczności) i GARCH (uogólnionej ARCH) oraz omawiamy niektóre z ich właściwości matematycznych, zanim przejdziemy do ich praktycznego zastosowania.
+
+### 4.2.1 Procesy ARCH
+
+**Definicja 4.16.** Niech $(Z_t)_{t \in \mathbb{Z}}$ będzie SWN(0, 1). Proces $(X_t)_{t \in \mathbb{Z}}$ jest procesem ARCH(p), jeśli jest ściśle stacjonarny i jeśli spełnia, dla wszystkich $t \in \mathbb{Z}$ oraz dla pewnego procesu o wartościach ściśle dodatnich $(\sigma_t)_{t \in \mathbb{Z}}$, równania
+
+$$X_t = \sigma_t Z_t, \quad (4.15)$$
+
+$$\sigma_t^2 = \alpha_0 + \sum_{i=1}^{p} \alpha_i X_{t-i}^2, \quad (4.16)$$
+
+gdzie $\alpha_0 > 0$ i $\alpha_i \ge 0$, $i = 1,...,p$.
+
+Niech $\mathcal{F}_t = \sigma({X_s : s \le t})$ ponownie oznacza algebrę sigma reprezentującą historię procesu do czasu t, tak że $(\mathcal{F}_t)_{t \in \mathbb{Z}}$ jest filtracją naturalną. Konstrukcja (4.16) zapewnia, że $\sigma_t$ jest mierzalna względem $\mathcal{F}_{t-1}$, a proces $(\sigma_t)_{t \in \mathbb{Z}}$ jest nazywany przewidywalnym. Pozwala nam to obliczyć, pod warunkiem, że $E(|X_t|) < \infty$,
+
+$$E(X_t | \mathcal{F}_{t-1}) = E(\sigma_t Z_t | \mathcal{F}_{t-1}) = \sigma_t E(Z_t | \mathcal{F}_{t-1}) = \sigma_t E(Z_t) = 0, \quad (4.17)$$
+
+tak że proces ARCH ma właściwość ciągu różnic martyngałowych względem $(\mathcal{F}_t)_{t \in \mathbb{Z}}$. Jeśli proces jest stacjonarny w sensie kowariancji, jest to po prostu biały szum, jak omówiono w Sekcji 4.1.1.
+
+**Uwaga 4.17.** Należy zauważyć, że niezależność $Z_t$ i $F_{t-1}$, którą założyliśmy powyżej, wynika z faktu, że proces ARCH musi być przyczynowy, tzn. równania (4.15) i (4.16) muszą mieć rozwiązanie postaci $X_t = f(Z_t, Z_{t-1},...)$ dla pewnej funkcji $f$, tak że $Z_t$ jest niezależne od poprzednich wartości procesu. Kontrastuje to z modelami ARMA, gdzie równania mogą mieć rozwiązania nieprzyczynowe.
+
+Jeśli po prostu założymy, że proces jest stacjonarnym w sensie kowariancji białym szumem (dla którego warunek podamy w Stwierdzeniu 4.18), to $E(X_t^2) < \infty$ i
+$$\text{var}(X_t | \mathcal{F}_{t-1}) = E(\sigma_t^2 Z_t^2 | \mathcal{F}_{t-1}) = \sigma_t^2 \text{var}(Z_t) = \sigma_t^2.$$
+Zatem model ma interesującą właściwość, że jego warunkowe odchylenie standardowe $\sigma_t$, czyli zmienność, jest ciągle zmieniającą się funkcją poprzednich kwadratów wartości procesu. Jeśli jedna lub więcej z wartości $|X_{t-1}|,..., |X_{t-p}|$ jest szczególnie duża, to $X_t$ jest efektywnie losowane z rozkładu o dużej wariancji i samo może być duże; w ten sposób model generuje klastry zmienności. Nazwa ARCH odnosi się do tej struktury: model jest autoregresyjny, ponieważ $X_t$ wyraźnie zależy od poprzednich $X_{t-i}$, i warunkowo heteroskedastyczny, ponieważ wariancja warunkowa ciągle się zmienia.
+
+Rozkład innowacji $(Z_t)_{t \in \mathbb{Z}}$ może w zasadzie być dowolnym rozkładem o zerowej średniej i jednostkowej wariancji. Do celów dopasowania statystycznego możemy, ale nie musimy, specyfikować rozkładu, w zależności od tego, czy implementujemy metodę największej wiarygodności (ML), quasi-największej wiarygodności (QML) czy nieparametryczną metodę dopasowania (patrz Sekcja 4.2.4). Dla ML najczęstszymi wyborami są standardowe innowacje normalne lub skalowane innowacje t. Przez te ostatnie rozumiemy, że $Z_t \sim t_1(\nu, 0, (\nu - 2)/\nu)$, w notacji z Przykładu 6.7, tak że wariancja rozkładu wynosi jeden.
+
+**Model ARCH(1).** W pozostałej części tej sekcji analizujemy niektóre właściwości modelu ARCH(1). Właściwości te rozszerzają się na całą klasę modeli ARCH i GARCH, ale najłatwiej jest je wprowadzić w najprostszym przypadku. Symulowana realizacja procesu ARCH(1) z innowacjami gaussowskimi oraz odpowiadająca jej realizacja procesu zmienności są pokazane na Rysunku 4.2.
+
+Używając $X_t^2 = \sigma_t^2 Z_t^2$ i (4.16) w przypadku p = 1, wnioskujemy, że kwadrat procesu ARCH(1) spełnia
+
+$$X_t^2 = \alpha_0 Z_t^2 + \alpha_1 Z_t^2 X_{t-1}^2. \quad (4.18)$$
+
+Szczegółowa analiza matematyczna modelu ARCH(1) obejmuje badanie równania (4.18), które jest stochastycznym równaniem rekurencyjnym (SRE). Podobnie jak w przypadku modelu AR(1) w Przykładzie 4.11, chcielibyśmy wiedzieć, kiedy to równanie ma stacjonarne rozwiązania wyrażone w terminach nieskończonej historii innowacji, tzn. rozwiązania postaci $X_t^2 = f(Z_t, Z_{t-1},...)$.
+
+Dla modeli ARCH musimy starannie odróżnić rozwiązania, które są stacjonarne w sensie kowariancji, od rozwiązań, które są tylko ściśle stacjonarne. Możliwe jest istnienie modeli ARCH(1) z nieskończoną wariancją, które oczywiście nie mogą być stacjonarne w sensie kowariancji.
+
+**Stochastyczne równania rekurencyjne.** Równanie (4.18) jest szczególnym przykładem klasy równań rekurencyjnych postaci
+$$Y_t = A_t Y_{t-1} + B_t, $$
+gdzie $(A_t)_{t \in \mathbb{Z}}$ i $(B_t)_{t \in \mathbb{Z}}$ są ciągami iid (niezależnych o identycznym rozkładzie) zmiennych losowych. Wystarczającymi warunkami na istnienie rozwiązania są:
+$$E(\ln^+ |B_t|) < \infty \quad \text{oraz} \quad E(\ln |A_t|) < 0, $$
+gdzie $\ln^+ x = \max(0, \ln x)$. Jedyne rozwiązanie jest dane przez
+
+$$Y_t = B_t + \sum_{i=1}^{\infty} B_{t-i} \prod_{j=0}^{i-1} A_{t-j}, \quad (4.21)$$
+
+gdzie suma zbiega bezwzględnie, prawie na pewno.
+
+Możemy rozwinąć pewną intuicję dla warunków (4.20) i postaci rozwiązania (4.21), iterując równanie (4.19) $k$ razy, aby otrzymać
+
+$$Y_t = A_t(A_{t-1}Y_{t-2} + B_{t-1}) + B_t$$
+
+$$= B_t + \sum_{i=1}^{k} B_{t-i} \prod_{j=0}^{i-1} A_{t-j} + Y_{t-k-1} \prod_{i=0}^{k} A_{t-i}.$$
+
+Warunki (4.20) zapewniają, że środkowy wyraz po prawej stronie jest zbieżny bezwzględnie, a ostatni wyraz zanika. W szczególności zauważmy, że
+
+$$\frac{1}{k+1} \sum_{i=0}^{k} \ln|A_{t-i}| \xrightarrow{\text{p.n.}} E(\ln|A_t|) < 0$$
+
+z mocnego prawa wielkich liczb. Zatem
+
+$$\prod_{i=0}^{k} |A_{t-i}| = \exp\left(\sum_{i=0}^{k} \ln|A_{t-i}|\right) \xrightarrow{\text{p.n.}} 0,$$
+
+co pokazuje znaczenie warunku $E(\ln|A_t|) < 0$. Rozwiązanie (4.21) SRE jest procesem ściśle stacjonarnym (będąc funkcją zmiennych iid $(A_s, B_s)_{s \le t}$), a warunek $E(\ln|A_t|) < 0$ okazuje się kluczowy dla ścisłej stacjonarności modeli ARCH i GARCH.
+
+**Stacjonarność ARCH(1).** Kwadrat modelu ARCH(1) (4.18) jest SRE postaci (4.19) z $A_t = \alpha_1 Z_t^2$ i $B_t = \alpha_0 Z_t^2$. Zatem warunki w (4.20) przekładają się na wymagania, że $E(\ln^+ |\alpha_0 Z_t^2|) < \infty$, co jest automatycznie prawdą dla procesu ARCH(1), jak go zdefiniowaliśmy, oraz $E(\ln(\alpha_1 Z_t^2)) < 0$. Jest to warunek na istnienie ściśle stacjonarnego rozwiązania równań ARCH(1) i można pokazać, że jest to w rzeczywistości warunek konieczny i wystarczający dla ścisłej stacjonarności. Z (4.21) rozwiązanie równania (4.18) przyjmuje postać
+
+$$X_t^2 = \alpha_0 \sum_{i=0}^{\infty} \alpha_1^i \prod_{j=0}^{i} Z_{t-j}^2. \quad (4.22)$$
+
+Jeśli $(Z_t)$ są standardowymi innowacjami normalnymi, to warunek na istnienie ściśle stacjonarnego rozwiązania wynosi w przybliżeniu $\alpha_1 < 3.562$; być może nieco zaskakująco, jeśli $(Z_t)$ są skalowanymi innowacjami t z czterema stopniami swobody i wariancją 1, warunek wynosi $\alpha_1 < 5.437$. Ścisła stacjonarność zależy od rozkładu innowacji, ale stacjonarność w sensie kowariancji nie; warunkiem koniecznym i wystarczającym dla stacjonarności w sensie kowariancji jest zawsze $\alpha_1 < 1$, co teraz udowodnimy.
+
+**Stwierdzenie 4.18.** Proces ARCH(1) jest stacjonarnym w sensie kowariancji białym szumem wtedy i tylko wtedy, gdy $\alpha_1 < 1$. Wariancja procesu stacjonarnego w sensie kowariancji jest dana przez $\alpha_0/(1 - \alpha_1)$.
+
+*Dowód.* Przy założeniu stacjonarności kowariancyjnej, z (4.18) oraz $E(Z_t^2) = 1$ wynika, że
+
+$$\sigma_x^2 = E(X_t^2) = \alpha_0 + \alpha_1 E(X_{t-1}^2) = \alpha_0 + \alpha_1 \sigma_x^2.$$
+
+Oczywiście, $\sigma_x^2 = \alpha_0/(1 - \alpha_1)$ oraz musi zachodzić $\alpha_1 < 1$.
+
+Odwrotnie, jeśli $\alpha_1 < 1$, to z nierówności Jensena,
+
+$$E(\ln(\alpha_1 Z_t^2)) \le \ln(E(\alpha_1 Z_t^2)) = \ln(\alpha_1) < 0,$$
+
+i możemy użyć (4.22) do obliczenia, że
+
+$$E(X_t^2) = \alpha_0 \sum_{i=0}^{\infty} \alpha_1^i = \frac{\alpha_0}{1 - \alpha_1}.$$
+
+Proces $(X_t)_{t \in \mathbb{Z}}$ jest procesem różnic martyngałowych ze skończonym, niezależnym od czasu momentem drugiego rzędu. Zatem jest to proces białego szumu.
+
+Na Rysunku 4.3 przedstawiono przykłady niestacjonarnych kowariancyjnie modeli ARCH(1), jak również przykład niestacjonarnego (wybuchowego) procesu generowanego przez równania ARCH(1). Proces na Rysunku 4.2 jest stacjonarny kowariancyjnie.
+
+**O stacjonarnym rozkładzie $X_t$.** Z (4.22) jasno wynika, że rozkład $(X_t)$ w modelu ARCH(1) ma złożony związek z rozkładem innowacji $(Z_t)$. Nawet jeśli innowacje są gaussowskie, stacjonarny rozkład szeregu czasowego nie jest gaussowski, ale raczej rozkładem leptokurtycznym z wolniej zanikającymi ogonami.
+
+**Stwierdzenie 4.19.** Dla $m \ge 1$, ściśle stacjonarny proces ARCH(1) ma skończone momenty rzędu $2m$ wtedy i tylko wtedy, gdy $E(Z_t^{2m}) < \infty$ i $\alpha_1 < (E(Z_t^{2m}))^{-1/m}$.
+
+*Dowód.* Zapisujemy ponownie (4.22) w postaci $X_t^2 = Z_t^2 \sum_{i=0}^{\infty} Y_{t,i}$ dla dodatnich zmiennych losowych $Y_{t,i} = \alpha_0 \alpha_1^i \prod_{j=1}^i Z_{t-j}^2, i \ge 1$, oraz $Y_{t,0} = \alpha_0$. Dla $m \ge 1$ zachodzą następujące nierówności (druga z nich to nierówność Minkowskiego):
+
+$$E(Y_{t,1}^m) + E(Y_{t,2}^m) \le E((Y_{t,1} + Y_{t,2})^m) \le ((E(Y_{t,1}^m))^{1/m} + (E(Y_{t,2}^m))^{1/m})^m.$$
+
+Ponieważ
+
+$$E(X_t^{2m}) = E(Z_t^{2m})E\left(\left(\sum_{i=0}^{\infty} Y_{t,i}\right)^m\right),$$
+
+wynika, że
+
+$$E(Z_t^{2m})\sum_{i=0}^{\infty} E(Y_{t,i}^m) \le E(X_t^{2m}) \le E(Z_t^{2m})\left(\sum_{i=0}^{\infty} (E(Y_{t,i}^m))^{1/m}\right)^m.$$
+
+Ponieważ $E(Y_{t,i}^m) = \alpha_0^m \alpha_1^{im} (E(Z_t^{2m}))^i$, można wywnioskować, że wszystkie trzy wielkości są skończone wtedy i tylko wtedy, gdy $E(Z_t^{2m}) < \infty$ oraz $\alpha_1^m E(Z_t^{2m}) < 1$.
+
+Na przykład, dla skończonego momentu czwartego rzędu ($m=2$) wymagamy, aby $\alpha_1 < 1/\sqrt{3}$ w przypadku innowacji gaussowskich oraz $\alpha_1 < 1/\sqrt{6}$ w przypadku innowacji *t*-Studenta z sześcioma stopniami swobody; dla innowacji *t*-Studenta z czterema stopniami swobody moment czwartego rzędu jest niezdefiniowany.
+
+Zakładając istnienie skończonego momentu czwartego rzędu, łatwo jest obliczyć jego wartość, a także kurtozę procesu. Podnosimy obie strony (4.18) do kwadratu, obliczamy wartość oczekiwaną obu stron, a następnie rozwiązujemy względem $E(X_t^4)$, aby otrzymać
+
+$$E(X_t^4) = \frac{\alpha_0^2 E(Z_t^4)(1 - \alpha_1^2)}{(1 - \alpha_1^2)^2(1 - \alpha_1^2 E(Z_t^4))}.$$
+
+Kurtozę stacjonarnego rozkładu $\kappa_X$ można następnie obliczyć jako
+
+$$\kappa_X = \frac{E(X_t^4)}{E(X_t^2)^2} = \frac{\kappa_Z(1 - \alpha_1^2)}{(1 - \alpha_1^2 \kappa_Z)},$$
+
+gdzie $\kappa_Z = E(Z_t^4)$ oznacza kurtozę innowacji. Oczywiście, gdy $\kappa_Z > 1$, kurtoza rozkładu stacjonarnego jest zawyżona w porównaniu z kurtozą rozkładu innowacji; dla innowacji gaussowskich lub *t*-Studenta, $\kappa_X > 3$, więc rozkład stacjonarny jest leptokurtyczny. Kurtoza procesu na Rysunku 4.2 wynosi 9.
+
+**Paralele z procesem AR(1).** Zwracamy teraz uwagę na strukturę zależności seryjnej kwadratu szeregu w przypadku stacjonarności kowariancyjnej ($\alpha_1 < 1$). Możemy zapisać kwadrat procesu jako
+
+$$X_t^2 = \sigma_t^2 Z_t^2 = \sigma_t^2 + \sigma_t^2(Z_t^2 - 1). \quad (4.23)$$
+
+Przyjmując $V_t = \sigma_t^2(Z_t^2 - 1)$, zauważamy, że $(V_t)_{t \in \mathbb{Z}}$ tworzy szereg różnic martyngałowych, ponieważ $E|V_t| < \infty$ oraz $E(V_t | \mathcal{F}_{t-1}) = \sigma_t^2 E(Z_t^2 - 1) = 0$. Teraz zapisujemy ponownie (4.23) jako $X_t^2 = \alpha_0 + \alpha_1 X_{t-1}^2 + V_t$ i zauważamy, że to bardzo przypomina proces AR(1) dla $X_t^2$, z tym wyjątkiem, że $V_t$ niekoniecznie jest procesem białego szumu. Jeśli ograniczymy naszą uwagę do procesów, w których $E(X_t^4)$ jest skończone, wtedy $V_t$ ma skończony i stały drugi moment i jest procesem białego szumu. Przy tym założeniu, $X_t^2$ jest procesem AR(1), zgodnie z Definicją 4.7, postaci
+
+$$\left(X_t^2 - \frac{\alpha_0}{1 - \alpha_1}\right) = \alpha_1 \left(X_{t-1}^2 - \frac{\alpha_0}{1 - \alpha_1}\right) + V_t.$$
+
+Ma on średnią $\alpha_0/(1 - \alpha_1)$ i możemy wykorzystać Przykład 4.11, aby stwierdzić, że funkcja autokorelacji to $\rho(h) = \alpha_1^{|h|}, h \in \mathbb{Z}$. Rysunek 4.2 pokazuje przykład procesu ARCH(1) ze skończonym momentem czwartego rzędu, dla którego kwadraty wartości tworzą proces AR(1).
+
