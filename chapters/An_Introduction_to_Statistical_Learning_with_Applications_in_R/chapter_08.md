@@ -123,3 +123,62 @@ Boosting ma trzy parametry strojenia:
 
 Na Rysunku 8.11 zastosowaliśmy boosting do 15-klasowego zbioru danych ekspresji genów, w celu opracowania klasyfikatora, który potrafi odróżnić klasę normalną od 14 klas nowotworowych. Wyświetlamy błąd testowy jako funkcję całkowitej liczby drzew i głębokości interakcji d. Widzimy, że proste pnie o głębokości interakcji równej jeden działają dobrze, jeśli uwzględni się ich wystarczającą liczbę. Ten model przewyższa model o głębokości dwa, a oba przewyższają las losowy. Podkreśla to jedną różnicę między boostingiem a lasami losowymi: w boostingu, ponieważ wzrost danego drzewa uwzględnia inne drzewa, które już zostały rozwinięte, zazwyczaj wystarczają mniejsze drzewa. Używanie mniejszych drzew może również pomóc w interpretowalności; na przykład użycie pni prowadzi do modelu addytywnego.
 
+### 8.2.4 Bayesowskie Addytywne Drzewa Regresyjne
+
+Na koniec omówimy **Bayesowskie addytywne drzewa regresyjne (BART)**, kolejną metodę zespołową, która wykorzystuje drzewa decyzyjne jako swoje elementy składowe. Dla uproszczenia przedstawimy BART dla regresji (w przeciwieństwie do klasyfikacji).
+
+Przypomnijmy, że bagging i lasy losowe dokonują predykcji na podstawie średniej z drzew regresyjnych, z których każde jest budowane przy użyciu losowej próbki danych i/lub predyktorów. Każde drzewo jest budowane oddzielnie od pozostałych. W przeciwieństwie do tego, boosting wykorzystuje ważoną sumę drzew, z których każde jest konstruowane poprzez dopasowanie drzewa do reszt bieżącego dopasowania. Zatem każde nowe drzewo próbuje uchwycić sygnał, który nie został jeszcze uwzględniony przez bieżący zestaw drzew. BART jest powiązany z oboma podejściami: każde drzewo jest konstruowane w sposób losowy, jak w baggingu i lasach losowych, i każde drzewo próbuje uchwycić sygnał, który nie został jeszcze uwzględniony przez bieżący model, jak w boostingu. Główną nowością w BART jest sposób generowania nowych drzew. 
+
+Zanim przedstawimy algorytm BART, zdefiniujemy pewne oznaczenia. Niech K oznacza liczbę drzew regresyjnych, a B liczbę iteracji, dla których algorytm BART będzie uruchamiany. Oznaczenie $\hat{f}_{bk}(x)$ reprezentuje predykcję w punkcie x dla k-tego drzewa regresyjnego użytego w b-tej iteracji. Na końcu każdej iteracji, K drzew z tej iteracji zostanie zsumowanych, tj. $\hat{f}_b(x) = \sum_{k=1}^{K} \hat{f}_{bk}(x)$ dla $b = 1,...,B$.
+
+W pierwszej iteracji algorytmu BART, wszystkie drzewa są inicjalizowane tak, aby miały jeden węzeł główny, z $\hat{f}_{1k}(x) = \frac{1}{nK} \sum_{i=1}^{n} y_i$, czyli średnią wartości odpowiedzi podzieloną przez całkowitą liczbę drzew. Zatem $\hat{f}_1(x) = \sum_{k=1}^{K} \hat{f}_{1k}(x) = \frac{1}{n} \sum_{i=1}^{n} y_i$.
+
+W kolejnych iteracjach BART aktualizuje każde z K drzew, jedno po drugim. W b-tej iteracji, aby zaktualizować k-te drzewo, odejmujemy od każdej wartości odpowiedzi predykcje ze wszystkich drzew oprócz k-tego, aby uzyskać resztę cząstkową
+
+$$r_i = y_i - \sum_{k'<k} \hat{f}_{bk'}(x_i) - \sum_{k'>k} \hat{f}_{b-1,k'}(x_i)$$
+
+dla i-tej obserwacji, i = 1,...,n. Zamiast dopasowywać nowe drzewo do tej reszty cząstkowej, BART losowo wybiera perturbację drzewa z poprzedniej iteracji ($\hat{f}_{b-1,k}$) ze zbioru możliwych perturbacji, faworyzując te, które poprawiają dopasowanie do reszty cząstkowej. Istnieją dwa składniki tej perturbacji:
+
+1.  Możemy zmienić strukturę drzewa, dodając lub przycinając gałęzie.
+
+2.  Możemy zmienić predykcję w każdym węźle końcowym drzewa.
+
+Rysunek 8.12 ilustruje przykłady możliwych perturbacji drzewa.
+
+Wynikiem BART jest zbiór modeli predykcyjnych,
+
+$$\hat{f}_b(x) = \sum_{k=1}^{K} \hat{f}_{bk}(x), \quad dla \quad b = 1, 2,...,B.$$
+
+Zazwyczaj odrzucamy kilka pierwszych z tych modeli predykcyjnych, ponieważ modele uzyskane we wcześniejszych iteracjach — znane jako okres **wypalania (burn-in)** — mają tendencję do niedawania bardzo dobrych wyników. Niech L oznacza liczbę iteracji wypalania; na przykład możemy przyjąć L = 200. Następnie, aby uzyskać pojedynczą predykcję, po prostu bierzemy średnią po iteracjach wypalania, $\hat{f}(x) = \frac{1}{B-L} \sum_{b=L+1}^{B} \hat{f}_b(x)$. Jednakże, możliwe jest również obliczenie innych wielkości niż średnia: na przykład, percentyle $\hat{f}_{L+1}(x),..., \hat{f}_B(x)$ dają miarę niepewności w końcowej predykcji. Cała procedura BART jest podsumowana w Algorytmie 8.3.
+
+> **Algorytm 8.3 Bayesowskie Addytywne Drzewa Regresyjne**
+> 1.  Niech $\hat{f}_1^1(x) = \hat{f}_2^1(x) = \dots = \hat{f}_{K}^1(x) = \frac{1}{nK} \sum_{i=1}^{n} y_i$.
+>
+> 2.  Oblicz $\hat{f}^1(x) = \sum_{k=1}^{K} \hat{f}_{k}^1(x) = \frac{1}{n} \sum_{i=1}^{n} y_i$.
+>
+> 3.  Dla $b = 2,...,B$:
+>
+>     * (a) Dla $k = 1, 2,...,K$:
+>
+>        * i. Dla $i = 1,...,n$, oblicz bieżącą resztę cząstkową
+>
+>            $$r_i = y_i - \sum_{k'<k} \hat{f}_{k'}^b(x_i) - \sum_{k'>k} \hat{f}_{k'}^{b-1}(x_i).$$
+>
+>        * ii. Dopasuj nowe drzewo, $\hat{f}_{k}^b(x)$, do $r_i$, poprzez losową perturbację k-tego drzewa z poprzedniej iteracji, $\hat{f}_{k}^{b-1}(x)$. Preferowane są perturbacje, które poprawiają dopasowanie.
+>
+>     * (b) Oblicz $\hat{f}^b(x) = \sum_{k=1}^{K} \hat{f}_{k}^b(x)$.
+>
+> 4.  Oblicz średnią po $L$ próbkach wypalania,
+>
+>     $$\hat{f}(x) = \frac{1}{B-L} \sum_{b=L+1}^{B} \hat{f}^b(x).$$
+
+Kluczowym elementem podejścia BART jest to, że w kroku 3(a)ii., nie dopasowujemy nowego drzewa do bieżącej reszty cząstkowej: zamiast tego próbujemy poprawić dopasowanie do bieżącej reszty cząstkowej, lekko modyfikując drzewo uzyskane w poprzedniej iteracji (patrz Rysunek 8.12). Z grubsza rzecz biorąc, chroni to przed przeuczeniem, ponieważ ogranicza, jak "mocno" dopasowujemy dane w każdej iteracji. Ponadto, poszczególne drzewa są zazwyczaj dość małe. Ograniczamy rozmiar drzewa, aby uniknąć przeuczenia danych, co byłoby bardziej prawdopodobne, gdybyśmy rozwijali bardzo duże drzewa.
+
+Rysunek 8.13 pokazuje wynik zastosowania BART do danych `Heart`, przy użyciu K = 200 drzew, w miarę zwiększania liczby iteracji do 10 000. W początkowych iteracjach błędy testowe i treningowe nieco się zmieniają. Po tym początkowym okresie wypalania, stopy błędów stabilizują się. Zauważamy, że istnieje tylko niewielka różnica między błędem treningowym a błędem testowym, co wskazuje, że proces perturbacji drzew w dużej mierze unika przeuczenia.
+
+Błędy treningowe i testowe dla boostingu są również wyświetlane na Rysunku 8.13. Widzimy, że błąd testowy dla boostingu zbliża się do tego z BART, ale potem zaczyna rosnąć wraz ze wzrostem liczby iteracji. Ponadto, błąd treningowy dla boostingu maleje wraz ze wzrostem liczby iteracji, co wskazuje, że boosting przeuczył dane.
+
+Chociaż szczegóły wykraczają poza zakres tej książki, okazuje się, że metodę BART można postrzegać jako podejście bayesowskie do dopasowania zespołu drzew: za każdym razem, gdy losowo perturbujemy drzewo, aby dopasować reszty, w rzeczywistości losujemy nowe drzewo z rozkładu a posteriori. (Oczywiście, to powiązanie bayesowskie jest motywacją dla nazwy BART.) Ponadto, Algorytm 8.3 można postrzegać jako algorytm **Monte Carlo z łańcuchem Markowa** do dopasowania modelu BART.
+
+Stosując BART, musimy wybrać liczbę drzew K, liczbę iteracji B i liczbę iteracji wypalania L. Zazwyczaj wybieramy duże wartości dla B i K, oraz umiarkowaną wartość dla L: na przykład K = 200, B = 1000 i L = 100 to rozsądny wybór. Wykazano, że BART ma bardzo imponującą wydajność "out-of-box" — czyli działa dobrze przy minimalnym strojeniu.
+
