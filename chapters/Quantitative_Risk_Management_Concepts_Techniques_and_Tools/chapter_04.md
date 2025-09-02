@@ -216,3 +216,80 @@ $$\left(X_t^2 - \frac{\alpha_0}{1 - \alpha_1}\right) = \alpha_1 \left(X_{t-1}^2 
 
 Ma on średnią $\alpha_0/(1 - \alpha_1)$ i możemy wykorzystać Przykład 4.11, aby stwierdzić, że funkcja autokorelacji to $\rho(h) = \alpha_1^{|h|}, h \in \mathbb{Z}$. Rysunek 4.2 pokazuje przykład procesu ARCH(1) ze skończonym momentem czwartego rzędu, dla którego kwadraty wartości tworzą proces AR(1).
 
+### 4.2.2 Procesy GARCH
+
+**Definicja 4.20.** Niech $(Z_t)_{t \in \mathbb{Z}}$ będzie SWN(0, 1). Proces $(X_t)_{t \in \mathbb{Z}}$ jest procesem GARCH(p, q), jeśli jest ściśle stacjonarny i jeśli spełnia, dla wszystkich $t \in \mathbb{Z}$ oraz dla pewnego procesu o wartościach ściśle dodatnich $(\sigma_t)_{t \in \mathbb{Z}}$, równania
+
+$$X_t = \sigma_t Z_t, \quad \sigma_t^2 = \alpha_0 + \sum_{i=1}^{p} \alpha_i X_{t-i}^2 + \sum_{j=1}^{q} \beta_j \sigma_{t-j}^2, \quad (4.24)$$
+
+gdzie $\alpha_0 > 0$, $\alpha_i \ge 0$, $i = 1,...,p$, oraz $\beta_j \ge 0$, $j = 1,...,q$. 
+
+Procesy GARCH są uogólnionymi procesami ARCH w tym sensie, że kwadrat zmienności $\sigma_t^2$ może zależeć od poprzednich kwadratów zmienności, a także od poprzednich kwadratów wartości procesu. 
+
+**Model GARCH(1, 1).** W praktyce najczęściej używane są modele GARCH niskiego rzędu, dlatego skoncentrujemy się na modelu GARCH(1, 1).  W tym modelu okresy wysokiej zmienności mają tendencję do utrzymywania się, ponieważ $|X_t|$ ma szansę być duże, jeśli albo $|X_{t-1}|$ jest duże, albo $\sigma_{t-1}$ jest duże. 
+
+**Stacjonarność.** Z (4.24) wynika, że dla modelu GARCH(1, 1) mamy
+
+$$\sigma_t^2 = \alpha_0 + (\alpha_1 Z_{t-1}^2 + \beta_1)\sigma_{t-1}^2, \quad (4.25)$$
+
+co jest SRE postaci $Y_t = A_t Y_{t-1} + B_t$, tak jak w (4.19).  Tym razem jest to SRE dla $Y_t = \sigma_t^2$, ale jego analiza wynika łatwo z przypadku ARCH(1).
+
+Warunek $E(\ln|A_t|) < 0$ dla ściśle stacjonarnego rozwiązania (4.19) przekłada się na warunek $E(\ln(\alpha_1 Z_t^2 + \beta_1)) < 0$ dla (4.25), a ogólne rozwiązanie (4.21) przyjmuje postać
+
+$$\sigma_t^2 = \alpha_0 + \alpha_0 \sum_{i=1}^{\infty} \prod_{j=1}^{i} (\alpha_1 Z_{t-j}^2 + \beta_1). \quad (4.26)$$
+
+Jeśli $(\sigma_t^2)_{t \in \mathbb{Z}}$ jest procesem ściśle stacjonarnym, to $(X_t)_{t \in \mathbb{Z}}$ również nim jest, ponieważ $X_t = \sigma_t Z_t$ oraz $(Z_t)_{t \in \mathbb{Z}}$ jest po prostu ścisłym białym szumem. Rozwiązanie równań definiujących GARCH(1,1) jest wtedy następujące
+
+$$X_t = Z_t \sqrt{\alpha_0 \left(1 + \sum_{i=1}^{\infty} \prod_{j=1}^{i} (\alpha_1 Z_{t-j}^2 + \beta_1)\right)}, \quad (4.27)$$
+
+i możemy to wykorzystać do wyprowadzenia warunku stacjonarności kowariancyjnej.
+
+**Stwierdzenie 4.21.** Proces GARCH(1, 1) jest stacjonarnym w sensie kowariancji białym szumem wtedy i tylko wtedy, gdy $\alpha_1 + \beta_1 < 1$. Wariancja procesu stacjonarnego w sensie kowariancji jest dana przez $\alpha_0/(1 - \alpha_1 - \beta_1)$.
+
+*Dowód.* Używamy podobnego argumentu jak w Stwierdzeniu 4.18 i korzystamy z (4.27).
+
+*Momenty czwartego rzędu i kurtoza.* Stosując podobne podejście jak w Stwierdzeniu 4.19, możemy użyć (4.27) do wyprowadzenia warunków na istnienie wyższych momentów kowariancyjnie stacjonarnego procesu GARCH(1, 1). Dla istnienia momentu czwartego rzędu, warunkiem koniecznym i wystarczającym jest, aby $E((\alpha_1 Z_t^2 + \beta_1)^2) < 1$, lub alternatywnie
+
+$$(\alpha_1 + \beta_1)^2 < 1 - (\kappa_Z - 1)\alpha_1^2.$$
+
+Zakładając, że jest to prawdą, obliczamy moment czwartego rzędu i kurtozę $X_t$. Podnosimy obie strony (4.25) do kwadratu i obliczamy wartości oczekiwane, aby otrzymać
+
+$$E(\sigma_t^4) = \alpha_0^2 + (\alpha_1^2 \kappa_Z + \beta_1^2 + 2\alpha_1 \beta_1)E(\sigma_t^4) + 2\alpha_0(\alpha_1 + \beta_1)E(\sigma_t^2).$$
+
+Rozwiązując względem $E(\sigma_t^4)$, przypominając, że $E(\sigma_t^2) = E(X_t^2) = \alpha_0/(1 - \alpha_1 - \beta_1)$, i podstawiając $E(X_t^4) = \kappa_Z E(\sigma_t^4)$, otrzymujemy
+
+$$E(X_t^4) = \frac{\alpha_0^2 \kappa_Z (1 - (\alpha_1 + \beta_1)^2)}{(1 - \alpha_1 - \beta_1)^2(1 - \alpha_1^2 \kappa_Z - \beta_1^2 - 2\alpha_1 \beta_1)},$$
+
+z czego wynika, że
+
+$$\kappa_X = \frac{\kappa_Z(1 - (\alpha_1 + \beta_1)^2)}{(1 - (\alpha_1 + \beta_1)^2) - (\kappa_Z - 1)\alpha_1^2}.$$
+
+Ponownie jest jasne, że kurtoza $X_t$ jest większa niż kurtoza $Z_t$, gdy tylko $\kappa_Z > 1$, tak jak w przypadku innowacji gaussowskich i skalowanych *t*-Studenta. Kurtoza modelu GARCH(1, 1) na Rysunku 4.4 wynosi 3.77.
+
+**Paralele z procesem ARMA(1, 1).** Używając tej samej reprezentacji co w równaniu (4.23), stacjonarny w sensie kowariancji proces GARCH(1, 1) można zapisać jako
+$$X_t^2 = \alpha_0 + \alpha_1 X_{t-1}^2 + \beta_1 \sigma_{t-1}^2 + V_t,$$
+gdzie $V_t$ jest ciągiem różnic martyngałowych. Ponieważ $\sigma_{t-1}^2 = X_{t-1}^2 - V_{t-1}$, możemy zapisać
+
+$$X_t^2 = \alpha_0 + (\alpha_1 + \beta_1)X_{t-1}^2 - \beta_1 V_{t-1} + V_t, \quad (4.28)$$
+
+co zaczyna przypominać proces ARMA(1, 1) dla $X_t^2$. Jeśli dalej założymy, że $E(X_t^4) < \infty$, wtedy, przypominając, że $\alpha_1 + \beta_1 < 1$, formalnie mamy, że
+
+$$\left(X_t^2 - \frac{\alpha_0}{1 - \alpha_1 - \beta_1}\right) = (\alpha_1 + \beta_1) \left(X_{t-1}^2 - \frac{\alpha_0}{1 - \alpha_1 - \beta_1}\right) - \beta_1 V_{t-1} + V_t$$
+
+jest procesem ARMA(1, 1). Rysunek 4.4 pokazuje przykład procesu GARCH(1, 1) ze skończonym momentem czwartego rzędu, którego kwadraty wartości tworzą proces ARMA(1, 1).
+
+*Model GARCH(p, q).* Modele ARCH i GARCH wyższego rzędu mają takie samo ogólne zachowanie jak ARCH(1) i GARCH(1, 1), ale ich analiza matematyczna staje się bardziej żmudna. Warunek dla ściśle stacjonarnego rozwiązania definiującego SRE został wyprowadzony przez Bougerola i Picarda (1992), ale jest on skomplikowany. Warunkiem koniecznym i wystarczającym, aby to rozwiązanie było stacjonarne kowariancyjnie, jest $\sum_{i=1}^p \alpha_i + \sum_{j=1}^q \beta_j < 1$.
+
+Proces kwadratów GARCH(p, q) ma strukturę
+
+$$X_t^2 = \alpha_0 + \sum_{i=1}^{\max(p,q)} (\alpha_i + \beta_i)X_{t-i}^2 - \sum_{j=1}^q \beta_j V_{t-j} + V_t,$$
+
+gdzie $\alpha_i = 0$ dla $i = p+1, \dots, q$ jeśli $q > p$, lub $\beta_j = 0$ dla $j = q+1, \dots, p$ jeśli $p > q$. Przypomina to proces ARMA(max(p, q), q) i formalnie jest takim procesem, pod warunkiem, że $E(X_t)^4 < \infty$.
+
+*Zintegrowany GARCH.* Badania nad zintegrowanymi procesami GARCH (lub IGARCH) były motywowane faktem, że w niektórych zastosowaniach modelowania GARCH do dziennych lub o wyższej częstotliwości szeregów zwrotów z czynników ryzyka, obserwuje się, że estymowane współczynniki ARCH i GARCH $(\alpha_1, \dots, \alpha_p, \beta_1, \dots, \beta_q)$ sumują się do liczby bardzo bliskiej 1, a czasami nawet nieznacznie większej niż 1. W modelu, w którym $\sum_{i=1}^p \alpha_i + \sum_{j=1}^q \beta_j \ge 1$, proces ma *nieskończoną wariancję* i w związku z tym jest niestacjonarny kowariancyjnie. Szczególny przypadek, w którym $\sum_{i=1}^p \alpha_i + \sum_{j=1}^q \beta_j = 1$, jest znany jako IGARCH i poświęcono mu pewną uwagę.
+
+Dla uproszczenia, rozważmy model IGARCH(1, 1). Używamy (4.28), aby stwierdzić, że proces kwadratów musi spełniać
+
+$$\nabla X_t^2 = X_t^2 - X_{t-1}^2 = \alpha_0 - (1-\alpha_1)V_{t-1} + V_t,$$
+
+gdzie $V_t$ jest sekwencją szumu zdefiniowaną przez $V_t = \sigma_t^2(Z_t^2 - 1)$ oraz $\sigma_t^2 = \alpha_0 + \alpha_1 X_{t-1}^2 + (1-\alpha_1)\sigma_{t-1}^2$. To równanie przypomina model ARIMA(0, 1, 1) (zobacz (4.12)) dla $X_t^2$, chociaż szum $V_t$ nie jest białym szumem, ani, ściśle mówiąc, nie jest różnicą martyngałową zgodnie z Definicją 4.6. $E(V_t | \mathcal{F}_{t-1})$ jest niezdefiniowane, ponieważ $E(\sigma_t^2) = E(X_t^2) = \infty$, i w związku z tym $E|V_t|$ jest niezdefiniowane.
