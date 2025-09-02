@@ -353,3 +353,31 @@ Dla czystego procesu ARCH(1), który jest markowowski pierwszego rzędu, gęsto�
 $$f_{X_t|X_{t-1}, \dots, x_0}(x_t | x_{t-1}, \dots, x_0) = f_{X_t|X_{t-1}}(x_t | x_{t-1}) = \frac{1}{\sigma_t} f_Z\left(\frac{x_t}{\sigma_t}\right), \quad (4.33)$$
 
 gdzie $\sigma_t = (\alpha_0 + \alpha_1 x_{t-1}^2)^{1/2}$, a $f_Z(z)$ oznacza gęstość innowacji $(Z_t)_{t \in \mathbb{Z}}$. Przypomnijmy, że musi ona mieć średnią 0 i wariancję 1, a typowymi wyborami byłyby standardowa gęstość normalna lub gęstość rozkładu *t*-Studenta przeskalowana tak, aby miała jednostkową wariancję.
+
+Jednakże, gęstość brzegowa $f_{X_0}$ w (4.32) nie jest znana w jawnej, analitycznej postaci dla modeli ARCH i GARCH, i stanowi to problem przy opieraniu funkcji wiarygodności na (4.32). Rozwiązaniem stosowanym w praktyce jest skonstruowanie warunkowej funkcji wiarygodności przy danym $X_0$, którą oblicza się z
+
+$$f_{X_1, \dots, X_n|X_0}(x_1, \dots, x_n | x_0) = \prod_{t=1}^{n} f_{X_t|X_{t-1}, \dots, x_0}(x_t | x_{t-1}, \dots, x_0). \quad (4.34)$$
+
+Dla modelu ARCH(1) wynika to z (4.33) i ma postać
+
+$$L(\alpha_0, \alpha_1; \mathbf{X}) = f_{X_1, \dots, X_n|X_0}(X_1, \dots, X_n | X_0) = \prod_{t=1}^{n} \frac{1}{\sigma_t} f_Z\left(\frac{X_t}{\sigma_t}\right),$$
+
+gdzie $\sigma_t = (\alpha_0 + \alpha_1 X_{t-1}^2)^{1/2}$. Dla modelu ARCH(p) użylibyśmy analogicznych argumentów, aby zapisać funkcję wiarygodności warunkową względem pierwszych *p* wartości.
+
+W modelu GARCH(1, 1), $\sigma_t$ jest zdefiniowane rekurencyjnie w zależności od $\sigma_{t-1}$, i tutaj, zamiast używać (4.34), konstruujemy łączną gęstość $X_1, \dots, X_n$ warunkową względem zrealizowanych wartości zarówno $X_0$ jak i $\sigma_0$, która ma postać
+
+$$f_{X_1, \dots, X_n|X_0, \sigma_0}(x_1, \dots, x_n | x_0, \sigma_0) = \prod_{t=1}^{n} f_{X_t|X_{t-1}, \dots, x_0, \sigma_0}(x_t | x_{t-1}, \dots, x_0, \sigma_0).$$
+
+Gęstości warunkowe $f_{X_t|X_{t-1}, \dots, X_0, \sigma_0}$ zależą od przeszłości tylko poprzez wartość $\sigma_t$, która jest dana rekurencyjnie z $\sigma_0, X_0, \dots, X_{t-1}$ używając $\sigma_t^2 = \alpha_0 + \alpha_1 X_{t-1}^2 + \beta_1 \sigma_{t-1}^2$. Daje nam to warunkową funkcję wiarygodności
+
+$$L(\alpha_0, \alpha_1, \beta_1; \mathbf{X}) = \prod_{t=1}^{n} \frac{1}{\sigma_t} f_Z\left(\frac{X_t}{\sigma_t}\right), \quad \sigma_t = \sqrt{\alpha_0 + \alpha_1 X_{t-1}^2 + \beta_1 \sigma_{t-1}^2}.$$
+
+Pozostaje problem, że wartość $\sigma_0^2$ nie jest w rzeczywistości obserwowana, i jest to zwykle rozwiązywane przez wybór wartości początkowej, takiej jak wariancja z próby dla $X_1, \dots, X_n$, lub po prostu zero.
+
+Dla modelu GARCH(p, q) założylibyśmy, że mamy n + p wartości danych oznaczonych jako $X_{-p+1}, \dots, X_0, X_1, \dots, X_n$. Obliczylibyśmy warunkową funkcję wiarygodności na podstawie (obserwowanych) wartości $X_0, X_1, \dots, X_n$ oraz $X_{-p+1}, \dots, X_0$ jak również (nieobserwowanych) wartości $\sigma_{-q+1}, \dots, \sigma_0$, dla których wartości początkowe musiałyby zostać użyte jak powyżej. Na przykład, jeśli p = 1 i q = 3, wymagamy wartości początkowych dla $\sigma_0, \sigma_{-1}$ i $\sigma_{-2}$.
+
+Podobne podejście można zastosować do opracowania funkcji wiarygodności dla modelu ARMA z błędami GARCH. W tym przypadku otrzymalibyśmy warunkową funkcję wiarygodności postaci
+
+$$L(\theta; \mathbf{X}) = \prod_{t=1}^{n} \frac{1}{\sigma_t} f_Z\left(\frac{X_t - \mu_t}{\sigma_t}\right),$$
+
+gdzie $\sigma_t$ jest zgodne ze specyfikacją GARCH z Definicji 4.22, a $\mu_t$ jest zgodne ze specyfikacją ARMA, a wszystkie nieznane parametry (w tym ewentualnie nieznane parametry rozkładu innowacji) zostały zebrane w wektorze $\theta$. Moglibyśmy oczywiście rozważać również modele z efektem dźwigni lub progowymi.
