@@ -442,4 +442,102 @@ Wadą podejścia dwuetapowego jest to, że błąd z modelowania szeregów czasow
 
 **Przykład 4.24 (Model GARCH dla log-zwrotów Microsoft).** Rozważmy dzienne log-zwroty Microsoftu za okres 1997-2000 (1009 wartości), jak pokazano na Rysunku 4.5. Chociaż zwroty surowe nie wykazują dowodów seryjnej korelacji (patrz Rysunek 4.6), ich wartości bezwzględne wykazują seryjną korelację i nie przechodzą testu Ljung-Boxa (opartego na pierwszych dziesięciu estymowanych korelacjach) na poziomie 5%.
 
-Dla tych danych modele ze studentyzowanymi innowacjami *t* są wyraźnie preferowane w stosunku do modeli z innowacjami gaussowskimi, więc przyjmujemy podejście ML do dopasowywania modeli z innowacjami *t*. Porównujemy standardowy model GARCH(1, 1) (z stałą średnią) z modelami, które zawierają strukturę ARMA (AR(1), MA(1) i ARMA(1, 1)) dla średniej warunkowej; struktura ARMA wydaje się oferować niewielką poprawę w modelu, a podstawowy model GARCH(1, 1) jest faworyzowany w porównaniu Akaike. Jednakże, model z wyrazem dźwigni jak w (4.29) wydaje się oferować poprawę. Zarówno surowe, jak i bezwzględne standaryzowane reszty uzyskane z tego modelu nie wykazują wizualnych dowodów korelacji seryjnej (zobacz ponownie Rysunek 4.6) i przechodzą testy Ljunga-Boxa. Estymowany parametr stopni swobody (skalowanego)...
+Dla tych danych modele ze studentyzowanymi innowacjami *t* są wyraźnie preferowane w stosunku do modeli z innowacjami gaussowskimi, więc przyjmujemy podejście ML do dopasowywania modeli z innowacjami *t*. Porównujemy standardowy model GARCH(1, 1) (z stałą średnią) z modelami, które zawierają strukturę ARMA (AR(1), MA(1) i ARMA(1, 1)) dla średniej warunkowej; struktura ARMA wydaje się oferować niewielką poprawę w modelu, a podstawowy model GARCH(1, 1) jest faworyzowany w porównaniu Akaike. Jednakże, model z wyrazem dźwigni jak w (4.29) wydaje się oferować poprawę. Zarówno surowe, jak i bezwzględne standaryzowane reszty uzyskane z tego modelu nie wykazują wizualnych dowodów korelacji seryjnej (zobacz ponownie Rysunek 4.6) i przechodzą testy Ljunga-Boxa. Estymowany parametr stopni swobody (skalowanego) rozkładu *t* wynosi 6.30 (błąd standardowy to 1.07), a wykres Q-Q reszt w odniesieniu do tego rozkładu referencyjnego ujawnia zadowalającą zgodność (patrz Rysunek 4.7). Estymaty pozostałych parametrów (z błędami standardowymi) w tym modelu podano w Tabeli 4.1.
+
+**Tabela 4.1.** Analiza log-zwrotów Microsoftu za okres 1997-2000; estymatory ML parametrów i błędy standardowe dla modelu GARCH(1, 1) z wyrazem dźwigni przy założeniu innowacji *t*-Studenta.
+
+| Parametr | Estymata | Błąd standardowy | Stosunek |
+| :--- | :--- | :--- | :--- |
+| $\mu$ | $9.35 \times 10^{-4}$ | $7.21 \times 10^{-4}$ | 1.30 |
+| $\alpha_0$| $7.79 \times 10^{-5}$ | $3.07 \times 10^{-5}$ | 2.54 |
+| $\alpha_1$| 0.108 | 0.0369 | 2.91 |
+| $\beta_1$ | 0.778 | 0.0673 | 11.57 |
+| $\delta$ | -0.178 | 0.123 | -1.45 |
+
+---
+#### 4.2.5 Prognozowanie zmienności i estymacja miar ryzyka
+
+W tej sekcji zakładamy, że nasz podstawowy model jest ściśle i kowariancyjnie stacjonarnym procesem szeregu czasowego $(X_t)$ dostosowanym do filtracji $(\mathcal{F}_t)$, spełniającym równania postaci
+
+$$X_t = \mu_t + \sigma_t Z_t, \quad (4.41)$$
+
+gdzie $\mu_t$ i $\sigma_t$ są $\mathcal{F}_{t-1}$-mierzalne, a $Z_t$ jest zmienną innowacyjną o średniej 0 i wariancji 1, która jest niezależna od $\mathcal{F}_{t-1}$. Przykłady pasujące do tych z (4.41) to dowolne z modeli ARCH i GARCH omawianych w tym rozdziale, jak również przyczynowe i odwracalne modele ARMA z błędami GARCH.
+
+Naszym zadaniem jest prognozowanie $\sigma_{t+h}$ dla $h \ge 1$ na podstawie próbki *n* danych $X_{t-n+1}, \dots, X_t$, które, jak się zakłada, są generowane przez proces (4.41). Podobnie jak w Sekcji 4.1.5, zakładamy, że zaobserwowaliśmy nieskończoną historię procesu do czasu *t* i wyprowadzamy wzory predykcyjne, które dostosowujemy, aby uwzględnić skończoność próbki.
+Ponieważ
+
+$$E(\sigma_{t+h}^2 | \mathcal{F}_t) = E((X_{t+h} - \mu_{t+h})^2 | \mathcal{F}_t),$$
+
+nasz problem prognozowania jest ściśle związany z problemem przewidywania $(X_{t+h} - \mu_{t+h})^2$ i możemy zastosować podobne podejście do predykcji jak to opisane w Sekcji 4.1.5. Najpierw wyprowadzamy równania predykcyjne przy jawnych założeniach dotyczących podstawowego modelu (tzn. gdy określamy strukturę $\sigma_t$ i $\mu_t$ w (4.41)), zanim przedstawimy bardziej doraźną technikę predykcji opartej na wykładniczo ważonej średniej kroczącej (EWMA). Na koniec opisujemy, jak prognozy zmienności stanowią podstawę do estymacji wartości zagrożonej (value-at-risk) i oczekiwanej straty warunkowej (expected shortfall).
+
+*Prognozowanie zmienności w oparciu o GARCH.* Załóżmy, że model GARCH został dopasowany, a jego parametry oszacowane; w pozostałej części sekcji pominiemy notację estymatora dla parametrów. Dokonujemy obliczeń dla dwóch prostych modeli, z których powinna wynikać ogólna procedura dla bardziej złożonych modeli.
+
+**Przykład 4.25 (Predykcja w modelu GARCH(1, 1)).** Załóżmy, że używamy czystego modelu GARCH(1, 1), jak w Definicji 4.20, który jest zgodny z (4.41) przy $\mu_t = 0$. Ponieważ $E(X_{t+h} | \mathcal{F}_t) = 0$ (własność różnicy martyngałowej procesu GARCH), optymalne prognozy $X_{t+h}$ wynoszą zero. Naturalna prognoza $X_{t+1}^2$ oparta na $\mathcal{F}_t$ jest jej warunkową średnią $\sigma_{t+1}^2$ daną przez
+
+$$E(X_{t+1}^2 | \mathcal{F}_t) = \sigma_{t+1}^2 = \alpha_0 + \alpha_1 X_t^2 + \beta_1 \sigma_t^2,$$
+
+i, jeśli $E(X_t^4) < \infty$, jest to optymalna prognoza kwadratu błędu. Zauważ, że prognoza losowej zmiennej $X_{t+1}^2$ oparta na informacji $\mathcal{F}_t$ jest wartością $\sigma_{t+1}^2$, która jest znana w czasie *t*, będąc funkcją historii procesu.
+
+W praktyce musimy dokonać aproksymacji tego wzoru, ponieważ nieskończona seria przeszłych wartości, która pozwoliłaby nam obliczyć $\sigma_t^2$, nie jest dla nas dostępna. Naturalnym podejściem w zastosowaniach jest aproksymacja $\sigma_t^2$ za pomocą estymaty $\hat{\sigma}_t^2$ obliczonej na podstawie reszt równania (4.40). Nasza przybliżona prognoza $\hat{\sigma}_{t+1}^2$ również funkcjonuje jako estymata kwadratu zmienności w czasie t + 1 i jest dana przez
+
+$$\hat{\sigma}_{t+1}^2 = \hat{E}(X_{t+1}^2 | \mathcal{F}_t) = \alpha_0 + \alpha_1 X_t^2 + \beta_1 \hat{\sigma}_t^2. \quad (4.42)$$
+
+Zatem równanie (4.42) można traktować jako schemat rekurencyjny do estymowania zmienności o jeden krok naprzód.
+
+Gdy patrzymy *h* > 1 kroków w przód, mając dane informacje w czasie *t*, zarówno $X_{t+h}^2$, jak i $\sigma_{t+h}^2$ są zmiennymi losowymi. Ich prognozy pokrywają się i wynoszą
+
+$$
+\begin{aligned}
+E(X_{t+h}^2 | \mathcal{F}_t) &= E(\sigma_{t+h}^2 | \mathcal{F}_t) \\
+&= \alpha_0 + \alpha_1 E(X_{t+h-1}^2 | \mathcal{F}_t) + \beta_1 E(\sigma_{t+h-1}^2 | \mathcal{F}_t) \\
+&= \alpha_0 + (\alpha_1 + \beta_1)E(X_{t+h-1}^2 | \mathcal{F}_t),
+\end{aligned}
+$$
+
+więc ogólny wzór to
+
+$$E(X_{t+h}^2 | \mathcal{F}_t) = \alpha_0 \sum_{i=0}^{h-1} (\alpha_1 + \beta_1)^i + (\alpha_1 + \beta_1)^{h-1}(\alpha_1 X_t^2 + \beta_1 \sigma_t^2),$$
+
+i otrzymujemy praktyczny wzór, podstawiając estymatę kwadratu zmienności $\hat{\sigma}_t^2$ jak poprzednio. Gdy $h \to \infty$, obserwujemy, że $E(\sigma_{t+h}^2 | \mathcal{F}_t) \to \alpha_0/(1 - \alpha_1 - \beta_1)$, prawie na pewno, więc prognoza kwadratu zmienności zbiega do bezwarunkowej wariancji procesu. Konkretny przykład prognozowania zmienności w modelu GARCH(1, 1) jest podany na Rysunku 4.8 dla danych Microsoftu analizowanych w Przykładzie 4.24.
+
+Teraz rozważmy drugi przykład, który łączy to, co wiemy o predykcji w modelach ARMA i GARCH.
+
+**Przykład 4.26 (predykcja w modelu ARMA(1, 1)–GARCH(1, 1)).** Załóżmy, że używamy modelu ARMA(1, 1) z błędami GARCH(1, 1) jak w Definicji 4.22. Jest to również zgodne z (4.41), a wzory predykcyjne dla tego modelu wynikają w prosty sposób z Przykładów 4.15 i 4.25. Obliczamy, że
+
+$$E(X_{t+h} | \mathcal{F}_t) = \mu + \phi_1^h (X_t - \mu) + \phi_1^{h-1}\theta_1 \epsilon_t, \quad (4.43)$$
+
+$$\text{var}(X_{t+h} | \mathcal{F}_t) = \alpha_0 \sum_{i=0}^{h-1} (\alpha_1 + \beta_1)^i + (\alpha_1 + \beta_1)^{h-1}(\alpha_1 \epsilon_t^2 + \beta_1 \sigma_t^2), \quad (4.44)$$
+
+i są one aproksymowane przez podstawienie wywnioskowanych wartości dla $\epsilon_t$ i $\sigma_t$ uzyskanych z równań reszt (4.40). Równanie (4.43) daje prognozy $\mu_{t+h}$ lub $X_{t+h}$, a równanie (4.44) daje prognozy $(X_{t+h} - \mu_{t+h})^2$ lub $\sigma_{t+h}^2$.
+
+*Wygładzanie wykładnicze dla zmienności.* Załóżmy teraz, że nie chcemy czynić szczegółowych założeń na temat struktury $\sigma_t$ i $\mu_t$ w (4.42). Rozważymy prostszy schemat prognozowania zmienności, który opiera się na idei wygładzania wykładniczego z Sekcji 4.1.5. Przypomnijmy z (4.14), że prognozę $P_t(X_{t+1})$ dla $X_{t+1}$ opartą na informacji z czasu *t* można skonstruować za pomocą schematu aktualizacji postaci
+
+$$P_t X_{t+1} = \lambda X_t + (1-\lambda)P_{t-1} X_t \quad (4.45)$$
+
+dla odpowiednio dobranej wartości parametru $\lambda$. Jeśli zastosujemy ten schemat do predykcji $(X_{t+1} - \mu_{t+1})^2$, otrzymamy
+
+$$P_t (X_{t+1} - \mu_{t+1})^2 = \alpha (X_t - \mu_t)^2 + (1-\alpha)P_{t-1} (X_t - \mu_t)^2 \quad (4.46)$$
+
+dla odpowiednio dobranej wartości parametru $\alpha$. Oczywiście, oprócz wyboru $\alpha$, musimy również wstawić estymatę nieobserwowanej średniej warunkowej $\mu_t$, aby użyć (4.46).
+
+Ponieważ $\sigma_{t+1}^2 = E((X_{t+1} - \mu_{t+1})^2 | \mathcal{F}_t)$, możemy również użyć (4.46) jako schematu wygładzania wykładniczego dla nieobserwowanej kwadratowej zmienności. Daje to rekurencyjny schemat dla prognozy zmienności o jeden krok naprzód, dany przez
+
+$$\hat{\sigma}_{t+1}^2 = \alpha(X_t - \hat{\mu}_t)^2 + (1-\alpha)\hat{\sigma}_t^2, \quad (4.47)$$
+
+co definiuje procedurę EWMA. Dla wielu szeregów zwrotów z czynników ryzyka, średnia warunkowa wydaje się być bliska zeru (przypomnijmy stylizowane fakty z Sekcji 3.1) i często ustawiamy $\hat{\mu}_t = 0$. Alternatywnie, możemy zastosować ideę wygładzania wykładniczego do średniej warunkowej i zastąpić $\mu_t$ estymatą $P_{t-1} X_t$ wyprowadzoną przy użyciu schematu rekurencyjnego (4.45). Typowe wartości dla $\alpha$ są na ogół małe; na przykład, w metodologii RiskMetrics szeroko stosowanej przez banki, zalecana jest wartość $\alpha = 0.06$ (Mina i Xiao 2001).
+
+Jeśli porównamy (4.47) ze schematem estymacji zmienności o jeden krok naprzód zdefiniowanym przez model GARCH(1, 1) w (4.42), kuszące jest stwierdzenie, że EWMA odpowiada estymacji zmienności przy użyciu techniki opartej na wartości oczekiwanej warunkowej w modelu IGARCH, gdzie parametr $\alpha_0$ jest równy zero. Należy ostrożnie podchodzić do tej analogii; modele GARCH i IGARCH z $\alpha_0 = 0$ nie są dobrze zdefiniowane, a rozwiązanie stochastycznego równania rekurencyjnego w (4.27) zanika. Co więcej, IGARCH nie jest stacjonarny kowariancyjnie. Lepiej jest uważać EWMA za rozsądne, wolne od modelu podejście do prognozowania zmienności, oparte na klasycznej technice wygładzania wykładniczego.
+
+*Estymaty VaR i oczekiwanej straty warunkowej.* Na koniec załóżmy, że dane $X_{t-n+1}, \dots, X_t$ można interpretować jako straty finansowe i rozważmy zastosowanie miar ryzyka opartych na rozkładach strat (patrz Sekcja 2.3.1) do rozkładu warunkowego $F_{X_{t+1}|\mathcal{F}_t}$. Na przykład, dane mogą reprezentować ujemne log-zwroty z ceny aktywów, a nie zwroty. W szczególności, przyjrzymy się estymacji wartości zagrożonej (value-at-risk) i oczekiwanej straty warunkowej dla rozkładu $F_{X_{t+1}|\mathcal{F}_t}$.
+
+Zapisując $F_Z$ jako dystrybuantę innowacji $(Z_t)$, $\mathcal{F}_t$-mierzalność $\mu_{t+1}$ i $\sigma_{t+1}$ implikuje, że
+
+$$F_{X_{t+1}|\mathcal{F}_t}(x) = P(\mu_{t+1} + \sigma_{t+1}Z_{t+1} \le x | \mathcal{F}_t) = F_Z((x - \mu_{t+1})/\sigma_{t+1}).$$
+
+Niech $\text{VaR}_\alpha^t$ oznacza $\alpha$-kwantyl $F_{X_{t+1}|\mathcal{F}_t}$, a $\text{ES}_\alpha^t$ oznacza odpowiadającą mu oczekiwaną stratę warunkową. Stosując podejście z Przykładów 2.11 i 2.14, otrzymujemy
+
+$$\text{VaR}_\alpha^t = \mu_{t+1} + \sigma_{t+1} q_\alpha(Z), \quad \text{ES}_\alpha^t = \mu_{t+1} + \sigma_{t+1} \text{ES}_\alpha(Z), \quad (4.48)$$
+
+gdzie Z oznacza ogólną zmienną losową o dystrybuancie $F_Z$.
+
+Jest jasne, że jeśli możemy estymować $\mu_{t+1}$ i $\sigma_{t+1}$, to musimy już tylko umieć estymować $q_\alpha(Z)$ i $\text{ES}_\alpha(Z)$ dla rozkładu innowacji, aby uzyskać estymaty miar ryzyka w (4.48). Zadanie to można zrealizować zarówno w ujęciu parametrycznym, jak i nieparametrycznym (lub semi-parametrycznym). Jeśli estymujemy w pełni wyspecyfikowany model typu GARCH przy użyciu podejścia ML z Sekcji 4.2.4, to obliczenie $q_\alpha(Z)$ i $\text{ES}_\alpha(Z)$ dla estymowanego rozkładu innowacji jest w większości proste. Z drugiej strony, jeśli używamy metody QML do dopasowania modelu typu GARCH lub, jeszcze prościej, używamy technik wygładzania wykładniczego do estymacji zmienności i średniej warunkowej, możemy utworzyć reszty $\hat{Z}_s = (X_s - \hat{\mu}_s)/\hat{\sigma}_s$ dla $s=t-n+1, \dots, n$ i zastosować do tych reszt techniki estymacji kwantyla i oczekiwanej straty warunkowej; metody statystyczne do estymacji miar ryzyka na podstawie danych omówiono w Sekcji 9.2.6.
