@@ -29,6 +29,7 @@ parts:
     - file: chapters/An_Introduction_to_Statistical_Learning_with_Applications_in_R/chapter_05
     - file: chapters/An_Introduction_to_Statistical_Learning_with_Applications_in_R/chapter_07
     - file: chapters/An_Introduction_to_Statistical_Learning_with_Applications_in_R/chapter_08
+    - file: chapters/An_Introduction_to_Statistical_Learning_with_Applications_in_R/chapter_12
   - caption: Statistical Foundations of Actuarial Learning and its Applications
     chapters:
     - file: chapters/Statistical_Foundations_of_Actuarial_Learning_and_its_Applications/chapter_04
@@ -36,9 +37,9 @@ parts:
     chapters:
     - file: chapters/Quantitative_Risk_Management_Concepts_Techniques_and_Tools/chapter_04
     - file: chapters/Quantitative_Risk_Management_Concepts_Techniques_and_Tools/chapter_05
-  - caption: Reinsurance: Actuarial and Statistical Aspects
+  - caption: Reinsurance Actuarial and Statistical Aspects
     chapters:
-    - file chapters/Reinsurance_Actuarial_and_Statistical_Aspects/chapter_09
+    - file: chapters/Reinsurance_Actuarial_and_Statistical_Aspects/chapter_09
   - caption: Actuarial Aspects of ERM for Insurance Companies
     chapters:
     - file: chapters/Actuarial_Aspects_of_ERM_for_Insurance_Companies/chapter_03
