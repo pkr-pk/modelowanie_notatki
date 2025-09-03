@@ -36,6 +36,9 @@ parts:
     chapters:
     - file: chapters/Quantitative_Risk_Management_Concepts_Techniques_and_Tools/chapter_04
     - file: chapters/Quantitative_Risk_Management_Concepts_Techniques_and_Tools/chapter_05
+  - caption: Reinsurance: Actuarial and Statistical Aspects
+    chapters:
+    - file chapters/Reinsurance_Actuarial_and_Statistical_Aspects/chapter_09
   - caption: Actuarial Aspects of ERM for Insurance Companies
     chapters:
     - file: chapters/Actuarial_Aspects_of_ERM_for_Insurance_Companies/chapter_03
