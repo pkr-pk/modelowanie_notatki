@@ -1,5 +1,65 @@
 # Rozdział 4: Uogólnione modele liniowe (GLMs)
 
+## 4.5 Dewiancja
+
+### 4.5.3 Dewiancja
+
+#### 4.5.3.1 Statystyka ilorazu wiarygodności
+
+Model statystyczny opisuje, jak aktuariusz dzieli zmienność obecną w danych na strukturę systematyczną (odzwierciedloną w punktacji GLM) i losowe odchylenia od wartości oczekiwanych (zmienność wprowadzona przez założony rozkład ED). Model zerowy reprezentuje jeden skrajny przypadek, w którym dane są czysto losowe, podczas gdy model pełny lub nasycony przedstawia dane jako całkowicie systematyczne. Model pełny dostarcza miary tego, jak dobrze jakikolwiek model oparty na rozważanym rozkładzie ED może dopasować się do danych. Ponieważ model pełny daje najwyższą osiągalną log-wiarygodność przy danym rozkładzie ED, różnica między log-wiarygodnością $L_{full}$ modelu pełnego a log-wiarygodnością $L(\hat{\beta})$ badanego modelu GLM mierzy dobroć dopasowania uzyskaną w tym GLM. Prowadzi to do statystyki ilorazu wiarygodności, odpowiadającej dwukrotności tej różnicy. W rodzinie ED ta statystyka ilorazu wiarygodności jest dana przez:
+
+$$LR = 2(L_{full} - L(\hat{\beta})) = \frac{2}{\phi} \sum_{i=1}^{n} \nu_i [y_i(\tilde{\theta}_i - \hat{\theta}_i) - a(\tilde{\theta}_i) + a(\hat{\theta}_i)]$$
+
+gdzie $\tilde{\theta}_i$ to estymaty w modelu pełnym, a $\hat{\theta}_i$ to estymaty w badanym modelu. Zbyt duża wartość LR wskazuje, że rozważany model nie dopasowuje się zadowalająco do rzeczywistych danych, podczas gdy zbyt mała wartość LR może być sygnałem, że model ma niską moc wyjaśniającą. Tutaj "zbyt mała" odnosi się do kwantyla rozkładu chi-kwadrat, który wydaje się rozsądnym przybliżeniem rozkładu LR przy łagodnych warunkach regularności.
+
+#### 4.5.3.2 Dewiancja
+
+Podczas pracy z GLM przydatne jest posiadanie wielkości, którą można interpretować jako sumę kwadratów błędów (lub reszt) w modelu regresji liniowej normalnej. Ta wielkość nazywana jest dewiancją lub dewiancją resztową modelu i jest zdefiniowana jako:
+
+$$\begin{align*}
+D(y, \hat{\mu}) 
+&= \phi LR \\
+&= 2\phi(L_{full} - L(\hat{\beta})) \\
+&= 2 \sum_{i=1}^{n} \nu_i [y_i(\tilde{\theta}_i - \hat{\theta}_i) - a(\tilde{\theta}_i) + a(\hat{\theta}_i)]
+\end{align*}$$
+
+Jest to miara odległości między konkretnym modelem a obserwowanymi danymi, zdefiniowana za pomocą modelu nasyconego. Podobnie jak suma kwadratów błędów, kwantyfikuje ona zmienność w danych, która nie jest wyjaśniona przez rozważany model.
+
+**Tabela 4.7:** Dewiancja związana z GLM dla wybranych rozkładów z rodziny ED.
+| Rozkład | Dewiancja |
+| --- | --- |
+| **Dwumianowy** | $2 \sum_{i=1}^{n} \left( y_i \ln \frac{y_i}{\hat{\mu}_i} + (n_i - y_i) \ln \frac{n_i - y_i}{n_i - \hat{\mu}_i} \right)$ gdzie $\hat{\mu}_i = n_i \hat{q}_i$ |
+| **Poissona** | $2 \sum_{i=1}^{n} \left( y_i \ln \frac{y_i}{\hat{\mu}_i} - (y_i - \hat{\mu}_i) \right)$ gdzie $y \ln y = 0$ jeśli $y = 0$ |
+| **Normalny** | $\sum_{i=1}^{n} (y_i - \hat{\mu}_i)^2$ |
+| **Gamma** | $2 \sum_{i=1}^{n} \left( -\ln \frac{y_i}{\hat{\mu}_i} + \frac{y_i - \hat{\mu}_i}{\hat{\mu}_i} \right)$ |
+| **Odwrotny Gaussowski** | $\sum_{i=1}^{n} \frac{(y_i - \hat{\mu}_i)^2}{\hat{\mu}_i^2 y_i}$ |
+
+Ponieważ model nasycony musi pasować do danych co najmniej tak dobrze jak każdy inny model, dewiancja resztowa nigdy nie jest ujemne. Im większa dewiancja, tym większe różnice między rzeczywistymi danymi a dopasowanymi wartościami. Dewiancja modelu zerowego nazywana jest dewiancją zerową.
+
+Tabela 4.7 przedstawia dewiancje związane z modelami GLM opartymi na niektórych członkach rodziny rozkładów ED. Drugi człon $\sum_{i=1}^{n} (y_i - \hat{\mu}_i)$ w dewiancji Poissona jest zwykle równy 0, gdy w punktacji uwzględniony jest wyraz wolny, więc dewiancja Poissona redukuje się do $2 \sum_{i=1}^{n} y_i \ln(y_i / \hat{\mu}_i)$. W przypadku Poissona dewiancja jest również nazywana **statystyką G**. Należy zauważyć, że w tej tabeli $y \ln y$ jest przyjmowane jako 0, gdy $y = 0$ (jego granica, gdy $y \to 0$).
+
+#### 4.5.3.3 Skalowana dewiancja
+
+W rodzinach o znanym parametrze dyspersji $\phi$, takich jak rozkład dwumianowy, dla którego $\phi=1$, dewiancja stanowi podstawę do testowania braku dopasowania modelu lub do porównywania modeli zagnieżdżonych. Jeśli $\phi$ musi być estymowane na podstawie danych, zamiast tego należy użyć skalowanej dewiancji. Dokładniej, skalowana dewiancja jest dana wzorem:
+
+$$
+\tilde{D}(y, \hat{\mu}) = \frac{1}{\phi}D(y, \hat{\mu})
+$$
+
+Zauważmy, że skalowana dewiancja zależy od parametru dyspersji $\phi$. Gdy $\phi=1$ (podobnie jak w przypadkach rozkładu dwumianowego i Poissona), dewiancja i skalowana dewiancja są takie same. Powszechną praktyką jest po prostu podstawienie estymatora $\hat{\phi}$ w celu obliczenia $\tilde{D}$.
+
+#### 4.5.3.4 Rozkład z próby skalowanej dewiancji
+
+Pojęcie dewiancji rozszerza na wszystkich członków rodziny wykładniczej (ED family) znaną sumę kwadratów reszt stosowaną w normalnej regresji liniowej. Liczba stopni swobody związanej ze skalowaną dewiancją jest równa liczbie obserwacji $n$ pomniejszonej o liczbę $p + 1$ parametrów regresji $\beta_0, \beta_1, ..., \beta_p$, które mają być estymowane. W dużych próbach skalowana dewiancja ma w przybliżeniu rozkład Chi-kwadrat z $n - (p + 1)$ stopniami swobody, tj.
+
+$$
+\tilde{D} \approx \chi_{n-p-1}^{2} \quad \text{pod warunkiem, że } n \text{ jest wystarczająco duże.} \quad (4.16)
+$$
+
+Duża dewiancja wskazuje na źle dopasowany model. Dokładniej, jeśli uogólniony model liniowy (GLM) jest rozsądnie dopasowany do danych, to skalowana dewiancja $\tilde{D}$ powinna być bliska liczbie resztowych stopni swobody dla modelu, czyli $n - p - 1$.
+
+Należy zauważyć, że do aproksymacji rozkładem Chi-kwadrat w (4.16) należy podchodzić z ostrożnością. Istnieją sytuacje, w których nie jest ona w ogóle prawdziwa, na przykład w przypadku odpowiedzi binarnych (jak pokazano w następnej sekcji).
+
 ## 4.9 Surowe, standaryzowane i "studendyzowane" reszty
 
 ### 4.9.2 Reszty w GLM
