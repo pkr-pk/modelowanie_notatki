@@ -16,6 +16,7 @@ parts:
     chapters:
     - file: chapters/Effective_Statistical_Learning_Methods_for_Actuaries_II/chapter_03
     - file: chapters/Effective_Statistical_Learning_Methods_for_Actuaries_II/chapter_04
+    - file: chapters/Effective_Statistical_Learning_Methods_for_Actuaries_II/chapter_06
   - caption: Loss Models From Data to Decisions
     chapters:
     - file: chapters/Loss_Models_From_Data_to_Decisions/chapter_14
