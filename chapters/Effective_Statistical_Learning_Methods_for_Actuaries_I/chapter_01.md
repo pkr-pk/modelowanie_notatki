@@ -163,8 +163,7 @@ Teraz, prawdziwa składka zależy od $\boldsymbol{X}^+$, a nie tylko od $\boldsy
 $$
 \begin{align*}
 \text{Var}[Y] &= \underbrace{\underbrace{E[\text{Var}[Y|\boldsymbol{X}, \boldsymbol{X}^+]]}_{\substack{\text{solidarność losowa} \\ \text{zasada wzajemności}}} + \underbrace{E[\text{Var}[E[Y|\boldsymbol{X}, \boldsymbol{X}^+]|\boldsymbol{X}]]}_{\substack{\text{solidarność subsydiująca} \\ \text{niedoskonała klasyfikacja ryzyka}}}}_{\substack{\rightarrow \text{ towarzystwo ubezpieczeniowe}}} \\
-
-&+ \underbrace{\text{Var}[E[Y|\boldsymbol{X}]]}_{\rightarrow \text{ ubezpieczający}}
+&+ \underbrace{\text{Var}[E[Y|\boldsymbol{X}]]}_{\substack{\rightarrow \text{ ubezpieczający}}}
 \end{align*}
 $$
 
