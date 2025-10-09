@@ -191,3 +191,278 @@ z \mapsto \exp(\theta z - a(\theta)) c(z)
 $$
 
 definiuje rozkład ED z kanonicznym parametrem $\theta$. Taka konstrukcja jest często używana w stosowanym prawdopodobieństwie i nazywana jest wykładniczym pochyleniem $Z$. Zauważ, że dla $\theta=0$ po prostu odzyskujemy $f_Z$.
+
+### 2.2.3 Niektóre rozkłady związane z rozkładem normalnym
+
+Przed zbadaniem rodziny ED, przypomnijmy sobie krótko definicję niektórych standardowych rozkładów ściśle związanych z rozkładem normalnym.
+
+#### 2.2.3.1 Rozkład log-normalny
+
+W zastosowaniach aktuarialnych rozkład normalny jest często stosowany w skali logarytmicznej, tzn. zakładając, że $\ln Y \sim \mathcal{Nor}(\mu, \sigma^2)$. Mówi się wówczas, że odpowiedź $Y$ ma rozkład log-normalny. Odpowiednia funkcja gęstości prawdopodobieństwa jest dana wzorem
+
+$$
+f_Y(y) = \frac{1}{y\sigma\sqrt{2\pi}} \exp\left(-\frac{1}{2\sigma^2}(\ln y - \mu)^2\right), \quad y > 0.
+$$
+
+Rozkład log-normalny jest często używany do modelowania wielkości roszczeń. Jednak wcześniejsza transformacja danych do skali logarytmicznej może wpłynąć na predykcję, chyba że zostaną wprowadzone odpowiednie korekty. Głównym celem stosowania rodziny ED jest uniknięcie tej wstępnej transformacji i praca z oryginalną, nieprzekształconą odpowiedzią $Y$.
+
+Jeśli $\ln Y \sim \mathcal{Nor}(\mu, \sigma^2)$, to $\exp(\mu)$ nie jest średnią, lecz medianą, jako że
+
+$$
+P[Y \le \exp(\mu)] = P[\ln Y \le \mu] = \frac{1}{2}.
+$$
+
+Średnia i wariancja są odpowiednio dane przez
+
+$$
+E[Y] = \exp\left(\mu + \frac{\sigma^2}{2}\right),
+$$
+
+oraz
+
+$$
+\text{Var}[Y] = (\exp(\sigma^2) - 1) \exp(2\mu + \sigma^2) = (\exp(\sigma^2) - 1)(E[Y])^2.
+$$
+
+Stąd widzimy, że wariancja jest kwadratową funkcją średniej. Ponieważ $\exp(\sigma^2) > 1$, wariancja rośnie wraz ze średnią.
+
+Współczynnik skośności $\gamma$ zmiennej losowej jest zdefiniowany w następujący sposób: dla danej zmiennej losowej $Y$ o średniej $\mu$ i wariancji $\sigma^2$,
+
+$$
+\gamma[Y] = \frac{E[(Y - \mu)^3]}{\sigma^3}.
+$$
+
+Jeśli funkcja gęstości prawdopodobieństwa $Y$ jest symetryczna (jak w przypadku rozkładu normalnego), to $\gamma[Y] = 0$. Im większe $|\gamma[Y]|$, tym bardziej asymetryczny jest rozkład. Dla rozkładu log-normalnego, współczynnik skośności
+
+$$
+\gamma[Y] = (\exp(\sigma^2) + 2)\sqrt{\exp(\sigma^2) - 1}
+$$
+
+jest zawsze dodatni i zależy tylko od $\sigma^2$, a nie od $\mu$.
+
+#### 2.2.3.2 Rozkład chi-kwadrat
+
+Rozkład chi-kwadrat z $k$ stopniami swobody odpowiada rozkładowi sumy
+
+$$
+Y = Z_1^2 + Z_2^2 + \dots + Z_k^2
+$$
+
+niezależnych zmiennych losowych $Z_1, Z_2, \dots, Z_k$ o rozkładzie $\mathcal{Nor}(0, 1)$, podniesionych do kwadratu. Odtąd taki przypadek oznaczamy jako $Y \sim \chi_k^2$.
+
+Podajmy funkcję gęstości prawdopodobieństwa rozkładu chi-kwadrat. Przypomnijmy, że funkcja Gamma $\Gamma(\cdot)$ jest zdefiniowana dla $\alpha \ge 0$ jako całka
+
+$$
+\Gamma(\alpha) = \int_0^\infty \exp(-z)z^{\alpha-1}dz.
+$$
+
+Oczywiście $\Gamma(1) = 1$, a całkowanie przez części pokazuje, że
+
+$$
+\Gamma(\alpha) = (\alpha-1)\Gamma(\alpha-1) \text{ dla każdego } \alpha > 1.
+$$
+
+Zatem funkcja Gamma może być postrzegana jako ciągła wersja silni, w tym sensie, że gdy $\alpha$ jest nieujemną liczbą całkowitą,
+
+$$
+\Gamma(\alpha + 1) = \alpha! = \prod_{j=0}^{\alpha-1} (\alpha - j).
+$$
+
+Funkcja gęstości prawdopodobieństwa rozkładu chi-kwadrat z $k$ stopniami swobody jest dana wzorem
+
+$$
+f_Y(y) = \frac{y^{k/2 - 1}\exp(-y/2)}{2^{k/2}\Gamma(k/2)}, \quad y > 0.
+$$
+
+Rozkład chi-kwadrat jest używany głównie w testowaniu hipotez, a nie do bezpośredniego modelowania odpowiedzi. Pojawia się w teście ilorazu wiarygodności dla zagnieżdżonych modeli, na przykład.
+
+#### 2.2.3.3 Rozkład t-Studenta
+
+Rozkład t-Studenta (lub po prostu rozkład t) jest związany ze średnią z normalnie rozłożonych odpowiedzi w sytuacjach, gdy wielkość próby jest mała, a odchylenie standardowe populacji jest nieznane. W szczególności, niech $Y_1, \dots, Y_n$ będą niezależnymi zmiennymi losowymi podlegającymi rozkładowi $\mathcal{Nor}(\mu, \sigma^2)$ i zdefiniujmy
+
+$$
+\bar{Y} = \frac{1}{n}\sum_{i=1}^n Y_i \quad \text{i} \quad S^2 = \frac{1}{n-1}\sum_{i=1}^n (Y_i - \bar{Y})^2.
+$$
+
+Wielkości te nazywane są średnią z próby i wariancją z próby. Wtedy,
+
+$$
+\frac{\bar{Y} - \mu}{\sigma/\sqrt{n}} \sim \mathcal{Nor}(0, 1),
+$$
+
+podczas gdy zmienna losowa
+
+$$
+T = \frac{\bar{Y} - \mu}{S/\sqrt{n}}
+$$
+
+ma rozkład t-Studenta z $n-1$ stopniami swobody. Odpowiednia funkcja gęstości prawdopodobieństwa to
+
+$$
+f_T(t) = \frac{\Gamma(n/2)}{\sqrt{(n-1)\pi}\Gamma(\frac{n-1}{2})} \left(1 + \frac{t^2}{n-1}\right)^{-n/2}, \quad t \in (-\infty, \infty).
+$$
+
+Funkcja gęstości prawdopodobieństwa rozkładu t-Studenta jest symetryczna, a jej ogólny kształt przypomina dzwonowaty kształt normalnie rozłożonej zmiennej losowej o średniej 0 i wariancji 1, z tą różnicą, że ma grubsze ogony. Staje się ona coraz bliższa rozkładowi normalnemu wraz ze wzrostem liczby stopni swobody.
+
+Rozkład t-Studenta z $d$ stopniami swobody można ogólnie zdefiniować jako rozkład zmiennej losowej
+
+$$
+T = \frac{Z}{\sqrt{C/d}}
+$$
+
+gdzie $Z \sim \mathcal{Nor}(0, 1)$, $C \sim \chi_d^2$, przy czym $Z$ i $C$ są niezależne.
+
+#### 2.2.3.4 Rozkład Fishera
+
+Rozważmy dwie niezależne zmienne losowe o rozkładzie chi-kwadrat $C_1$ i $C_2$ z odpowiednio $d_1$ i $d_2$ stopniami swobody. Rozkład F z parametrami $d_1$ i $d_2$ odpowiada stosunkowi
+
+$$
+\frac{C_1/d_1}{C_2/d_2}.
+$$
+
+Rozkład ten naturalnie pojawia się w pewnych procedurach testowych.
+
+### 2.3 Niektóre rozkłady z rodziny ED
+
+#### 2.3.1 Rozkład Gamma
+
+##### 2.3.1.1 Funkcja gęstości prawdopodobieństwa rozkładu Gamma
+
+Rozkład Gamma jest prawostronnie skośny, z ostrym szczytem i długim ogonem po prawej stronie. Cechy te są często widoczne w empirycznych rozkładach kwot roszczeń. To sprawia, że rozkład Gamma jest naturalnym kandydatem do modelowania świadczeń z tytułu roszczeń wypłacanych przez ubezpieczyciela.
+
+Dokładniej, mówi się, że zmienna losowa $Y$ o wartościach w $\mathcal{S} = (0, \infty)$ ma rozkład Gamma z parametrami $\alpha > 0$ i $\tau > 0$, co odtąd będziemy oznaczać jako $Y \sim \mathcal{Gam}(\alpha, \tau)$, jeśli jej funkcja gęstości prawdopodobieństwa jest dana wzorem
+
+$$
+f_Y(y) = \frac{\tau^\alpha y^{\alpha-1} \exp(-\tau y)}{\Gamma(\alpha)}, \quad y > 0. \quad (2.4)
+$$
+
+Parametr $\alpha$ jest często nazywany parametrem kształtu rozkładu Gamma, podczas gdy $\tau$ jest określany jako parametr skali.
+
+##### 2.3.1.2 Momenty
+
+Średnia i wariancja $Y \sim \mathcal{Gam}(\alpha, \tau)$ są odpowiednio dane przez
+
+$$
+E[Y] = \frac{\alpha}{\tau} \quad \text{i} \quad \text{Var}[Y] = \frac{\alpha}{\tau^2} = \frac{1}{\alpha}(E[Y])^2. \quad (2.5)
+$$
+
+Widzimy więc, że wariancja jest kwadratową funkcją średniej, podobnie jak w przypadku rozkładu log-normalnego. Rozkład Gamma jest użyteczny do modelowania dodatniej, ciągłej odpowiedzi, gdy wariancja rośnie wraz ze średnią, ale gdzie współczynnik zmienności
+
+$$
+\text{CV}[Y] = \frac{\sqrt{\text{Var}[Y]}}{E[Y]} = \frac{1}{\sqrt{\alpha}}
+$$
+
+pozostaje stały. Jak sugerują ich nazwy, parametr skali w rodzinie Gamma wpływa głównie na rozrzut (a pośrednio na położenie), ale nie na kształt rozkładu, podczas gdy parametr kształtu kontroluje skośność rozkładu. Dla $Y \sim \mathcal{Gam}(\alpha, \tau)$ mamy
+
+$$
+\gamma[Y] = \frac{2}{\sqrt{\alpha}}
+$$
+
+więc rozkład Gamma jest dodatnio skośny. W miarę wzrostu parametru kształtu $\alpha$, rozkład staje się bardziej symetryczny.
+
+Rysunek 2.2 przedstawia funkcje gęstości prawdopodobieństwa Gamma dla różnych wartości parametrów. Ustalono tu średnią $\mu = \frac{\alpha}{\tau}$ na 1 i przyjęto $\tau \in \{1, 2, 4\}$, tak że wariancja jest równa 1, 0.5, i 0.25. W przeciwieństwie do rozkładu normalnego (którego funkcja gęstości prawdopodobieństwa przypomina kształt dzwonu wyśrodkowanego na $\mu$ niezależnie od wariancji $\sigma^2$), kształt funkcji gęstości prawdopodobieństwa Gamma zmienia się wraz z parametrem $\alpha$. Dla $\alpha \le 1$, funkcja gęstości prawdopodobieństwa ma maksimum w początku układu, podczas gdy dla $\alpha > 1$ jest jednomodalna, ale skośna. Skośność maleje wraz ze wzrostem $\alpha$.
+
+Rozkłady Gamma cieszą się wygodną właściwością stabilności splotu dla ustalonego parametru skali $\tau$. W szczególności,
+
+$$
+\left.
+\begin{aligned}
+Y_1 &\sim \mathcal{Gam}(\alpha_1, \tau) \\
+Y_2 &\sim \mathcal{Gam}(\alpha_2, \tau) \\
+Y_1 &\text{ i } Y_2 \text{ niezależne}
+\end{aligned}
+\right\} \Rightarrow Y_1 + Y_2 \sim \mathcal{Gam}(\alpha_1 + \alpha_2, \tau). \quad (2.6)
+$$
+
+##### 2.3.1.3 Przypadki szczególne: Rozkład wykładniczy ujemny, Erlanga i chi-kwadrat
+
+Gdy $\alpha = 1$, rozkład Gamma redukuje się do rozkładu wykładniczego ujemnego z funkcją gęstości prawdopodobieństwa
+
+$$
+f_Y(y) = \tau \exp(-\tau y), \quad y > 0.
+$$
+
+W tym przypadku piszemy $Y \sim \mathcal{Exp}(\tau)$. Rozkład ten cieszy się niezwykłą właściwością braku pamięci:
+
+$$
+P[Y > s+t | Y > s] = \frac{\exp(-\tau(s+t))}{\exp(-\tau s)} = \exp(-\tau t) = P[Y > t].
+$$
+
+Odpowiada to stałej intensywności śmierci lub awarii: $\frac{f_Y(t)}{1-F_Y(t)} = \tau$; osoba z czasem życia $Y \sim \mathcal{Exp}(\tau)$ nie starzeje się, podlegając stałej intensywności śmierci $\tau$ przez całe życie.
+
+Gdy $\alpha$ jest dodatnią liczbą całkowitą, odpowiednia dystrybuanta rozkładu Gamma jest dana przez
+
+$$
+F(y) = 1 - \sum_{j=0}^{\alpha-1} \exp(-y\tau) \frac{(y\tau)^j}{j!}, \quad y \ge 0.
+$$
+
+Ten szczególny przypadek jest określany jako rozkład Erlanga. Rozkład Erlanga odpowiada rozkładowi sumy
+
+$$
+Y = Z_1 + Z_2 + \dots + Z_\alpha
+$$
+
+niezależnych zmiennych losowych $Z_1, Z_2, \dots, Z_\alpha$ o wspólnym rozkładzie $\mathcal{Exp}(\tau)$, na mocy (2.6). Stąd, gdy $\alpha = 1$, rozkład Erlanga redukuje się do rozkładu wykładniczego ujemnego.
+
+Rozkład chi-kwadrat z $k$ stopniami swobody okazuje się być szczególnym przypadkiem rozkładu $\mathcal{Gam}(\alpha, \tau)$ z $\alpha = k/2$ i $\tau = 1/2$.
+
+##### 2.3.1.4 Postać ED
+
+Ustalmy teraz, że rozkład Gamma należy do rodziny ED. W tym celu wprowadźmy parametr średniej $\mu = \alpha/\tau$ do wyrażenia funkcji gęstości prawdopodobieństwa i przepiszmy funkcję gęstości prawdopodobieństwa $\mathcal{Gam}(\alpha, \tau)$ (2.4) w następujący sposób:
+
+$$
+\begin{aligned}
+f_Y(y) &= \frac{\tau^\alpha}{\Gamma(\alpha)} y^{\alpha-1} \exp(-\tau y) \\
+&= \frac{\alpha^\alpha \mu^{-\alpha}}{\Gamma(\alpha)} y^{\alpha-1} \exp\left(-\frac{y\alpha}{\mu}\right) \quad \text{z} \quad \mu = \frac{\alpha}{\tau} \Leftrightarrow \tau = \frac{\alpha}{\mu} \\
+&= \exp\left(\alpha\left(-\frac{y}{\mu} - \ln\mu\right)\right) \frac{\alpha^\alpha}{\Gamma(\alpha)} y^{\alpha-1}
+\end{aligned}
+$$
+
+co jest zgodne z postacią (2.3) z
+
+$$
+\begin{aligned}
+\theta &= -\frac{1}{\mu} \\
+a(\theta) &= \ln \mu = -\ln(-\theta) \\
+\phi &= \frac{1}{\alpha} \\
+c(y, \phi) &= \frac{\alpha^\alpha}{\Gamma(\alpha)}y^{\alpha-1}.
+\end{aligned}
+$$
+
+Rozkład Gamma należy więc do rodziny ED.
+
+##### 2.3.1.5 Rozkłady potęgowo-gamma, czyli Weibulla
+
+Rozkład Weibulla jest często używany w badaniach niezawodności, ponieważ odpowiada rozkładowi minimum z dużej liczby niezależnych zmiennych losowych, z których każda odpowiada czasowi do wystąpienia innego rodzaju awarii. Taki element psuje się, gdy tylko jeden z jego komponentów zawiedzie. Rozkład Weibulla był również stosowany w ubezpieczeniach na życie, biorąc pod uwagę ludzkie ciało jako system szeregowy.
+
+Rozważmy $Y = Z^{1/\alpha}$ dla pewnego $\alpha > 0$, gdzie $Z \sim \mathcal{Exp}(\tau)$. Wtedy $Y$ podlega rozkładowi Weibulla z funkcją gęstości prawdopodobieństwa
+
+$$
+f_Y(y) = \alpha \tau y^{\alpha-1} \exp(-\tau y^\alpha), \quad y > 0.
+$$
+
+Średnia rozkładu Weibulla wynosi
+
+$$
+E[Y] = \tau^{-1/\alpha} \Gamma\left(1 + \frac{1}{\alpha}\right)
+$$
+
+a wariancja
+
+$$
+\text{Var}[Y] = \tau^{-2/\alpha}\left(\Gamma\left(1+\frac{2}{\alpha}\right) - \left(\Gamma\left(1+\frac{1}{\alpha}\right)\right)^2\right).
+$$
+
+Rozkład Weibulla jest ściśle związany z modelowaniem przyspieszonego czasu życia. Zauważmy również, że jeśli $Y$ jest rozkładem Weibulla, to $\ln Y = \frac{\ln Z}{\alpha}$ podlega rozkładowi wartości ekstremalnych.
+
+##### 2.3.1.6 Rozkłady log-gamma, czyli Pareto
+
+Rozkłady log-gamma są przydatne do modelowania odpowiedzi o ciężkich ogonach. Biorąc pod uwagę $\ln Y \sim \mathcal{Exp}(\xi)$, mamy
+
+$$
+P[Y \le y] = 
+\begin{cases} 
+0, & \text{jeśli } y \le 1, \\
+1 - y^{-\xi}, & \text{jeśli } y > 1. 
+\end{cases}
+$$
