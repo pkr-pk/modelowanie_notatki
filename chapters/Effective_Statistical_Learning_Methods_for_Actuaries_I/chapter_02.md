@@ -466,3 +466,352 @@ P[Y \le y] =
 1 - y^{-\xi}, & \text{jeśli } y > 1. 
 \end{cases}
 $$
+
+Model ten różni się od poprzednich tym, że funkcja gęstości prawdopodobieństwa maleje do 0 proporcjonalnie, a nie wykładniczo. To wolniejsze dążenie do zera oznacza, że więcej masy prawdopodobieństwa może znajdować się w górnym ogonie rozkładu. Taka odpowiedź może odchylać się od swojej średniej w znacznie większym stopniu (ta ostatnia może nawet stać się nieskończona, gdy $\xi \le 1$).
+
+Aby otrzymać rozkład Pareto, wystarczy rozważyć
+
+$$
+Y = \tau(\exp(Z) - 1) \quad \text{z} \quad Z \sim \mathcal{Exp}(\xi)
+$$
+
+tak że
+
+$$
+\begin{aligned}
+P[Y > y] &= P\left[Z > \ln\left(1 + \frac{y}{\tau}\right)\right] \\
+&= \left(1 + \frac{y}{\tau}\right)^{-\xi} \\
+&= \left(\frac{\tau}{y+\tau}\right)^\xi.
+\end{aligned}
+$$
+
+Odtąd oznaczamy jako $\mathcal{Par}(\alpha, \tau)$ rozkład Pareto z dodatnimi parametrami $\alpha$ i $\tau$. Jak wspomniano wcześniej w przypadku rozkładu log-normalnego, wcześniejsza transformacja do skali logarytmicznej nie jest optymalna z punktu widzenia statystycznego.
+
+Średnia rozkładu Pareto jest nieskończona, jeśli $\alpha \le 1$. Dla $\alpha > 1$ średnia jest równa $\frac{\tau}{\alpha-1}$. Wariancja jest zdefiniowana dla $\alpha > 2$ i jest równa $\frac{\alpha\tau^2}{(\alpha-2)(\alpha-1)^2}$.
+
+### **2.3.2 Odwrotny rozkład Gaussa**
+
+#### **2.3.2.1 Funkcja gęstości prawdopodobieństwa odwrotnego rozkładu Gaussa**
+
+Odwrotny rozkład Gaussa pojawia się czasami w literaturze aktuarialnej jako kolejny dobry kandydat do modelowania dodatnich, prawostronnie skośnych danych. Jego właściwości przypominają właściwości rozkładów Gamma i log-normalnego. Jego nazwa wywodzi się z odwrotnej relacji, jaka istnieje między funkcją generującą kumulanty odwrotnego rozkładu Gaussa a funkcją rozkładu normalnego (lub Gaussa).
+
+Przypomnijmy, że zmienna losowa $Y$ o wartościach w $\mathcal{S}=(0, \infty)$ ma odwrotny rozkład Gaussa z parametrami $\mu>0$ i $\alpha>0$, co odtąd będziemy oznaczać jako $Y \sim \mathcal{IGau}(\mu, \alpha)$, jeśli jej funkcja gęstości prawdopodobieństwa jest dana wzorem
+
+$$
+f_Y(y) = \sqrt{\frac{\alpha}{2\pi y^3}} \exp\left(-\frac{\alpha(y-\mu)^2}{2y\mu^2}\right), \quad y>0. \quad (2.7)
+$$
+
+Odwrotny rozkład Gaussa z $\mu=1$ jest znany jako rozkład Walda.
+
+#### **2.3.2.2 Momenty**
+
+Jeśli $Y \sim \mathcal{IGau}(\mu, \alpha)$, to momenty są dane przez
+
+$$
+E[Y] = \mu \quad \text{i} \quad \text{Var}[Y] = \frac{\mu^3}{\alpha} = \frac{1}{\alpha}(E[Y])^3. \quad (2.8)
+$$
+
+Podobnie jak w przypadku rozkładu Gamma, wariancja odwrotnego rozkładu Gaussa rośnie wraz ze średnią, ale w szybszym tempie (sześciennym zamiast kwadratowego).
+
+Odwrotny rozkład Gaussa zyskał na znaczeniu w opisywaniu i analizowaniu danych prawostronnie skośnych. Główną zaletą modeli odwrotnego rozkładu Gaussa jest fakt, że mogą one przyjmować różne kształty, od wysoce skośnych do prawie normalnych. W prawdopodobieństwie stosowanym odwrotny rozkład Gaussa pojawia się jako rozkład czasu pierwszego przejścia do bariery absorbującej zlokalizowanej w jednostkowej odległości od początku w procesie Wienera (ruch Browna).
+
+Rysunek 2.3 przedstawia funkcje gęstości prawdopodobieństwa odwrotnego rozkładu Gaussa dla różnych wartości parametrów. Przyjmujemy tutaj tę samą średnią i wariancje jak w przypadku Gamma powyżej, tj. $\mu=1$ i $\alpha=1, 2, 4$.
+
+#### **2.3.2.3 Postać ED**
+
+Aby pokazać, że odwrotny rozkład Gaussa należy do rodziny ED, przepiszmy funkcję gęstości prawdopodobieństwa $\mathcal{IGau}(\mu, \alpha)$ (2.7) w następujący sposób
+
+$$
+\begin{aligned}
+f_Y(y) &= \sqrt{\frac{\alpha}{2\pi y^3}} \exp\left(-\frac{\alpha(y-\mu)^2}{2y\mu^2}\right) \\
+&= \exp\left(-\frac{\alpha(y^2-2y\mu+\mu^2)}{2y\mu^2}\right) \sqrt{\frac{\alpha}{2\pi y^3}} \\
+&= \exp\left(\frac{y\left(-\frac{1}{2\mu^2}\right) - \left(-\frac{1}{\mu}\right)}{1/\alpha}\right) \exp\left(-\frac{\alpha}{2y}\right)\sqrt{\frac{\alpha}{2\pi y^3}}
+\end{aligned}
+$$
+
+co jest zgodne z postacią (2.3) z
+
+$$
+\begin{aligned}
+\theta &= -\frac{1}{2\mu^2} \\
+a(\theta) &= -\frac{1}{\mu} = -\sqrt{-2\theta} \\
+\phi &= \frac{1}{\alpha} \\
+c(y, \phi) &= \exp\left(-\frac{\alpha}{2y}\right)\sqrt{\frac{\alpha}{2\pi y^3}}.
+\end{aligned}
+$$
+
+Odwrotny rozkład Gaussa należy więc do rodziny ED.
+
+#### **2.3.2.4 Porównanie rozkładów log-normalnego, Gamma i odwrotnego Gaussa**
+
+Naturalne jest chęć porównania prawostronnie skośnych funkcji gęstości prawdopodobieństwa odpowiadających rozkładom log-normalnemu, Gamma i odwrotnemu Gaussa. W tym celu aktuariusze wykonują porównanie dla identycznej średniej i wariancji. W szczególności rozważmy zmienne losowe $X$ podlegające rozkładowi Gamma, $Y$ podlegające odwrotnemu rozkładowi Gaussa i $Z$ podlegające rozkładowi log-normalnemu, tak że
+
+$$
+E[X] = E[Y] = E[Z] \quad \text{i} \quad \text{Var}[X] = \text{Var}[Y] = \text{Var}[Z].
+$$
+
+Wówczas Kaas i Hesselager (1995, Twierdzenie 3.1) ustalili, że nierówności
+
+$$
+\begin{aligned}
+E[(X-t)_+^2] &\le E[(Y-t)_+^2] \\
+E[(X-t)_+^3] &\le E[(Z-t)_+^3] \\
+E[(Y-t)_+^3] &\le E[(Z-t)_+^3]
+\end{aligned}
+$$
+
+zachodzą dla wszystkich $t \ge 0$. Zatem nierówności
+
+$$
+E[(X-t)_+^3] \le E[(Y-t)_+^3] \le E[(Z-t)_+^3] \text{ zachodzą dla wszystkich } t \ge 0,
+$$
+
+co pokazuje, że ogony rozkładu log-normalnego są cięższe w porównaniu z ogonami odwrotnego rozkładu Gaussa, które z kolei są cięższe w porównaniu z ogonami rozkładu Gamma.
+
+Jako przykład, Rys. 2.4 przedstawia trzy funkcje gęstości prawdopodobieństwa z tą samą średnią 1 i wariancją 0.5. Widzimy, że te trzy funkcje gęstości prawdopodobieństwa rzeczywiście zgadzają się z tym rankingiem dla dostatecznie dużych wartości ich argumentu.
+
+### **2.3.3 Rozkład dwumianowy**
+
+#### **2.3.3.1 Próba Bernoulliego**
+
+Wiele rozkładów zliczających jest definiowanych za pomocą prób Bernoulliego. W próbie Bernoulliego dany eksperyment prowadzący do sukcesu lub porażki jest powtarzany w identycznych warunkach (więc poprzednie wyniki nie wpływają na kolejne). Oznacza to, że pewne zdarzenie $E$ jest dychotomiczne, np. sukces lub porażka, żywy lub martwy, obecność lub brak. Wynik próby Bernoulliego to zatem 0 lub 1, tak lub nie. Zmienną interesującą jest liczba sukcesów. W próbach Bernoulliego analityk jest zainteresowany prawdopodobieństwem $q$, że zdarzenie wystąpi. Jest to w istocie skłonność lub prawdopodobieństwo zapadalności.
+
+#### **2.3.3.2 Rozkład Bernoulliego**
+
+Odpowiedź $Y$ o wartościach w $\mathcal{S}=\{0,1\}$ ma rozkład Bernoulliego z prawdopodobieństwem sukcesu $q$, co oznaczamy jako $Y \sim \mathcal{Ber}(q)$. Odpowiednia funkcja masy prawdopodobieństwa jest dana przez
+
+$$
+p_Y(y) = 
+\begin{cases}
+1-q & \text{jeśli } y=0 \\
+q & \text{jeśli } y=1 \\
+0 & \text{w przeciwnym razie}.
+\end{cases}
+$$
+
+Jest tu tylko jeden parametr: prawdopodobieństwo sukcesu $q$. Średnia i wariancja $Y \sim \mathcal{Ber}(q)$ są dane przez
+
+$$
+E[Y] = q \quad \text{i} \quad \text{Var}[Y] = q(1-q). \quad (2.9)
+$$
+
+Taka odpowiedź $Y$ jest zmienną wskaźnikową: dla pewnego zdarzenia $E$ o prawdopodobieństwie $q$,
+
+$$
+Y = I[E] = 
+\begin{cases}
+1 & \text{jeśli } E \text{ wystąpi} \\
+0 & \text{w przeciwnym razie}.
+\end{cases}
+$$
+
+Bardziej ogólnie, oznaczamy przez $I[\cdot]$ funkcję wskaźnikową równą 1, jeśli warunek w nawiasach jest spełniony, i 0 w przeciwnym razie.
+
+Aby sprawdzić, czy rozkład Bernoulliego należy do rodziny ED, musimy pokazać, że odpowiednia funkcja masy prawdopodobieństwa $p_Y$ ma postać (2.3). W tym celu napiszmy
+
+$$
+\begin{aligned}
+p_Y(y) &= q^y(1-q)^{1-y} \\
+&= \exp\left(y\ln\frac{q}{1-q} + \ln(1-q)\right),
+\end{aligned}
+$$
+
+co odpowiada funkcji masy prawdopodobieństwa ED (2.3) z
+
+$$
+\begin{aligned}
+\theta &= \ln\frac{q}{1-q} \\
+a(\theta) &= -\ln(1-q) = \ln(1+\exp(\theta)) \\
+\phi &= 1 \\
+v &= 1 \\
+c(y, \phi) &= 1.
+\end{aligned}
+$$
+
+To pokazuje, że rozkład Bernoulliego rzeczywiście należy do rodziny ED.
+
+#### **2.3.3.3 Rozkład dwumianowy**
+
+Rozkład dwumianowy odpowiada liczbie sukcesów odnotowanych w sekwencji $m$ niezależnych prób Bernoulliego, każda z tym samym prawdopodobieństwem sukcesu $q$. Oznaczając przez $Y$ liczbę sukcesów w zbiorze $\mathcal{S}=\{0, 1, \dots, m\}$, prawdopodobieństwo, że wynik prób wynosi dokładnie $y$ jest
+
+$$
+p_Y(y) = \binom{m}{y} q^y (1-q)^{m-y}, \quad y=0,1,\dots,m, \quad (2.10)
+$$
+
+i 0 w przeciwnym razie, gdzie współczynnik dwumianowy jest zdefiniowany jako
+
+$$
+\binom{m}{y} = \frac{m!}{y!(m-y)!}
+$$
+
+jest liczbą sposobów wyboru $y$ sukcesów spośród $m$ prób. Mamy teraz dwa parametry: liczbę prób $m$ (zwana także wykładnikiem lub rozmiarem) i prawdopodobieństwo sukcesu $q$. Często $m$ jest znane aktuariuszowi, podczas gdy $q$ jest parametrem do oszacowania. Piszemy $Y \sim \mathcal{Bin}(m,q)$, aby wskazać, że $Y$ ma rozkład dwumianowy, stąd $m$ i prawdopodobieństwo sukcesu $q$. Zauważ, że definicja sukcesu w odniesieniu do porażki jest arbitralna, w tym sensie, że
+
+$$
+Y \sim \mathcal{Bin}(m,q) \Leftrightarrow m-Y \sim \mathcal{Bin}(m, 1-q).
+$$
+
+Kształt funkcji masy prawdopodobieństwa rozkładu dwumianowego jest przedstawiony na wykresach na Rys. 2.5 dla $m=100$ i zmieniających się wartości $q$. Dokładniej, Rys. 2.5 przedstawia wykresy słupkowe, gdzie wysokość jest równa masie prawdopodobieństwa zlokalizowanej w odpowiedniej liczbie całkowitej. Dla małych $q$ widzimy, że funkcja masy prawdopodobieństwa jest wysoce asymetryczna, koncentrując masę prawdopodobieństwa na mniejszych wynikach. Gdy prawdopodobieństwo sukcesu $q$ staje się większe, funkcja masy prawdopodobieństwa rozkładu dwumianowego staje się bardziej symetryczna, a jej kształt ostatecznie wydaje się podobny do (dyskretnej wersji) rozkładu normalnego. Jest to konsekwencja centralnego twierdzenia granicznego, ponieważ rozkład dwumianowy odpowiada sumie niezależnych prób Bernoulliego. Zbieżność do granicznego rozkładu normalnego jest szybsza, gdy wyniki Bernoulliego stają się bardziej symetryczne, to znaczy, gdy $q$ zbliża się do 0.5.
+
+Oczywiście,
+
+$$
+\left.
+\begin{aligned}
+Y_1 &\sim \mathcal{Bin}(m_1, q) \\
+Y_2 &\sim \mathcal{Bin}(m_2, q) \\
+Y_1 &\text{ i } Y_2 \text{ niezależne}
+\end{aligned}
+\right\} \Rightarrow Y_1 + Y_2 \sim \mathcal{Bin}(m_1 + m_2, q).
+$$
+
+Z (2.9) łatwo wywnioskować, że dla $Y \sim \mathcal{Bin}(m,q)$,
+
+$$
+E[Y] = mq \quad \text{i} \quad \text{Var}[Y] = mq(1-q). \quad (2.11)
+$$
+
+Łatwo zauważyć, że wariancja rozkładu dwumianowego jest maksymalna, gdy $q = \frac{1}{2}$. Natychmiast obserwujemy, że rozkład dwumianowy jest niedyspersyjny, tzn. jego wariancja jest mniejsza niż jego średnia:
+
+$$
+\text{Var}[Y] = mq(1-q) \le mq = E[Y].
+$$
+
+Trzeci moment centralny, mierzący skośność, jest dany przez $mq(1-q)(1-2q)$. Stąd rozkład dwumianowy jest symetryczny, gdy $q=\frac{1}{2}$. Widać to z ostatniego panelu na Rys. 2.5. Dla wszystkich innych wartości $q$, funkcja masy prawdopodobieństwa rozkładu dwumianowego jest skośna (dodatnio skośna dla $q$ mniejszego niż 0.5, ujemnie skośna dla $q$ większego niż 0.5).
+
+_Uwaga 2.3.1_ Rozważmy niezależne zmienne losowe $Y_i \sim \mathcal{Ber}(q_i), i=1,2,\dots,m$, i zdefiniujmy $Y_\bullet = \sum_{i=1}^m Y_i$. Zmienna losowa $Y_\bullet$ nie podlega rozkładowi dwumianowemu z powodu nierównych prawdopodobieństw sukcesu w próbach. Pierwsze momenty $Y_\bullet$ można uzyskać w następujący sposób:
+
+$$
+E[Y_\bullet] = \sum_{i=1}^m q_i = m\bar{q} \quad \text{z} \quad \bar{q} = \frac{1}{m}\sum_{i=1}^m q_i
+$$
+
+oraz
+
+$$
+\begin{aligned}
+\text{Var}[Y_\bullet] &= \sum_{i=1}^m q_i(1-q_i) \\
+&= m\bar{q}(1-\bar{q}) - m\sigma_q^2
+\end{aligned}
+$$
+
+gdzie
+
+$$
+\sigma_q^2 = \frac{1}{m}\sum_{i=1}^m q_i^2 - (\bar{q})^2
+$$
+
+jest wariancją $q_i$. Oznacza to, że wariancja $Y_\bullet$ jest mniejsza niż wariancja $m\bar{q}(1-\bar{q})$ rozkładu dwumianowego o rozmiarze $m$ i prawdopodobieństwie sukcesu $\bar{q}$ (mającym taką samą średnią jak $Y_\bullet$). Innymi słowy, dopuszczenie indywidualnego sukcesu wariancji daje mniej niż standardowa wariancja dwumianowa. Inaczej mówiąc, rozkład dwumianowy maksymalizuje wariancję sumy niezależnych zmiennych losowych Bernoulliego przy stałej średniej.
+
+Aby pokazać, że rozkład dwumianowy $\mathcal{Bin}(m,q)$ należy do rodziny ED, musimy przepisać jego funkcję masy prawdopodobieństwa w następujący sposób:
+
+$$
+\begin{aligned}
+p_Y(y) &= \binom{m}{y} q^y (1-q)^{m-y} \\
+&= \exp\left(y\ln\frac{q}{1-q} + m\ln(1-q)\right)\binom{m}{y}
+\end{aligned}
+$$
+
+gdzie rozpoznajemy funkcję masy prawdopodobieństwa ED (2.3) z
+
+$$
+\begin{aligned}
+\theta &= \ln\frac{q}{1-q} \\
+a(\theta) &= -m\ln(1-q) = m\ln(1+\exp(\theta)) \\
+\phi &= 1 \\
+v &= 1 \\
+c(y, \phi) &= \binom{m}{y}.
+\end{aligned}
+$$
+
+#### **2.3.3.4 Rozkłady geometryczny i Pascala**
+
+Rozkład ten powstaje z prób Bernoulliego, rozważając liczbę $Y$ porażek przed uzyskaniem $m$ sukcesów, dla pewnej ustalonej dodatniej wartości całkowitej $m$. Teraz odpowiedź $Y$ nie jest już ograniczona z góry, tj. $\mathcal{S}=\{0,1,2,\dots\}$. Jej funkcja masy prawdopodobieństwa to
+
+$$
+p_Y(y) = \binom{m+y-1}{y}q^m(1-q)^y, \quad y=0,1,2,\dots \quad (2.12)
+$$
+
+Rozkład ten jest odtąd określany jako rozkład Pascala, od nazwiska jego wynalazcy. Jest oznaczany jako $Y \sim \mathcal{Pas}(m,q)$. W zastosowaniach ubezpieczeniowych rozkład Pascala może być użyty do opisania liczby akt szkodowych w trakcie dochodzenia przed wykryciem danej liczby $m$ fałszywych.
+
+Dla $m=1$ otrzymujemy dany rozkład geometryczny $\mathcal{Geo}(q)$, dla którego
+
+$$
+p_Y(y) = q(1-q)^y, \quad y=0,1,2,\dots \quad (2.13)
+$$
+
+Rozkład geometryczny można postrzegać jako wynik dyskretyzacji rozkładu wykładniczego. W szczególności, rozważmy $Z \sim \mathcal{Exp}(\tau)$ i zdefiniujmy jego część całkowitą jako
+
+$$
+Y = [Z] = \max\{\text{integer } k \text{ such that } k \le Y\}.
+$$
+
+Wtedy,
+
+$$
+P[Y=0] = P[Z \le 1] = 1 - \exp(-\tau)
+$$
+
+i dla $y \in \{1,2,3,\dots\}$,
+
+$$
+\begin{aligned}
+P[Y=y] &= P[Z < y+1] - P[Z \le y] \\
+&= \exp(-y\tau) - \exp(-(y+1)\tau) \\
+&= \exp(-y\tau)(1-\exp(-\tau))
+\end{aligned}
+$$
+
+gdzie rozpoznajemy rozkład $\mathcal{Geo}(q)$ z
+
+$$
+q = 1 - \exp(-\tau).
+$$
+
+Podobnie jak jego ciągły odpowiednik, rozkład geometryczny cieszy się właściwością braku pamięci. Widać to z dyskretnej stopy awarii
+
+$$
+P[Y=y|Y \ge y] = 1-q \text{ niezależnie od } y \in \{0,1,2,\dots\},
+$$
+
+która wydaje się być stała.
+
+Średnia i wariancja $Y \sim \mathcal{Pas}(m,q)$ są dane przez
+
+$$
+E[Y] = \frac{m(1-q)}{q} \quad \text{i} \quad \text{Var}[Y] = \frac{m(1-q)}{q^2}.
+$$
+
+Wariancja jest zatem zawsze większa niż średnia. Trzeci moment centralny wynosi $(2-q)\sqrt{m(1-q)}/q$ tak, że rozkład Pascala jest zawsze dodatnio skośny, ale staje się bardziej symetryczny w miarę wzrostu $m$. Kształt funkcji masy prawdopodobieństwa Pascala jest przedstawiony na wykresach na Rys. 2.6. Widzimy, że funkcja masy prawdopodobieństwa $\mathcal{Pas}(m,q)$ jest rzeczywiście zawsze dodatnio skośna, ale staje się bardziej symetryczna dla dużych wartości $m$.
+
+Z definicji łatwo zauważyć, że rozkłady Pascala cieszą się wygodną właściwością stabilności splotu dla ustalonego $q$, tj.
+
+$$
+\left.
+\begin{aligned}
+Y_1 &\sim \mathcal{Pas}(m_1, q) \\
+Y_2 &\sim \mathcal{Pas}(m_2, q) \\
+Y_1 &\text{ i } Y_2 \text{ niezależne}
+\end{aligned}
+\right\} \Rightarrow Y_1 + Y_2 \sim \mathcal{Pas}(m_1 + m_2, q). \quad (2.14)
+$$
+
+Każdą odpowiedź $Y$ podlegającą rozkładowi $\mathcal{Pas}(m,q)$ można zatem postrzegać jako sumę $m$ niezależnych składników o rozkładzie $\mathcal{Geo}(q)$.
+
+Aby pokazać, że rozkład Pascala należy do rodziny ED, przepiszmy funkcję masy prawdopodobieństwa (2.12) jako
+
+$$
+p_Y(y) = \exp\left(y\ln(1-q) + m\ln(q)\right)\binom{m+y-1}{y}
+$$
+
+co ma postać (2.3) z
+
+$$
+\begin{aligned}
+\theta &= \ln(1-q) \\
+a(\theta) &= -m\ln(q) = -m\ln(1-\exp(\theta)) \\
+\phi &= 1 \\
+v &= 1 \\
+c(y, \phi) &= \binom{m+y-1}{y}.
+\end{aligned}
+$$
+
+Zatem rozkład Pascala należy do rodziny ED (przypomnijmy, że $m$ nie jest parametrem do oszacowania, ale znaną dodatnią liczbą całkowitą).
