@@ -489,9 +489,9 @@ Odtąd oznaczamy jako $\mathcal{Par}(\alpha, \tau)$ rozkład Pareto z dodatnimi 
 
 Średnia rozkładu Pareto jest nieskończona, jeśli $\alpha \le 1$. Dla $\alpha > 1$ średnia jest równa $\frac{\tau}{\alpha-1}$. Wariancja jest zdefiniowana dla $\alpha > 2$ i jest równa $\frac{\alpha\tau^2}{(\alpha-2)(\alpha-1)^2}$.
 
-### **2.3.2 Odwrotny rozkład Gaussa**
+### 2.3.2 Odwrotny rozkład Gaussa
 
-#### **2.3.2.1 Funkcja gęstości prawdopodobieństwa odwrotnego rozkładu Gaussa**
+#### 2.3.2.1 Funkcja gęstości prawdopodobieństwa odwrotnego rozkładu Gaussa
 
 Odwrotny rozkład Gaussa pojawia się czasami w literaturze aktuarialnej jako kolejny dobry kandydat do modelowania dodatnich, prawostronnie skośnych danych. Jego właściwości przypominają właściwości rozkładów Gamma i log-normalnego. Jego nazwa wywodzi się z odwrotnej relacji, jaka istnieje między funkcją generującą kumulanty odwrotnego rozkładu Gaussa a funkcją rozkładu normalnego (lub Gaussa).
 
@@ -503,7 +503,7 @@ $$
 
 Odwrotny rozkład Gaussa z $\mu=1$ jest znany jako rozkład Walda.
 
-#### **2.3.2.2 Momenty**
+#### 2.3.2.2 Momenty
 
 Jeśli $Y \sim \mathcal{IGau}(\mu, \alpha)$, to momenty są dane przez
 
@@ -517,7 +517,7 @@ Odwrotny rozkład Gaussa zyskał na znaczeniu w opisywaniu i analizowaniu danych
 
 Rysunek 2.3 przedstawia funkcje gęstości prawdopodobieństwa odwrotnego rozkładu Gaussa dla różnych wartości parametrów. Przyjmujemy tutaj tę samą średnią i wariancje jak w przypadku Gamma powyżej, tj. $\mu=1$ i $\alpha=1, 2, 4$.
 
-#### **2.3.2.3 Postać ED**
+#### 2.3.2.3 Postać ED
 
 Aby pokazać, że odwrotny rozkład Gaussa należy do rodziny ED, przepiszmy funkcję gęstości prawdopodobieństwa $\mathcal{IGau}(\mu, \alpha)$ (2.7) w następujący sposób
 
@@ -542,7 +542,7 @@ $$
 
 Odwrotny rozkład Gaussa należy więc do rodziny ED.
 
-#### **2.3.2.4 Porównanie rozkładów log-normalnego, Gamma i odwrotnego Gaussa**
+#### 2.3.2.4 Porównanie rozkładów log-normalnego, Gamma i odwrotnego Gaussa
 
 Naturalne jest chęć porównania prawostronnie skośnych funkcji gęstości prawdopodobieństwa odpowiadających rozkładom log-normalnemu, Gamma i odwrotnemu Gaussa. W tym celu aktuariusze wykonują porównanie dla identycznej średniej i wariancji. W szczególności rozważmy zmienne losowe $X$ podlegające rozkładowi Gamma, $Y$ podlegające odwrotnemu rozkładowi Gaussa i $Z$ podlegające rozkładowi log-normalnemu, tak że
 
@@ -570,13 +570,13 @@ co pokazuje, że ogony rozkładu log-normalnego są cięższe w porównaniu z og
 
 Jako przykład, Rys. 2.4 przedstawia trzy funkcje gęstości prawdopodobieństwa z tą samą średnią 1 i wariancją 0.5. Widzimy, że te trzy funkcje gęstości prawdopodobieństwa rzeczywiście zgadzają się z tym rankingiem dla dostatecznie dużych wartości ich argumentu.
 
-### **2.3.3 Rozkład dwumianowy**
+### 2.3.3 Rozkład dwumianowy
 
-#### **2.3.3.1 Próba Bernoulliego**
+#### 2.3.3.1 Próba Bernoulliego
 
 Wiele rozkładów zliczających jest definiowanych za pomocą prób Bernoulliego. W próbie Bernoulliego dany eksperyment prowadzący do sukcesu lub porażki jest powtarzany w identycznych warunkach (więc poprzednie wyniki nie wpływają na kolejne). Oznacza to, że pewne zdarzenie $E$ jest dychotomiczne, np. sukces lub porażka, żywy lub martwy, obecność lub brak. Wynik próby Bernoulliego to zatem 0 lub 1, tak lub nie. Zmienną interesującą jest liczba sukcesów. W próbach Bernoulliego analityk jest zainteresowany prawdopodobieństwem $q$, że zdarzenie wystąpi. Jest to w istocie skłonność lub prawdopodobieństwo zapadalności.
 
-#### **2.3.3.2 Rozkład Bernoulliego**
+#### 2.3.3.2 Rozkład Bernoulliego
 
 Odpowiedź $Y$ o wartościach w $\mathcal{S}=\{0,1\}$ ma rozkład Bernoulliego z prawdopodobieństwem sukcesu $q$, co oznaczamy jako $Y \sim \mathcal{Ber}(q)$. Odpowiednia funkcja masy prawdopodobieństwa jest dana przez
 
@@ -630,7 +630,7 @@ $$
 
 To pokazuje, że rozkład Bernoulliego rzeczywiście należy do rodziny ED.
 
-#### **2.3.3.3 Rozkład dwumianowy**
+#### 2.3.3.3 Rozkład dwumianowy
 
 Rozkład dwumianowy odpowiada liczbie sukcesów odnotowanych w sekwencji $m$ niezależnych prób Bernoulliego, każda z tym samym prawdopodobieństwem sukcesu $q$. Oznaczając przez $Y$ liczbę sukcesów w zbiorze $\mathcal{S}=\{0, 1, \dots, m\}$, prawdopodobieństwo, że wynik prób wynosi dokładnie $y$ jest
 
@@ -722,7 +722,7 @@ c(y, \phi) &= \binom{m}{y}.
 \end{aligned}
 $$
 
-#### **2.3.3.4 Rozkłady geometryczny i Pascala**
+#### 2.3.3.4 Rozkłady geometryczny i Pascala
 
 Rozkład ten powstaje z prób Bernoulliego, rozważając liczbę $Y$ porażek przed uzyskaniem $m$ sukcesów, dla pewnej ustalonej dodatniej wartości całkowitej $m$. Teraz odpowiedź $Y$ nie jest już ograniczona z góry, tj. $\mathcal{S}=\{0,1,2,\dots\}$. Jej funkcja masy prawdopodobieństwa to
 
@@ -815,3 +815,226 @@ c(y, \phi) &= \binom{m+y-1}{y}.
 $$
 
 Zatem rozkład Pascala należy do rodziny ED (przypomnijmy, że $m$ nie jest parametrem do oszacowania, ale znaną dodatnią liczbą całkowitą).
+
+### 2.3.4 Rozkład Poissona
+
+#### 2.3.4.1 Graniczne formy rozkładów dwumianowych
+
+Dwa ważne rozkłady pojawiają się jako aproksymacje rozkładów dwumianowych. Jeśli $m$ jest duże, a skośność rozkładu nie jest zbyt duża (tzn. $q$ nie jest zbyt bliskie 0 lub 1), to rozkład dwumianowy jest dobrze aproksymowany przez rozkład normalny. Jest to bezpośrednia konsekwencja centralnego twierdzenia granicznego i jest to wyraźnie widoczne na Rys. 2.5.
+
+Gdy liczba prób $m$ jest duża, a prawdopodobieństwo sukcesu $q$ jest małe, odpowiedni rozkład dwumianowy jest dobrze aproksymowany przez rozkład Poissona ze średnią $\lambda = mq$. Aby zobaczyć, dlaczego tak jest, rozważmy $Y_m \sim \mathcal{Bin}(m, \frac{\lambda}{m})$ dla pewnego $\lambda > 0$. Wtedy,
+
+$$
+P[Y_m = 0] = \left(1-\frac{\lambda}{m}\right)^m \to \exp(-\lambda) \text{ gdy } m \to \infty
+$$
+
+oraz
+
+$$
+\frac{P[Y_m = y+1]}{P[Y_m = y]} = \frac{m-y}{y+1}\frac{\lambda/m}{1-\lambda/m} \to \frac{\lambda}{y+1} \text{ gdy } m \to \infty. \quad (2.15)
+$$
+
+Traktując (2.15) jako zależność rekurencyjną między kolejnymi prawdopodobieństwami, zaczynając od $\exp(-\lambda)$, otrzymujemy
+
+$$
+\lim_{m \to \infty} P[Y_m = y] = \exp(-\lambda)\frac{\lambda^y}{y!}
+$$
+
+co definiuje rozkład Poissona. Stąd rozkład $\mathcal{Bin}(m, \frac{\lambda}{m})$ jest w przybliżeniu rozkładem Poissona z parametrem $\lambda$ dla dużego $m$. Formalniej, jeśli $m \to \infty$ i $\lambda_m \to 0$ w taki sposób, że $m\lambda_m \to \lambda$, to rozkład $\mathcal{Bin}(m, \lambda_m)$ zbiega do rozkładu Poissona ze średnią $\lambda$. Rozkład Poissona jest zatem czasami nazywany prawem małych liczb, ponieważ jest to rozkład prawdopodobieństwa liczby wystąpień zdarzenia, które zdarza się rzadko, ale ma wiele okazji do wystąpienia.
+
+Zazwyczaj zmienna losowa Poissona zlicza liczbę zdarzeń występujących w określonym przedziale czasowym lub obszarze przestrzennym. Na przykład liczba samochodów przejeżdżających przez stały punkt w pięciominutowym przedziale czasu lub liczba roszczeń zgłoszonych firmie ubezpieczeniowej przez ubezpieczonego kierowcę w danym okresie. Chociaż rozkład Poissona jest często nazywany prawem małych liczb, nie ma potrzeby, aby $\lambda = mq$ było małe. Ważna jest duża liczba $m$ i małość $q = \frac{\lambda}{m}$.
+
+#### 2.3.4.2 Rozkład Poissona
+
+Odpowiedź $Y$ o rozkładzie Poissona przyjmuje wartości w $\mathcal{S}=\{0,1,2,\dots\}$ i ma funkcję masy prawdopodobieństwa
+
+$$
+p_Y(y) = \exp(-\lambda)\frac{\lambda^y}{y!}, \quad y=0,1,2,\dots. \quad (2.16)
+$$
+
+Mając zliczającą zmienną losową $Y$, oznaczamy jako $Y \sim \mathcal{Poi}(\lambda)$ fakt, że $Y$ ma rozkład Poissona z parametrem $\lambda$. Parametr $\lambda$ jest często nazywany intensywnością, w odniesieniu do procesu Poissona (patrz poniżej).
+
+Jeśli $Y \sim \mathcal{Poi}(\lambda)$, to graniczny argument podany wcześniej pokazuje, że
+
+$$
+E[Y] = \lambda \quad \text{i} \quad \text{Var}[Y] = \lambda. \quad (2.17)
+$$
+
+Biorąc pod uwagę (2.17), widzimy, że zarówno średnia, jak i wariancja rozkładu Poissona są równe $\lambda$, zjawisko to nazywane jest ekwidyspersją. Współczynnik skośności rozkładu Poissona wynosi
+
+$$
+\gamma[Y] = \frac{1}{\sqrt{\lambda}}.
+$$
+
+W miarę wzrostu $\lambda$, rozkład Poissona staje się bardziej symetryczny i ostatecznie jest dobrze aproksymowany przez rozkład normalny, przy czym aproksymacja staje się całkiem dobra dla $\lambda > 20$. Jeśli $Y \sim \mathcal{Poi}(\lambda)$, to $\sqrt{Y}$ zbiega znacznie szybciej do rozkładu $\mathcal{Nor}(\lambda, \frac{1}{4})$. Stąd transformacja pierwiastkowa była często zalecana jako transformacja stabilizująca wariancję dla danych zliczających w klasycznych metodach statystycznych zakładających normalność (i stałą wariancję).
+
+Kształt funkcji masy prawdopodobieństwa Poissona jest przedstawiony na Rys. 2.7. Dla małych wartości $\lambda$ widzimy, że funkcja masy prawdopodobieństwa $\mathcal{Poi}(\lambda)$ jest wysoce asymetryczna. W miarę wzrostu $\lambda$ staje się bardziej symetryczna i ostatecznie wygląda jak krzywa dzwonowa.
+
+Rozkład Poissona cieszy się wygodną właściwością stabilności splotu, tj.
+
+$$
+\left.
+\begin{aligned}
+Y_1 &\sim \mathcal{Poi}(\lambda_1) \\
+Y_2 &\sim \mathcal{Poi}(\lambda_2) \\
+Y_1 &\text{ i } Y_2 \text{ niezależne}
+\end{aligned}
+\right\} \Rightarrow Y_1 + Y_2 \sim \mathcal{Poi}(\lambda_1 + \lambda_2). \quad (2.18)
+$$
+
+Ta właściwość jest użyteczna, ponieważ czasami aktuariusz ma dostęp tylko do danych zagregowanych. Zakładając, że dane indywidualne mają rozkład Poissona, to zsumowany rachunek i modelowanie Poissona nadal mają zastosowanie.
+
+Aby ustalić, że rozkład Poissona należy do rodziny ED, przepiszmy funkcję masy prawdopodobieństwa $\mathcal{Poi}(\lambda)$ (2.16) w następujący sposób:
+
+$$
+\begin{aligned}
+p_Y(y) &= \exp(-\lambda)\frac{\lambda^y}{y!} \\
+&= \exp(y\ln\lambda - \lambda)\frac{1}{y!}
+\end{aligned}
+$$
+
+gdzie rozpoznajemy funkcję masy prawdopodobieństwa (2.3) z
+
+$$
+\begin{aligned}
+\theta &= \ln\lambda \\
+a(\theta) &= \lambda = \exp(\theta) \\
+\phi &= 1 \\
+v &= 1 \\
+c(y, \phi) &= \frac{1}{y!}.
+\end{aligned}
+$$
+
+Zatem rozkład Poissona rzeczywiście należy do rodziny ED.
+
+#### 2.3.4.3 Ekspozycja na ryzyko
+
+Liczba obserwowanych zdarzeń na ogół zależy od zmiennej rozmiaru, która określa liczbę okazji do wystąpienia zdarzenia. Ta zmienna rozmiaru jest często czasem, ponieważ liczba roszczeń oczywiście zależy od długości okresu ubezpieczenia. Możliwe są jednak inne wybory, na przykład odległość przebyta w ubezpieczeniach komunikacyjnych (jak zobaczymy w Rozdz. 5).
+
+Ustawienie procesu Poissona jest przydatne, gdy aktuariusz chce analizować dane dotyczące roszczeń od ubezpieczonych, którzy byli obserwowani w nierównych okresach. W tym ustawieniu zakłada się, że roszczenia występują losowo i niezależnie w czasie zgodnie z procesem Poissona o intensywności $\lambda$. Oznaczając przez $T_1, T_2, \dots$ czasy między dwoma kolejnymi zdarzeniami, oznacza to, że te zmienne losowe są niezależne i podlegają rozkładowi $\mathcal{Exp}(\lambda)$, jedynemu, który cieszy się właściwością braku pamięci. Stąd, $k$-te roszczenie występuje w czasie
+
+$$
+\sum_{j=1}^k T_j \sim \mathcal{Gam}(k, \lambda)
+$$
+
+gdzie rozpoznajemy rozkład Erlanga.
+
+Rozważmy ubezpieczonego objętego ochroną przez firmę przez okres o długości $e$, to znaczy ubezpieczony naraża ubezpieczyciela na ryzyko zarejestrowania roszczenia w ciągu $e$ jednostek czasu. Wówczas liczba $Y$ zgłoszonych roszczeń jest taka, że
+
+$$
+P[Y \ge k] = P\left[\sum_{j=1}^k T_j \le e\right] = 1 - \sum_{j=0}^{k-1}\exp(-\lambda e)\frac{(\lambda e)^j}{j!}
+$$
+
+więc ma funkcję masy prawdopodobieństwa
+
+$$
+P[Y=k] = P[Y \ge k] - P[Y \ge k+1] = \exp(-\lambda e)\frac{(\lambda e)^k}{k!}, \quad k=0,1,\dots,
+$$
+
+to jest, $Y \sim \mathcal{Poi}(\lambda e)$.
+
+W badaniach aktuarialnych długość $e$ okresu obserwacji jest ogólnie określana jako ekspozycja na ryzyko (stąd litera $e$). Pozwala to analitykowi uwzględnić fakt, że niektóre polisy są obserwowane przez cały okres, podczas gdy inne właśnie weszły do portfela lub opuściły go wkrótce po rozpoczęciu okresu rocznego. Widzimy, że ekspozycja na ryzyko $e$ po prostu mnoży roczną oczekiwaną częstotliwość roszczeń $\lambda$ w modelu Poissona.
+
+#### 2.3.4.4 Obcięty rozkład Poissona
+
+Rozważmy odpowiedź Poissona $Y^*$ i załóżmy, że wartości 0 nie są obserwowane. Jest to zazwyczaj przypadek, gdy aktuariusz rozważa liczbę roszczeń zgłoszonych przez tych ubezpieczonych, którzy zgłosili co najmniej jedno roszczenie. Oznacza to, że aktuariusz pracuje z obserwowaną odpowiedzią $Y$ zdefiniowaną jako $Y^*$ pod warunkiem $Y^* \ge 1$, z funkcją masy prawdopodobieństwa
+
+$$
+p_Y(y) = P[Y^*=y|Y^* \ge 1] = \frac{\exp(-\lambda)\lambda^y}{y!(1-\exp(-\lambda))}, \quad y=1,2,\dots.
+$$
+
+Przepisując $p_Y$ jako
+
+$$
+p_Y(y) = \exp\left(y\ln\lambda - \lambda - \ln(1-\exp(-\lambda))\right)\frac{1}{y!}
+$$
+
+pokazuje, że obcięty rozkład Poissona ma funkcję masy prawdopodobieństwa w postaci (2.3) z
+
+$$
+\begin{aligned}
+\theta &= \ln\lambda \\
+a(\theta) &= \lambda + \ln(1-\exp(-\lambda)) \\
+&= \exp(\theta) + \ln(1-\exp(-\exp(\theta))) \\
+\phi &= 1 \\
+v &= 1 \\
+c(y, \phi) &= \frac{1}{y!}
+\end{aligned}
+$$
+
+więc należy do rodziny ED. Ta właściwość jest interesująca, gdy aktuariusz rozważa użycie modeli Hurdle Poisson (badanych w Rozdz. 7).
+
+#### 2.3.4.5 Rozkład wielomianowy
+
+Schemat wielomianowy rozszerza próbę Bernoulliego w tym sensie, że dla każdego eksperymentu możliwe jest kilka wyników (a nie tylko sukces/porażka). W szczególności załóżmy, że istnieje $b$ typów prób, z odpowiednimi prawdopodobieństwami $q_1, \dots, q_b$ takimi, że $\sum_{i=1}^b q_i = 1$. Dla prób Bernoulliego, $b=2$ i $q_2 = 1-q_1$.
+
+Oznaczmy przez $Y_i$ liczbę wyników typu $i$ w $m$ powtórzeniach tego eksperymentu. Zmienne losowe $Y_1, \dots, Y_b$ są ujemnie skorelowane, ponieważ zwiększenie liczby wyników jednego typu może tylko zmniejszyć liczbę wyników innych typów, ponieważ liczba prób $m$ jest stała. Oznacza to, że wektor losowy $\boldsymbol{Y} = (Y_1, \dots, Y_b)^\mathrm{T}$ musi być rozważany, a nie każda $Y_j$ z osobna.
+
+Wektor losowy $\boldsymbol{Y}$ ma rozkład wielomianowy, ze wspólną funkcją masy prawdopodobieństwa $p_Y$ daną przez
+
+$$
+p_Y(y_1, \dots, y_b) = P[Y_1=y_1, \dots, Y_b=y_b] = \frac{m!}{y_1!\dots y_b!}q_1^{y_1}\dots q_b^{y_b}
+$$
+
+jeśli $y_1+\dots+y_b=m$ i 0 w przeciwnym razie, gdzie $m$ jest liczbą prób. Jest to odtąd oznaczane jako $\boldsymbol{Y} \sim \mathcal{Mult}(m, q_1, \dots, q_b)$. Oczywiście,
+
+$$
+\boldsymbol{Y} \sim \mathcal{Mult}(m, q_1, \dots, q_b) \Rightarrow Y_i \sim \mathcal{Bin}(m, q_i) \text{ dla } i=1,\dots,b.
+$$
+
+Zainteresowanie rozkładem wielomianowym w zastosowaniach ubezpieczeniowych wynika z następującego wyniku.
+
+**Własność 2.3.2** Niech $Y$ będzie całkowitą liczbą roszczeń, taką że $Y \sim \mathcal{Poi}(\lambda)$. Załóżmy, że roszczenia $Y$ mogą być sklasyfikowane w $b$ kategoriach, zgodnie z wielomianowym schematem partycjonowania z prawdopodobieństwami $q_1, \dots, q_b$. Niech $Y_i$ reprezentuje liczbę roszczeń typu $i$, $i=1,\dots,b$. Wtedy, $Y_1, \dots, Y_b$ są niezależne i
+
+$$
+Y_i \sim \mathcal{Poi}(\lambda q_i), \quad i=1,\dots,b.
+$$
+
+_Dowód_ Aby pokazać, że $Y_i \sim \mathcal{Poi}(\lambda q_i)$, napiszmy
+
+$$
+\begin{aligned}
+P[Y_i=y] &= \sum_{z=y}^{\infty} P[Y_i=y|Y=z]P[Y=z] \\
+&= \sum_{z=y}^{\infty} \binom{z}{y}q_i^y(1-q_i)^{z-y} \exp(-\lambda)\frac{\lambda^z}{z!} \\
+&= \exp(-\lambda)\frac{(\lambda q_i)^y}{y!} \sum_{z=y}^{\infty} \frac{((1-q_i)\lambda)^{z-y}}{(z-y)!} \\
+&= \exp(-\lambda q_i)\frac{(\lambda q_i)^y}{y!}.
+\end{aligned}
+$$
+
+Wzajemna niezależność $Y_1, \dots, Y_b$ wynika z
+
+$$
+\begin{aligned}
+P[Y_1=y_1, \dots, Y_b=y_b] &= P[Y_1=y_1, \dots, Y_b=y_b|Y=y_1+\dots+y_b] \\
+&\cdot P[Y=y_1+\dots+y_b] \\
+&= \frac{(y_1+\dots+y_b)!}{y_1!\dots y_b!}q_1^{y_1}\dots q_b^{y_b} \exp(-\lambda)\frac{\lambda^{y_1+\dots+y_b}}{(y_1+\dots+y_b)!} \\
+&= \prod_{j=1}^b \frac{\exp(-\lambda q_j)(\lambda q_j)^{y_j}}{y_j!} \\
+&= \prod_{j=1}^b P[Y_j=y_j].
+\end{aligned}
+$$
+
+To kończy dowód ogłoszonego wyniku.
+
+W szczególności, mając niezależne $Y_i \sim \mathcal{Poi}(\lambda_i)$, widzimy, że rozkład dowolnej $Y_i$ pod warunkiem sumy $\sum_{j=1}^n Y_j = m$ jest $\mathcal{Bin}(m, q_i)$ z
+
+$$
+q_i = \frac{\lambda_i}{\sum_{j=1}^n \lambda_j}.
+$$
+
+### 2.4 Niektóre użyteczne właściwości
+
+Tabela 2.1 podsumowuje główne wyniki uzyskane do tej pory. Dla każdego rozważanego rozkładu podajemy kanoniczny parametr $\theta$, funkcję kumulanty $a(\cdot)$, i parametr dyspersji $\phi$ wchodzący w ogólną definicję (2.3) masy prawdopodobieństwa lub funkcji gęstości prawdopodobieństwa rodziny ED. Podajemy również pierwsze dwa momenty. W tej sekcji ustalamy kilka właściwości rozkładów ED, które wydają się być szczególnie użyteczne w analizie danych ubezpieczeniowych.
+
+Tabela 2.1 Przykłady rozkładów z rodziny ED (z $v=1$)
+
+| Rozkład            | $\theta$                        | $a(\theta)$                             | $\phi$               | $\mu = E[Y]$                                | $\text{Var}[Y]$                                        |
+| ------------------ | ------------------------------- | --------------------------------------- | -------------------- | ------------------------------------------- | ------------------------------------------------------ |
+| $\mathcal{Ber}(q)$    | $\ln\frac{q}{1-q}$              | $\ln(1+\exp(\theta))$                   | $1$                  | $q$                                         | $\mu(1-\mu)$                                               |
+| $\mathcal{Bin}(m,q)$  | $\ln\frac{q}{1-q}$              | $m\ln(1+\exp(\theta))$                  | $1$                  | $mq$                                        | $\mu(1-\frac{\mu}{m})$                                              |
+| $\mathcal{Geo}(q)$    | $\ln(1-q)$                      | $-\ln(1-\exp(\theta))$                  | $1$                  | $\frac{1-q}{q}$                             | $\mu(1+\mu)$                                      |
+| $\mathcal{Pas}(m,q)$  | $\ln(1-q)$                      | $-m\ln(1-\exp(\theta))$                 | $1$                  | $m\frac{1-q}{q}$                            | $\mu(1+\frac{\mu}{m})$                                      |
+| $\mathcal{Poi}(\mu)$  | $\ln\mu$                        | $\exp(\theta)$                          | $1$                  | $\mu$                                       | $\mu$                                                  |
+| $\mathcal{Nor}(\mu, \sigma^2)$ | $\mu$ | $-\frac{\theta^2}{2}$ | $\sigma^2$               | $\mu$                                       | $\phi$                              |
+| $\mathcal{Exp}(\mu)$  | $-\frac{1}{\mu}$                | $-\ln(-\theta)$                         | $1$                  | $\mu$                                       | $\mu^2$                                                |
+| $\mathcal{Gam}(\mu, \alpha)$ | $-\frac{1}{\mu}$          | $-\ln(-\theta)$                         | $\frac{1}{\alpha}$   | $\mu$                                       | $\phi\mu^2$                                            |
+| $\mathcal{IGau}(\mu, \alpha)$ | $-\frac{1}{2\mu^2}$      | $-\sqrt{-2\theta}$                      | $\frac{1}{\alpha}$   | $\mu$                                       | $\phi\mu^3$                                            |
