@@ -1307,3 +1307,121 @@ $$
 co kończy dowód.
 
 Własność 2.4.6 rozszerza Własność 2.4.2 na ważone średnie odpowiedzi z rodziny ED.
+
+## 2.5 Rozkłady Tweedie
+
+### 2.5.1 Potęgowa funkcja wariancji
+
+Modele Tweedie są zdefiniowane w ramach rodziny ED przez potęgową funkcję wariancji postaci
+
+$$
+V(\mu) = \mu^\xi
+$$
+
+gdzie parametr potęgowy $\xi$ kontroluje kształt rozkładu. Rozkłady: normalny ($\xi=0$), Poissona ($\xi=1$), Gamma ($\xi=2$) i odwrotny Gaussa ($\xi=3$) wszystkie należą do podklasy Tweedie w rodzinie ED. Można wykazać, że rozkład ED z taką potęgową funkcją wariancji zawsze istnieje, z wyjątkiem przypadku, gdy $0 < \xi < 1$. Gdy $v=1$, implikuje to wariancję równą
+
+$$
+\text{Var}[Y] = \phi\mu^\xi.
+$$
+
+Dla funkcji gęstości prawdopodobieństwa postaci (2.3) z $v=1$, otrzymujemy
+
+$$
+\begin{aligned}
+\frac{d}{d\mu} \ln f &= \frac{d}{d\theta} \ln f \times \frac{d\theta}{d\mu} \\
+&= \frac{d}{d\theta}\left(\frac{y\theta - a(\theta)}{\phi}\right) \times \frac{d}{d\mu}((a')^{-1}(\mu)) \\
+&= \frac{y-a'(\theta)}{\phi} \frac{1}{a''((a')^{-1}(\mu))} \\
+&= \frac{y-a'(\theta)}{\phi a''(\theta)} \\
+&= \frac{y-\mu}{\phi V(\mu)}.
+\end{aligned}
+$$
+
+Z potęgową funkcją wariancji Tweedie, otrzymujemy
+
+$$
+\begin{aligned}
+\ln f(y) &= \int \frac{y-m}{\phi m^\xi} dm \\
+&= \frac{1}{\phi} \int (ym^{-\xi} - m^{1-\xi}) dm \\
+&= \frac{1}{\phi} \left(y\frac{\mu^{1-\xi}}{1-\xi} - \frac{\mu^{2-\xi}}{2-\xi}\right) + \ln c \quad (2.19)
+\end{aligned}
+$$
+
+gdzie $c$ jest stałą względem $m$. Identyfikacja (2.19) z (2.3) pozwala nam ustalić, że kanoniczny parametr Tweedie jest dany przez
+
+$$
+\theta = \frac{\mu^{1-\xi}}{1-\xi} \Leftrightarrow \mu = ((1-\xi)\theta)^{\frac{1}{1-\xi}}
+$$
+
+podczas gdy
+
+$$
+a(\theta) = \frac{\mu^{2-\xi}}{2-\xi} = \frac{((1-\xi)\theta)^{\frac{2-\xi}{1-\xi}}}{2-\xi}.
+$$
+
+### 2.5.2 Transformacje skali
+
+Chociaż rozkłady ED są zamknięte ze względu na uśrednianie, rodzina ta na ogół nie jest zamknięta ze względu na transformacje skali. Oznacza to, że $\delta Y$ może nie podlegać rozkładowi ED, nawet jeśli $Y$ mu podlega, dla danej stałej $\delta > 0$. Podklasa Tweedie rodziny ED jest zamknięta ze względu na ten typ transformacji skali, jak pokazano poniżej.
+
+**Własność 2.5.1** *Rozważmy $Y$ podlegające rozkładowi Tweedie ze średnią $\mu$, parametrem dyspersji $\phi$ (ustawiając $v=1$) i parametrem potęgowym $\xi$. Dla dowolnego $\delta > 0$, $\delta Y$ jest rozkładem Tweedie ze średnią $\delta\mu$, parametrem dyspersji $\phi(\delta)^{2-\xi}$ i parametrem potęgowym $\xi$.*
+
+**Dowód** Zacznijmy od funkcji gęstości prawdopodobieństwa Tweedie wywiedzionej z (2.19), tj.
+
+$$
+f_Y(y) = \exp\left(\frac{1}{\phi}\left(y\frac{\mu^{1-\xi}}{1-\xi} - \frac{\mu^{2-\xi}}{2-\xi}\right)\right)c(y,\phi).
+$$
+
+Wtedy $\delta Y$ ma funkcję gęstości
+
+$$
+\begin{aligned}
+f_{\delta Y}(y) &= \frac{1}{\delta}f_Y\left(\frac{y}{\delta}\right) \\
+&= \exp\left(\frac{1}{\phi}\left(\frac{y}{\delta}\frac{\mu^{1-\xi}}{1-\xi} - \frac{\mu^{2-\xi}}{2-\xi}\right)\right)\tilde{c}(y, \delta, \phi) \\
+&= \exp\left(\frac{1}{\phi(\delta)^{2-\xi}}\left(y\frac{(\delta\mu)^{1-\xi}}{1-\xi} - \frac{(\delta\mu)^{2-\xi}}{2-\xi}\right)\right)\tilde{c}(y, \delta, \phi)
+\end{aligned}
+$$
+
+więc $\delta Y$ jest rozkładem Tweedie ze średnią $\delta\mu$ i parametrem dyspersji $\phi(\delta)^{2-\xi}$.
+
+Biorąc pod uwagę Własność 2.5.1, widzimy, że aktuariuszowi wolno pracować ze wskaźnikami, dzieląc całkowity koszt roszczeń $Y$ przez odpowiednią miarę wolumenu (taką jak masa wynagrodzeń w ubezpieczeniach odszkodowawczych dla pracowników, na przykład).
+
+**Przykład 2.5.2 (Wskaźniki Poissona)** Dla odpowiedzi dwumianowych widzieliśmy w Przykładzie 2.4.3, że aktuariuszowi wolno było pracować albo z liczbą sukcesów, albo z proporcją sukcesów, pod warunkiem odpowiedniej modyfikacji wag. Ten sam pomysł stosuje się do modelu Poissona, gdzie aktuariusz ma swobodę pracy ze wskaźnikami roszczeń zamiast z liczbą roszczeń.
+
+Dokładniej, biorąc pod uwagę ustawienie procesu Poissona opisane powyżej, oznacza to, że aktuariusz pracuje z odpowiedzią
+
+$$
+\tilde{Y} = \frac{Y}{e} \quad \text{gdzie } Y \sim \mathcal{Poi}(\lambda e)
+$$
+
+gdzie $e$ to ekspozycja na ryzyko mierzona w czasie, w którym jednostka była narażona na ryzyko objęte przez firmę ubezpieczeniową (i tym samym była podatna na zgłoszenie roszczenia firmie). Parametr $\lambda$ jest wtedy rocznym wskaźnikiem roszczeń, czyli oczekiwaną liczbą roszczeń zgłoszonych dla jednostkowej ekspozycji (powiedzmy, jednego roku).
+
+Wskaźnik roszczeń $\tilde{Y}$ ma wartości w $\mathcal{S}=\{0, \frac{1}{e}, \frac{2}{e}, \dots\}$ i jest taki, że $E[\tilde{Y}] = \lambda$. Aby pokazać, że rozkład $\tilde{Y}$ nadal należy do rodziny ED, niech $\tilde{y} \in \mathcal{S}$ i napiszmy jego funkcję masy prawdopodobieństwa jako
+
+$$
+\begin{aligned}
+p_{\tilde{Y}}(\tilde{y}) &= p_Y(e\tilde{y}) \\
+&= \exp(-e\lambda)\frac{(e\lambda)^{e\tilde{y}}}{(e\tilde{y})!} \\
+&= \exp\left(\frac{\tilde{y}\ln\lambda - \lambda}{1/e}\right)\frac{e^{e\tilde{y}}}{(\tilde{y}e)!}.
+\end{aligned}
+$$
+
+Rozpoznajemy funkcję masy prawdopodobieństwa postaci (2.3) z
+
+$$
+\begin{aligned}
+\theta &= \ln\lambda \\
+a(\theta) &= \lambda = \exp(\theta) \\
+\phi &= 1 \\
+v &= e \\
+c(y, \phi) &= \frac{e^{\tilde{y}e}}{(\tilde{y}e)!}.
+\end{aligned}
+$$
+
+Zatem rozkład wskaźnika Poissona rzeczywiście należy do rodziny ED. Oznacza to, że możemy równoważnie pracować z obserwowaną liczbą roszczeń (lub bezwzględną częstotliwością roszczeń) $Y$ lub z obserwowanym wskaźnikiem roszczeń (lub względną częstotliwością roszczeń) $\tilde{Y}$, pod warunkiem, że waga $v=e$ zostanie uwzględniona w analizie.
+
+Odkrycie to można postrzegać jako zastosowanie Własności 2.5.1, ponieważ rozkład Poissona należy do klasy Tweedie, a $\tilde{Y} = \delta Y$ z $\delta = 1/e$. Biorąc pod uwagę
+
+$$
+\xi=1 \quad \text{i} \quad \delta = \frac{1}{e}
+$$
+
+Własność 2.5.1 pokazuje, że $\tilde{Y}$ nadal należy do klasy Tweedie.
