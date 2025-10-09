@@ -984,7 +984,7 @@ $$
 
 Zainteresowanie rozkładem wielomianowym w zastosowaniach ubezpieczeniowych wynika z następującego wyniku.
 
-**Własność 2.3.2** Niech $Y$ będzie całkowitą liczbą roszczeń, taką że $Y \sim \mathcal{Poi}(\lambda)$. Załóżmy, że roszczenia $Y$ mogą być sklasyfikowane w $b$ kategoriach, zgodnie z wielomianowym schematem partycjonowania z prawdopodobieństwami $q_1, \dots, q_b$. Niech $Y_i$ reprezentuje liczbę roszczeń typu $i$, $i=1,\dots,b$. Wtedy, $Y_1, \dots, Y_b$ są niezależne i
+Własność 2.3.2 Niech $Y$ będzie całkowitą liczbą roszczeń, taką że $Y \sim \mathcal{Poi}(\lambda)$. Załóżmy, że roszczenia $Y$ mogą być sklasyfikowane w $b$ kategoriach, zgodnie z wielomianowym schematem partycjonowania z prawdopodobieństwami $q_1, \dots, q_b$. Niech $Y_i$ reprezentuje liczbę roszczeń typu $i$, $i=1,\dots,b$. Wtedy, $Y_1, \dots, Y_b$ są niezależne i
 
 $$
 Y_i \sim \mathcal{Poi}(\lambda q_i), \quad i=1,\dots,b.
@@ -1038,3 +1038,272 @@ Tabela 2.1 Przykłady rozkładów z rodziny ED (z $v=1$)
 | $\mathcal{Exp}(\mu)$  | $-\frac{1}{\mu}$                | $-\ln(-\theta)$                         | $1$                  | $\mu$                                       | $\mu^2$                                                |
 | $\mathcal{Gam}(\mu, \alpha)$ | $-\frac{1}{\mu}$          | $-\ln(-\theta)$                         | $\frac{1}{\alpha}$   | $\mu$                                       | $\phi\mu^2$                                            |
 | $\mathcal{IGau}(\mu, \alpha)$ | $-\frac{1}{2\mu^2}$      | $-\sqrt{-2\theta}$                      | $\frac{1}{\alpha}$   | $\mu$                                       | $\phi\mu^3$                                            |
+
+### 2.4.1 Średnie
+
+Uśrednianie niezależnych i identycznie rozłożonych odpowiedzi z rodziny ED nie modyfikuje ich rozkładu, a jedynie wartość ich wagi. Ta niezwykła właściwość, która wydaje się być szczególnie użyteczna w danych ubezpieczeniowych, jest łatwo ustalana przy użyciu funkcji generującej momenty (którą już napotkaliśmy w Uwadze 2.2.3).
+
+Przypomnijmy, że funkcja generująca momenty $m_Y$ zmiennej losowej $Y$ jest zdefiniowana jako
+
+$$
+m_Y(t) = E[\exp(tY)].
+$$
+
+Funkcje generujące momenty odgrywają ważną rolę w teorii prawdopodobieństwa. Gdy istnieje, funkcja generująca momenty jest unikalna i charakteryzuje rozkład prawdopodobieństwa (tzn. dwie zmienne losowe z tą samą funkcją generującą momenty są identycznie rozłożone). Ponadto, pozwala ona na obliczenie momentów, $k$-ta pochodna $m_Y$ obliczona w początku układu to po prostu $k$-ty moment $Y$ (stąd nazwa funkcja generująca momenty), tj.
+
+$$
+E[Y^k] = \left. \frac{d^k}{dt^k} m_Y(t) \right|_{t=0}.
+$$
+
+Co więcej, funkcja generująca momenty pozwala aktuariuszowi zajmować się sumami niezależnych zmiennych losowych, stąd jej znaczenie dla badania średnich. Formalnie, funkcja generująca momenty sumy niezależnych zmiennych losowych $Y_1$ i $Y_2$ jest uzyskiwana w następujący sposób:
+
+$$
+m_{Y_1+Y_2}(t) = E[\exp(t(Y_1+Y_2))] = E[\exp(tY_1)]E[\exp(tY_2)] = m_{Y_1}(t)m_{Y_2}(t).
+$$
+
+Widzimy więc, że dodawanie niezależnych zmiennych losowych sprowadza się do mnożenia ich odpowiednich funkcji generujących momenty. Ponieważ $m_{Y_1+Y_2}$ charakteryzuje rozkład $Y_1+Y_2$, daje to aktuariuszowi wygodną metodę uzyskania rozkładu sumy niezależnych odpowiedzi (podczas gdy ich rozkład jest uzyskiwany przez produkty splotu, które są na ogół znacznie trudniejsze do obsługi).
+
+Następny wynik ustala wyrażenie dla funkcji generującej momenty rozkładu z rodziny ED. Jak można się spodziewać, funkcja kumulanty $a$ jest kluczowym składnikiem tej formuły.
+
+**Własność 2.4.1** Funkcja generująca momenty $m_Y$ odpowiedzi $Y$, której rozkład należy do rodziny ED, jest dana wzorem
+
+$$
+m_Y(t) = \exp\left(\frac{a(\theta + t\phi/v) - a(\theta)}{\phi/v}\right).
+$$
+
+Dowód Podamy dowód tylko dla przypadku ciągłego. Dowód dla przypadku dyskretnego łatwo wynika z zastąpienia funkcji gęstości prawdopodobieństwa funkcjami masy prawdopodobieństwa, a całek sumami. Napiszmy
+
+$$
+\begin{aligned}
+m_Y(t) &= \int_S \exp(yt) f_Y(y) dy \\
+&= \int_S \exp(yt) \exp\left(\frac{y\theta - a(\theta)}{\phi/v}\right) c(y, \phi/v) dy \\
+&= \int_S \exp\left(\frac{y(\theta+t\phi/v) - a(\theta+t\phi/v)}{\phi/v}\right) c(y, \phi/v) dy \\
+& \quad \cdot \exp\left(\frac{a(\theta+t\phi/v) - a(\theta)}{\phi/v}\right).
+\end{aligned}
+$$
+
+Całka pojawiająca się w ostatnim wzorze to po prostu całka z funkcji gęstości prawdopodobieństwa ED z kanonicznym parametrem $\theta+t\phi/v$, parametrem dyspersji $\phi$ i wagą $v$, więc jest równa 1. Stąd otrzymujemy ogłoszony wynik.
+
+Teraz, gdy ustaliliśmy analityczne wyrażenie dla $m_Y$, możemy zbadać efekt uśredniania odpowiedzi przed rozpoczęciem analizy. Jeśli $Y_1$ i $Y_2$ są niezależne ze wspólną funkcją generującą momenty $m_Y$ jak we Własności 2.4.1, to $\frac{Y_1+Y_2}{2}$ ma funkcję generującą momenty
+
+$$
+\begin{aligned}
+m_{\frac{Y_1+Y_2}{2}}(t) &= \exp\left(\frac{t}{2}(Y_1+Y_2)\right) \\
+&= \left(m_Y\left(\frac{t}{2}\right)\right)^2 \\
+&= \exp\left(\frac{a(\theta+t\phi/(2v)) - a(\theta)}{\phi/(2v)}\right).
+\end{aligned}
+$$
+
+Stąd $\frac{Y_1+Y_2}{2}$ podlega temu samemu rozkładowi ED, z wyjątkiem tego, że waga $v$ staje się $2v$. Uśrednianie arytmetyczne $\frac{Y_1+Y_2}{2}$ jest zatem równoważne podwojeniu wagi $v$, podczas gdy wszystkie inne składniki rozkładu ED pozostają niezmienione. Ogólniej, mamy następujący wynik.
+
+**Własność 2.4.2** Jeśli $Y_1, \dots, Y_n$ są niezależne ze wspólną funkcją generującą momenty $m_Y$ podaną we Własności 2.4.1, to ich średnia
+
+$$
+\bar{Y} = \frac{1}{n} \sum_{i=1}^n Y_i
+$$
+
+ma funkcję gęstości prawdopodobieństwa
+
+$$
+\exp\left(\frac{y\theta - a(\theta)}{\phi/(nv)}\right) c(y, \phi/(nv)).
+$$
+
+Rozkład dla $\bar{Y}$ jest zatem taki sam jak dla każdego $Y_i$, z wyjątkiem tego, że waga $v$ jest zastąpiona przez $nv$.
+
+Uśrednianie obserwacji jest uwzględniane przez modyfikację wag w rodzinie ED. Zauważmy na przykład, że zmniejszenie $\phi$ o połowę ma taki sam efekt jak podwojenie wagi (rozmiaru próby). Wagi są potrzebne do modelowania średnich wielkości roszczeń. Nie biorąc pod uwagę wag, lekceważy się fakt, że średnia z wielu obserwacji została zmierzona z większą precyzją.
+
+_Przykład 2.4.3_ (Proporcje dwumianowe) Często analitycy koncentrują się na proporcjach, a nie na liczbach, tj. pracują ze względną zamiast bezwzględnej liczby sukcesów. Biorąc pod uwagę $Y \sim \mathcal{Bin}(m,q)$, oznacza to, że odpowiedzią nie jest już liczba sukcesów $Y$, ale odpowiadająca jej proporcja $\bar{Y} = \frac{Y}{m}$. Stąd liczba sukcesów staje się $m\bar{Y}$ w tym ustawieniu. Pracując z proporcjami, mamy $S=\{0, \frac{1}{m}, \dots, 1\}$ i $E[\bar{Y}]=q$. Pokażmy, że rozkład $\bar{Y}$ nadal należy do rodziny ED. Wynik ten można postrzegać jako zastosowanie Własności 2.4.2, ponieważ $\bar{Y}$ jest średnią z $m$ niezależnych zmiennych losowych $\mathcal{Ber}(q)$. Poniżej podajemy jednak alternatywny, bezpośredni dowód. W tym celu przepiszmy funkcję masy prawdopodobieństwa $\bar{Y}$ jako
+
+$$
+\begin{aligned}
+p_{\bar{Y}}(\bar{y}) &= \binom{m}{m\bar{y}} q^{m\bar{y}}(1-q)^{m(1-\bar{y})} \\
+&= \exp\left(\frac{\bar{y}\ln\frac{q}{1-q} + \ln(1-q)}{1/m}\right)\binom{m}{m\bar{y}}
+\end{aligned}
+$$
+
+co jest zgodne z postacią (2.3) z
+
+$$
+\begin{aligned}
+\theta &= \ln\frac{q}{1-q} \\
+a(\theta) &= -\ln(1-q) = \ln(1+\exp(\theta)) \\
+\phi &= 1 \\
+v &= m \\
+c(\bar{y}, \phi/v) &= \binom{m}{m\bar{y}}.
+\end{aligned}
+$$
+
+Rozkład proporcji dwumianowej $\bar{Y}$ zatem również należy do rodziny ED. W porównaniu z $Y$ widzimy, że funkcja $a(\cdot)$ nie zależy już od wielkości $m$, która jest teraz traktowana jako waga. Nośnik jest zawarty w przedziale jednostkowym $[0,1]$ niezależnie od wielkości $m$.
+
+### 2.4.2 Średnia
+
+Z Własności 2.4.1 wiemy, że funkcja $a$ pojawiająca się w (2.3) determinuje momenty odpowiedzi $Y$. W przypadku rozkładu normalnego, pochodna $a(\theta) = \frac{\theta^2}{2}$ wynosi $\theta = \mu$, więc odzyskujemy średnią odpowiedź z $a'$. Okazuje się, że jest to ogólnie ważne dla wszystkich rozkładów ED. Dokładniej, następny wynik pokazuje, że pierwsza pochodna $a$ odpowiada średniej odpowiedzi.
+
+**Własność 2.4.4** Jeśli odpowiedź $Y$ ma funkcję gęstości/masy prawdopodobieństwa postaci (2.3), to
+
+$$
+E[Y] = a'(\theta).
+$$
+
+_Dowód_ Podajmy dwa różne dowody tego wyniku. Pierwszy wykorzystuje wyrażenie na funkcję generującą momenty $m_Y$ uzyskane we Własności 2.4.1:
+
+$$
+E[Y] = \left. \frac{d}{dt}m_Y(t) \right|_{t=0} = \left. a'(\theta+t\phi/v)m_Y(t) \right|_{t=0} = a'(\theta).
+$$
+
+Innym sposobem uzyskania tego samego wyniku jest rozpoczęcie od
+
+$$
+\int_S f_Y(y) dy = 1
+$$
+
+tak że, zakładając, że możemy wprowadzić pochodną pod całkę (co ma miejsce w rodzinie ED), otrzymujemy
+
+$$
+\begin{aligned}
+0 &= \frac{d}{d\theta}\int_S f_Y(y) dy \\
+&= \int_S \left(\frac{d}{d\theta} f_Y(y)\right) dy \\
+&= \int_S \left(\frac{y-a'(\theta)}{\phi/v}\right) f_Y(y) dy
+\end{aligned}
+$$
+
+co ostatecznie implikuje, że
+
+$$
+\int_S y f_Y(y) dy = a'(\theta),
+$$
+
+jak zapowiedziano.
+
+### 2.4.3 Wariancja
+
+Średnia odpowiedź $Y$ odpowiada pierwszej pochodnej funkcji $a(\cdot)$ zaangażowanej w (2.3). Następny wynik pokazuje, że wariancja jest proporcjonalna do drugiej pochodnej $a(\cdot)$.
+
+**Własność 2.4.5** Jeśli odpowiedź $Y$ ma funkcję gęstości/masy prawdopodobieństwa postaci (2.3), to
+
+$$
+\text{Var}[Y] = \frac{\phi}{v}a''(\theta).
+$$
+
+_Dowód_ Ponownie podajmy dwa różne dowody tego wyniku. Pierwszy wykorzystuje funkcję generującą momenty:
+
+$$
+\begin{aligned}
+E[Y^2] &= \left. \frac{d^2}{dt^2}m_Y(t) \right|_{t=0} \\
+&= \left. \frac{\phi}{v}a''(\theta+t\phi/v)m_Y(t) \right|_{t=0} + \left. (a'(\theta+t\phi/v))^2m_Y(t) \right|_{t=0} \\
+&= \frac{\phi}{v}a''(\theta) + (a'(\theta))^2 \\
+&= \frac{\phi}{v}a''(\theta) + (E[Y])^2 \quad \text{z Własności 2.4.4},
+\end{aligned}
+$$
+
+skąd wynika ogłoszony wynik. Innym sposobem uzyskania tego samego wyniku jest następujący: zakładając, że możemy wprowadzić pochodną pod całkę (co ma miejsce w rodzinie ED), otrzymujemy
+
+$$
+\begin{aligned}
+0 &= \frac{d^2}{d\theta^2}\int_S f_Y(y) dy \\
+&= \int_S \frac{d^2}{d\theta^2}f_Y(y) dy \\
+&= \int_S \left( \left(\frac{y-a'(\theta)}{\phi/v}\right)^2 - \frac{a''(\theta)}{\phi/v} \right) f_Y(y) dy
+\end{aligned}
+$$
+
+co daje ogłoszony wynik, ponieważ $a'(\theta) = E[Y]$ z Własności 2.4.4. To kończy dowód.
+
+Ponieważ wariancja jest oczywiście zawsze dodatnia, Własność 2.4.5 implikuje, że druga pochodna $a''(\theta)$ musi być nieujemna, tj. funkcja $a$ musi być funkcją wypukłą (tak że $a'' \ge 0$), jak założono w definicji (2.3) rodziny ED. Biorąc pod uwagę konstrukcję pochylania rozkładu przedstawioną w Uwadze 2.2.3, warunek ten jest oczywiście spełniony, ponieważ wszystkie pochodne każdej funkcji generującej momenty są nieujemne.
+
+Zauważmy również, że zwiększenie wagi zmniejsza wariancję, podczas gdy wariancja rośnie liniowo wraz z parametrem dyspersji $\phi$. Wpływ $\theta$ na wariancję jest dany przez czynnik
+
+$$
+a''(\theta) = \frac{d}{d\theta}\mu(\theta)
+$$
+
+wyrażający, jak zmiana kanonicznego parametru $\theta$ modyfikuje oczekiwaną odpowiedź. W przypadku rozkładu normalnego, $a''(\theta)=1$, a wariancja jest po prostu równa $\phi/v = \sigma^2/v$, nie zależąc od $\theta$. W tym przypadku średnia odpowiedź nie wpływa na jej wariancję. Dla innych członków rodziny ED, $a''$ nie jest stałe i zmiana $\theta$ modyfikuje wariancję.
+
+### 2.4.4 Funkcja wariancji
+
+Funkcja wariancji $V(\cdot)$ wskazuje na związek między średnią a wariancją rozkładu z rodziny ED. Zauważmy, że brak związku między średnią a wariancją jest możliwy tylko dla odpowiedzi o wartościach rzeczywistych (takich jak normalnie rozłożone, gdzie wariancja $\sigma^2$ nie zależy od średniej $\mu$). Rzeczywiście, jeśli $Y$ jest nieujemne (tj. $Y \ge 0$), to intuicyjnie wariancja $Y$ dąży do zera, gdy średnia z $Y$ dąży do zera. Oznacza to, że wariancja jest funkcją średniej dla odpowiedzi nieujemnych.
+
+Funkcja wariancji $V(\cdot)$ jest formalnie zdefiniowana jako
+
+$$
+V(\mu) = \frac{d^2}{d\theta^2}a(\theta) = \frac{d}{d\theta}\mu(\theta).
+$$
+
+Funkcja wariancji odpowiada zatem zmianie średniej odpowiedzi $\mu(\theta)$ postrzeganej jako funkcja kanonicznego parametru $\theta$. W przypadku rozkładu normalnego, $\mu(\theta)=\theta$ i $V(\mu)=1$. Inne rozkłady ED mają niestałe funkcje wariancji. Ponownie widzimy, że funkcja kumulanty $a(\cdot)$ determinuje właściwości rozkładu w rodzinie ED.
+
+Wariancję odpowiedzi można zatem zapisać jako
+
+$$
+\text{Var}[Y] = \frac{\phi}{v}V(\mu).
+$$
+
+Ważne jest, aby pamiętać, że funkcja wariancji nie jest wariancją odpowiedzi, ale funkcją średniej wchodzącą w to wyrażenie (do pomnożenia przez $\phi/v$). Funkcja wariancji jest traktowana jako funkcja średniej $\mu$, nawet jeśli pojawia się jako funkcja $\theta$; jest to możliwe przez odwrócenie relacji między $\theta$ a $\mu$, ponieważ wiemy z Własności 2.4.4, że $\mu = E[Y] = a'(\theta)$. Wypukłość $a(\cdot)$ zapewnia, że średnia funkcja $a'$ jest rosnąca, więc jej odwrotność jest dobrze zdefiniowana. Stąd możemy wyrazić kanoniczny parametr w kategoriach średniej odpowiedzi $\mu$ przez relację
+
+$$
+\theta = (a')^{-1}(\mu).
+$$
+
+Funkcje wariancji odpowiadające zwykłym rozkładom ED są wymienione w Tabeli 2.2. Zauważmy, że
+
+$$
+V(\mu) = \mu^\xi \quad \text{z} \quad \xi = 
+\begin{cases}
+0 & \text{dla rozkładu normalnego} \\
+1 & \text{dla rozkładu Poissona} \\
+2 & \text{dla rozkładu Gamma} \\
+3 & \text{dla odwrotnego rozkładu Gaussa}.
+\end{cases}
+$$
+
+Ci członkowie rodziny ED mają więc potęgowe funkcje wariancji. Cała rodzina rozkładów ED z potęgowymi funkcjami wariancji jest określana jako rodzina Tweedie, która zostanie zbadana później w Sekcji 2.5. Nie wszystkie rozkłady ED dopuszczają potęgową funkcję wariancji. Na przykład w przypadku Bernoulliego,
+
+$$
+\begin{aligned}
+V(\mu) &= \frac{d^2}{d\theta^2}\ln(1+\exp(\theta)) \\
+&= \frac{\exp(\theta)}{(1+\exp(\theta))^2} \\
+&= \mu(1-\mu).
+\end{aligned}
+$$
+
+Tabela 2.2 Funkcje wariancji dla niektórych wybranych rozkładów ED
+
+| Rozkład                      | Funkcja wariancji $V(\mu)$ |
+| ---------------------------- | -------------------------- |
+| $\mathcal{Ber}(q)$              | $\mu(1-\mu)$               |
+| $\mathcal{Geo}(q)$              | $\mu(1+\mu)$               |
+| $\mathcal{Poi}(\mu)$            | $\mu$                      |
+| $\mathcal{Nbr}(\mu, \sigma^2)$  | $1$                        |
+| $\mathcal{Gam}(\mu, \alpha)$    | $\mu^2$                    |
+| $\mathcal{IGau}(\mu, \alpha)$   | $\mu^3$                    |
+
+### 2.4.5 Wagi
+
+Często w badaniach aktuarialnych odpowiedzi wydają się być stosunkami z zagregowaną ekspozycją lub nawet składkami w mianowniku (w przypadku analizy wskaźników szkodowości). Licznik może odpowiadać danym indywidualnym lub pogrupowanym danym zagregowanym w komórkach jednorodnych polis. Oznacza to, że wielkość grupy musi być uwzględniona, ponieważ odpowiedzi odpowiadające komórkom o małej objętości będą znacznie bardziej zmienne niż te o dużej objętości. Aktuariusze generalnie uważają, że komórka o dużej objętości jest wynikiem sumowania mniejszych niezależnych komórek, co implikuje, że wariancja odpowiedzi jest proporcjonalna do odwrotności objętości biznesowej. To implikuje, że wagi różnią się w zależności od miary objętości biznesowej.
+
+Rozważaliśmy już ważone średnie odpowiedzi dwumianowych w Przykładzie 2.4.3. Tutaj dalej rozważamy ważone średnie odpowiedzi z rozkładu (2.3).
+
+**Własność 2.4.6** Rozważmy niezależne odpowiedzi $Y_1, \dots, Y_n$ podlegające rozkładom ED (2.3) ze wspólną średnią $\mu$, parametrem dyspersji $\phi$ i określonymi wagami $v_i$. Zdefiniujmy całkowitą wagę
+
+$$
+v_\bullet = \sum_{i=1}^n v_i.
+$$
+
+Wtedy, ważona średnia
+
+$$
+\frac{1}{v_\bullet}\sum_{i=1}^n v_i Y_i
+$$
+
+nadal podlega rozkładowi ED (2.3) ze średnią $\mu$, parametrem dyspersji $\phi$ i wagą $v_\bullet$.
+
+_Dowód_ Funkcja generująca momenty ważonej średniej jest dana przez
+
+$$
+\begin{aligned}
+E\left[\exp\left(\frac{t}{v_\bullet}\sum_{i=1}^n v_i Y_i\right)\right] &= \prod_{i=1}^n \exp\left(v_i\frac{a\left(\theta+t\frac{\phi}{v_\bullet}\right) - a(\phi)}{\phi}\right) \\
+&= \exp\left(v_\bullet \frac{a\left(\theta+t\frac{\phi}{v_\bullet}\right) - a(\phi)}{\phi}\right),
+\end{aligned}
+$$
+
+co kończy dowód.
+
+Własność 2.4.6 rozszerza Własność 2.4.2 na ważone średnie odpowiedzi z rodziny ED.
