@@ -53,7 +53,7 @@ $$
 Zatem, empiryczna funkcja dystrybucji $\hat{F}_n$ przypisuje równe prawdopodobieństwo $\frac{1}{n}$ każdemu z obserwowanych punktów danych $Y_1, \dots, Y_n$. Bootstrapowym oszacowaniem $MSE(F)$ jest
 
 $$
-\widehat{MSE}(\hat{F}_n) = E_{\hat{F}_n} \left[ (g(Y_1^*, Y_2^*, \dots, Y_n^*) - \theta(\hat{F}_n))^2 \right]
+MSE(\hat{F}_n) = E_{\hat{F}_n} \left[ (g(Y_1^*, Y_2^*, \dots, Y_n^*) - \theta(\hat{F}_n))^2 \right]
 $$
 
 gdzie zmienne losowe $Y_1^*, Y_2^*, \dots, Y_n^*$ są niezależne i mają wspólną dystrybuantę $\hat{F}_n$.
