@@ -132,12 +132,12 @@ $$
 ---
 **Tabela 4.1** Obserwowana liczba szkód wraz z odpowiadającymi jej ekspozycjami na ryzyko (w osobolatach) pojawiającymi się w nawiasach. Ubezpieczenia komunikacyjne, dane hipotetyczne.
 
-|           | Tylko TPL    | Ograniczone szkody | Kompleksowe |
-|-----------|--------------|--------------------|-------------|
-| **Mężczyźni** | 1,683        | 3,403              | 626         |
-|           | (10,000)     | (30,000)           | (5,000)     |
-| **Kobiety** | 873          | 2,423              | 766         |
-|           | (6,000)      | (24,000)           | (7,000)     |
+| | Tylko TPL | Ograniczone szkody | Kompleksowe |
+|---|---|---|---|
+| **Mężczyźni** | 1,683 | 3,403 | 626 |
+|               | (10,000) | (30,000) | (5,000) |
+| **Kobiety**   | 873 | 2,423 | 766 |
+|               | (6,000) | (24,000) | (7,000) |
 
 ---
 **Tabela 4.2** Dane z Tabeli 4.1 ułożone w formacie wejściowym do analizy GLM za pomocą oprogramowania statystycznego, takiego jak R.
@@ -150,7 +150,6 @@ $$
 | 1     | 1     | 0     | 873     | 6,000      |
 | 1     | 0     | 0     | 2,423   | 24,000     |
 | 1     | 0     | 1     | 766     | 7,000      |
----
 
 Odpowiadający wektor obserwacji to
 
