@@ -138,7 +138,6 @@ $$
 |           | (10,000)     | (30,000)           | (5,000)     |
 | **Kobiety** | 873          | 2,423              | 766         |
 |           | (6,000)      | (24,000)           | (7,000)     |
----
 
 ---
 **Tabela 4.2** Dane z Tabeli 4.1 ułożone w formacie wejściowym do analizy GLM za pomocą oprogramowania statystycznego, takiego jak R.
@@ -375,14 +374,13 @@ tak że jedyną rolą $g$ jest uczynienie oczekiwanej odpowiedzi liniową w cech
 ---
 **Tabela 4.4** Przykłady kanonicznych funkcji łączących. Zauważ, że kanoniczne łącze to $\mu^\xi$ dla rozkładów Gamma i Odwrotnego Gaussa, ale znak minus jest generalnie usuwany, a także dzielenie przez 2 w przypadku Odwrotnego Gaussa.
 
-| Funkcja łącząca | $g(\mu)$                | Kanoniczne łącze dla |
-|-----------------|-------------------------|----------------------|
-| Tożsamościowa   | $\mu$                   | Normalny             |
-| Logarytmiczna   | $\ln \mu$               | Poisson              |
-| Potęgowa        | $\mu^\xi$               | Gamma ($\xi = -1$)   |
-|                 |                         | Odwrotny Gauss ($\xi = -2$) |
-| Logit           | $\ln \frac{\mu}{1-\mu}$ | Dwumianowy           |
----
+| Funkcja łącząca | $g(\mu)$ | Kanoniczne łącze dla |
+|---|---|---|
+| Tożsamościowa | $\mu$ | Normalny |
+| Logarytmiczna | $\ln \mu$ | Poisson |
+| Potęgowa | $\mu^\xi$ | Gamma ($\xi = -1$) |
+| | | Odwrotny Gauss ($\xi = -2$) |
+| Logit | $\ln \frac{\mu}{1-\mu}$ | Dwumianowy |
 
 ### 4.2.5 Interakcje
 
