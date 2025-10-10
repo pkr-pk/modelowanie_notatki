@@ -1766,6 +1766,30 @@ $$
 
 obejmując kryterium informacyjne Akaikego AIC oparte na ukaranej największej wiarygodności (zauważ, że założyliśmy $\phi=1$, więc $p+1$ liczy wszystkie parametry zaangażowane w model regresji). Porównywanie rozważanych GLM na podstawie wartości AIC sprowadza się zatem do uwzględnienia optymizmu w dewiancji obliczonej na zbiorze treningowym.
 
+## 4.6 Estymacja Parametru Dyspersji
+
+Niektóre rozkłady z rodziny ED zawierają nieznany parametr dyspersji $\phi$. Dzieje się tak na przykład w przypadku rozkładów Gamma lub Odwrotnego Gaussa. Równania wiarygodności dla $\boldsymbol{\beta}$ nie zawierają parametru dyspersji $\phi$, więc nie jest konieczne szacowanie $\phi$, aby uzyskać $\boldsymbol{\hat{\beta}}$. Jednakże, oszacowany parametr dyspersji jest potrzebny do przeprowadzenia wnioskowania na temat współczynników regresji. Chociaż $\phi$ w zasadzie może być oszacowane metodą największej wiarygodności, częściej stosuje się alternatywny estymator wyprowadzony z metody momentów, który jest zdefiniowany w następujący sposób.
+
+Gdy algorytm IRLS wygeneruje $\boldsymbol{\hat{\beta}}$, parametr dyspersji $\phi$ można oszacować, dzieląc statystykę dobroci dopasowania Pearsona
+
+$$
+X^2 = \sum_{i=1}^n \frac{(y_i - \hat{\mu}_i)^2}{V(\hat{\mu}_i)/v_i}
+$$
+
+przez resztowe stopnie swobody modelu, to jest,
+
+$$
+\hat{\phi} = \frac{1}{n-p-1} \sum_{i=1}^n \frac{v_i(y_i - \hat{\mu}_i)^2}{V(\hat{\mu}_i)} = \frac{X^2}{n-p-1}.
+$$
+
+Estymator ten wykorzystuje fakt, że $X^2$ Pearsona ma asymptotycznie rozkład Chi-kwadrat z $n-p-1$ stopniami swobody. Jest on znacznie prostszy do obliczenia i w niektórych przypadkach oferuje większą stabilność numeryczną niż estymata największej wiarygodności.
+
+Dewiancja dostarcza alternatywnego estymatora dla $\phi$. Biorąc pod uwagę (4.16), widzimy, że średnia $D$ jest w przybliżeniu równa $n-p-1$. To sugeruje użycie estymaty dla dużych prób
+
+$$
+\hat{\phi} = \frac{D}{n-p-1}.
+$$
+
 ## 4.9 Surowe, standaryzowane i "studendyzowane" reszty
 
 ### 4.9.2 Reszty w GLM
