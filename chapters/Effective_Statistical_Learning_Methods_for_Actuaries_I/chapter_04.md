@@ -186,7 +186,7 @@ $$
 g(\mu_i) = \text{score}_i \iff \mu_i = g^{-1}(\text{score}_i).
 $$
 
-Ważne jest, aby zdać sobie sprawę, że tutaj nie przekształcamy odpowiedzi $Y_i$, ale raczej jej oczekiwaną wartość $\mu_i$. Z punktu widzenia statystycznego, model, w którym $g(Y_i)$ jest liniowy w $\boldsymbol{x}_i$, nie jest taki sam jak GLM, w którym $g(\mu_i)$ jest liniowy w $\boldsymbol{x}_i$. Aby to zrozumieć, załóżmy, że $\ln Y_i \sim \mathcal{Noror}(\boldsymbol{x}_i^\top \boldsymbol{\beta}, \sigma^2)$. Chociaż model jest dopasowany w skali logarytmicznej, aktuariusz jest zainteresowany odpowiedziami w skali oryginalnej (w jednostkach monetarnych, dla kwot roszczeń). Jeśli estymowane wyniki $\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}}$ są potęgowane, aby wrócić do oryginalnej skali, $\exp(\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}})$ daje wartości dla mediany odpowiedzi, a nie dla średniej. Dla średniej, dopasowane wartości wynoszą
+Ważne jest, aby zdać sobie sprawę, że tutaj nie przekształcamy odpowiedzi $Y_i$, ale raczej jej oczekiwaną wartość $\mu_i$. Z punktu widzenia statystycznego, model, w którym $g(Y_i)$ jest liniowy w $\boldsymbol{x}_i$, nie jest taki sam jak GLM, w którym $g(\mu_i)$ jest liniowy w $\boldsymbol{x}_i$. Aby to zrozumieć, załóżmy, że $\ln Y_i \sim \mathcal{Nororor}(\boldsymbol{x}_i^\top \boldsymbol{\beta}, \sigma^2)$. Chociaż model jest dopasowany w skali logarytmicznej, aktuariusz jest zainteresowany odpowiedziami w skali oryginalnej (w jednostkach monetarnych, dla kwot roszczeń). Jeśli estymowane wyniki $\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}}$ są potęgowane, aby wrócić do oryginalnej skali, $\exp(\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}})$ daje wartości dla mediany odpowiedzi, a nie dla średniej. Dla średniej, dopasowane wartości wynoszą
 
 $$
 \hat{\mu}_i = \exp\left(\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}} + \frac{\hat{\sigma}^2}{2}\right)
@@ -215,7 +215,7 @@ Tabela 4.3 wymienia zwykłe funkcje łączące i ich odwrotności. Te funkcje ł
 W następnej sekcji omówimy teraz niektóre funkcje łączące, które są szczególnie przydatne dla aktuariuszy.
 
 ---
-**Tabela 4.3** Typowe funkcje łączące i ich odwrotności. Tutaj $\mu_i$ to oczekiwana wartość odpowiedzi, $s_i$ to ocena, a $\Phi(\cdot)$ to dystrybuanta standardowego rozkładu normalnego $\mathcal{Noror}(0, 1)$.
+**Tabela 4.3** Typowe funkcje łączące i ich odwrotności. Tutaj $\mu_i$ to oczekiwana wartość odpowiedzi, $s_i$ to ocena, a $\Phi(\cdot)$ to dystrybuanta standardowego rozkładu normalnego $\mathcal{Nororor}(0, 1)$.
 
 | Funkcja łącząca | $s_i = g(\mu_i)$ | $\mu_i = g^{-1}(s_i)$ |
 |----|----|----|
@@ -320,7 +320,7 @@ $$
 \mu_i \approx \exp(\beta_0) \prod_{j|x_{ij}=1} \exp(\beta_j)
 $$
 
-więc modele Poissona i regresji logistycznej dają podobne wyniki w tym przypadku. Model probit wykorzystuje dystrybuantę $\Phi$ rozkładu $\mathcal{Noror}(0, 1)$ do odwzorowania przedziału jednostkowego $[0, 1]$. Komplementarna funkcja łącząca log-log wykorzystuje rozkład Ekstremalnej (minimum) Wartości w tym celu. Ten link dokładnie łączy GLM-y Poissona i dwumianowe, jak pokazano dalej. Rozważmy $Y \sim \mathcal{Poi}(\mu)$ i zdefiniujmy obciętą odpowiedź $\tilde{Y} = \min\{1, Y\}$.
+więc modele Poissona i regresji logistycznej dają podobne wyniki w tym przypadku. Model probit wykorzystuje dystrybuantę $\Phi$ rozkładu $\mathcal{Nororor}(0, 1)$ do odwzorowania przedziału jednostkowego $[0, 1]$. Komplementarna funkcja łącząca log-log wykorzystuje rozkład Ekstremalnej (minimum) Wartości w tym celu. Ten link dokładnie łączy GLM-y Poissona i dwumianowe, jak pokazano dalej. Rozważmy $Y \sim \mathcal{Poi}(\mu)$ i zdefiniujmy obciętą odpowiedź $\tilde{Y} = \min\{1, Y\}$.
 
 Jeśli dla obciętej odpowiedzi $Y$ zastosowano funkcję łączącą logarytmiczną, tj. $\ln \mu = \text{score}$, to
 
@@ -794,7 +794,7 @@ gdzie $\text{offset}_i$ oznacza przesunięcie specyficzne dla $i$-tej osoby.
 W modelu regresji liniowej normalnej mamy
 
 $$
-Y_i = \text{offset}_i + \boldsymbol{x}_i^\top \boldsymbol{\beta} + Z_i \quad \text{gdzie } Z_i \sim \mathcal{Noror}(0, \sigma^2).
+Y_i = \text{offset}_i + \boldsymbol{x}_i^\top \boldsymbol{\beta} + Z_i \quad \text{gdzie } Z_i \sim \mathcal{Nororor}(0, \sigma^2).
 $$
 
 Ponieważ przesunięcie jest znaną wielkością, jest to równoważne odjęciu tej wielkości od odpowiedzi $Y_i$ przed uruchomieniem regresji na $Y_i - \text{offset}_i$. Ta ostatnia wielkość może być traktowana jako reszta, do wyjaśnienia przez $\boldsymbol{x}_i$. To dlatego przesunięcia nie są omawiane w normalnej regresji liniowej z łączem tożsamościowym. Czasami przesunięcie odpowiada dopasowanym wartościom $\hat{\mu}_i$ dla średniej $Y_i$ uzyskanej z poprzedniego modelu regresji. Wtedy, przesunięcie jest równoważne użyciu reszt z wstępnej regresji odpowiedzi (która stanowi podstawę boosting, jak zobaczymy w Rozdz. 6).
@@ -872,7 +872,7 @@ To podejście może być również użyte do wykazania, że w niektórych bardzo
 Nawet jeśli symetryczna zmienna losowa o rozkładzie normalnym ze stałą wariancją nie opisuje adekwatnie ani liczby szkód, ani kwot szkód, klasyczny model liniowej regresji normalnej pozostaje mimo wszystko bardzo użyteczny do dopasowywania GLM. Algorytm iteracyjny używany do estymacji współczynników regresji w GLM w rzeczywistości wykorzystuje model liniowej regresji normalnej na każdym kroku, stosując go do odpowiedzi roboczych (working responses) wyprowadzonych z rzeczywistych, co zostanie pokazane w następnej sekcji. Dlatego zaczniemy od przypomnienia estymacji współczynników regresji w modelu wielorakiej regresji liniowej
 
 $$
-Y_i \sim \mathcal{Nor} \left( \text{score}_i, \frac{\sigma^2}{v_i} \right), \quad i=1, 2, \dots, n, \text{ gdzie } \text{score}_i = \boldsymbol{x}_i^\top \boldsymbol{\beta}.
+Y_i \sim \mathcal{Noror} \left( \text{score}_i, \frac{\sigma^2}{v_i} \right), \quad i=1, 2, \dots, n, \text{ gdzie } \text{score}_i = \boldsymbol{x}_i^\top \boldsymbol{\beta}.
 $$
 
 To jest normalny GLM z funkcją łączącą tożsamościową. Zatem pracujemy z łączem kanonicznym, a równania wiarygodności zapisują się jako
@@ -1441,63 +1441,330 @@ Model jest dopasowywany za pomocą funkcji R `glm`, z łączem logarytmicznym i 
 
 ## 4.5 Dewiancja
 
+### 4.5.1 Model Zerowy
+
+Model zerowy odpowiada przypadkowi, w którym cechy nie wnoszą żadnych informacji o odpowiedzi. Wobec braku związku między cechami a odpowiedzią, dopasowujemy wspólną średnią $\mu$ do wszystkich obserwacji. Jest to więc pojedynczy parametr $\beta_0$ dla wszystkich obserwacji, taki że
+
+$$
+a'(\theta_i) = \bar{y} \iff \hat{\mu}_i = \bar{y} \text{ dla } i=1, 2, \dots, n \iff \hat{\beta}_0 = g^{-1}(\bar{y}).
+$$
+
+Wynik ten bezpośrednio wynika z właściwości estymat największej wiarygodności dla rozkładów ED ustalonych w Rozdz. 3.
+
+W modelu zerowym dane są reprezentowane w całości jako losowe wahania wokół wspólnej średniej $\mu$. Jeśli model zerowy ma dobre dopasowanie, dane są jednorodne i nie ma powodu, aby naliczać różne składki premium podgrupom ubezpieczonych.
+
+### 4.5.2 Model Pełny, czyli Nasycony
+
+Dla wybranego rozkładu ED, model o najlepszym możliwym dopasowaniu liczy tyle samo parametrów co obserwacji. Dopasowanie jest więc idealne, a model estymuje $\mu_i$ dla średniej odpowiedzi jako odpowiadającą jej obserwację $y_i$. Ten model nazywany jest modelem pełnym lub nasyconym. Jest on używany jako odniesienie do oceny dobroci dopasowania dowolnego GLM opartego na tym samym rozkładzie ED.
+
+Model pełny zapewnia całkowitą elastyczność w dopasowaniu, tak że odpowiadająca estymata największej wiarygodności $\hat{\theta}_i$ rozwiązuje
+
+$$
+a'(\tilde{\theta}_i) = y_i \iff \tilde{\mu}_i = y_i \text{ dla } i=1, 2, \dots, n,
+$$
+
+jak ustalono w Rozdz. 2. Rozwiązanie jest oznaczone jako
+
+$$
+\tilde{\theta}_i = (a')^{-1}(y_i), \quad i=1, 2, \dots, n.
+$$
+
+Zatem każda dopasowana wartość jest równa obserwacji, a model pełny idealnie pasuje. Jednakże model ten nie wydobywa z danych żadnej struktury, a jedynie powtarza dostępne obserwacje, nie kondensując ich.
+
 ### 4.5.3 Dewiancja
 
-#### 4.5.3.1 Statystyka ilorazu wiarygodności
+#### 4.5.3.1 Statystyka Ilorazu Wiarygodności
 
-Model statystyczny opisuje, jak aktuariusz dzieli zmienność obecną w danych na strukturę systematyczną (odzwierciedloną w punktacji GLM) i losowe odchylenia od wartości oczekiwanych (zmienność wprowadzona przez założony rozkład ED). Model zerowy reprezentuje jeden skrajny przypadek, w którym dane są czysto losowe, podczas gdy model pełny lub nasycony przedstawia dane jako całkowicie systematyczne. Model pełny dostarcza miary tego, jak dobrze jakikolwiek model oparty na rozważanym rozkładzie ED może dopasować się do danych. Ponieważ model pełny daje najwyższą osiągalną log-wiarygodność przy danym rozkładzie ED, różnica między log-wiarygodnością $L_{full}$ modelu pełnego a log-wiarygodnością $L(\hat{\beta})$ badanego modelu GLM mierzy dobroć dopasowania uzyskaną w tym GLM. Prowadzi to do statystyki ilorazu wiarygodności, odpowiadającej dwukrotności tej różnicy. W rodzinie ED ta statystyka ilorazu wiarygodności jest dana przez:
+Model statystyczny opisuje, jak aktuariusz dzieli zmienność obecną w danych na strukturę systematyczną (reprezentowaną w wyniku GLM) i losowe odchylenia od wartości oczekiwanych (wahania wywołane przez założony rozkład ED, lub relację średnia-wariancja). Model zerowy reprezentuje jedną skrajność, gdzie dane są czysto losowe, podczas gdy model nasycony lub pełny reprezentuje dane jako całkowicie systematyczne. Model pełny zapewnia aktuariuszowi miarę tego, jak dobrze jakikolwiek model oparty na rozważanym rozkładzie ED może dopasować dane. Ponieważ model pełny daje najwyższą osiągalną log-wiarygodność z rozkładem ED w ramach rozważań, różnica między log-wiarygodnością $L_{\text{full}}$ modelu pełnego a log-wiarygodnością $L(\hat{\boldsymbol{\beta}})$ uzyskaną z tego GLM mierzy dobroć dopasowania. Prowadzi to do statystyki ilorazu wiarygodności odpowiadającej dwukrotności tej różnicy. W rodzinie ED, ta statystyka ilorazu wiarygodności jest dana przez
 
-$$LR = 2(L_{full} - L(\hat{\beta})) = \frac{2}{\phi} \sum_{i=1}^{n} \nu_i [y_i(\tilde{\theta}_i - \hat{\theta}_i) - a(\tilde{\theta}_i) + a(\hat{\theta}_i)]$$
+$$
+LR = 2(L_{\text{full}} - L(\hat{\boldsymbol{\beta}})) = \frac{2}{\phi} \sum_{i=1}^n v_i \left( y_i(\tilde{\theta}_i - \hat{\theta}_i) - a(\tilde{\theta}_i) + a(\hat{\theta}_i) \right)
+$$
 
-gdzie $\tilde{\theta}_i$ to estymaty w modelu pełnym, a $\hat{\theta}_i$ to estymaty w badanym modelu. Zbyt duża wartość LR wskazuje, że rozważany model nie dopasowuje się zadowalająco do rzeczywistych danych, podczas gdy zbyt mała wartość LR może być sygnałem, że model ma niską moc wyjaśniającą. Tutaj "zbyt mała" odnosi się do kwantyla rozkładu chi-kwadrat, który wydaje się rozsądnym przybliżeniem rozkładu LR przy łagodnych warunkach regularności.
+gdzie $\tilde{\theta}_i$ są estymatami w modelu pełnym, a $\hat{\theta}_i$ są estymatami w rozważanym modelu. Zbyt duża wartość LR wskazuje, że model nie pasuje zadowalająco do rzeczywistych danych, podczas gdy zbyt mała wartość LR może sygnalizować, że rozważany model ma niską moc wyjaśniającą. Tutaj „zbyt mała” odnosi się do kwantyla rozkładu Chi-kwadrat, który wydaje się zapewniać rozsądną aproksymację rozkładu LR przy łagodnych warunkach regularności.
 
 #### 4.5.3.2 Dewiancja
 
-Podczas pracy z GLM przydatne jest posiadanie wielkości, którą można interpretować jako sumę kwadratów błędów (lub reszt) w modelu regresji liniowej normalnej. Ta wielkość nazywana jest dewiancją lub dewiancją resztową modelu i jest zdefiniowana jako:
+Podczas pracy z GLM, przydatne jest posiadanie wielkości, którą można interpretować jako sumę kwadratów błędów (lub reszt) w modelu regresji normalnej. Ta wielkość nazywana jest dewiancją, czyli dewiancją resztową modelu i jest zdefiniowana jako
 
-$$\begin{align*}
-D(y, \hat{\mu}) 
-&= \phi LR \\
-&= 2\phi(L_{full} - L(\hat{\beta})) \\
-&= 2 \sum_{i=1}^{n} \nu_i [y_i(\tilde{\theta}_i - \hat{\theta}_i) - a(\tilde{\theta}_i) + a(\hat{\theta}_i)]
-\end{align*}$$
+$$
+\begin{aligned}
+D(\boldsymbol{y}, \boldsymbol{\hat{\mu}}) &= \phi LR \\
+&= 2\phi(L_{\text{full}} - L(\hat{\boldsymbol{\beta}})) \\
+&= 2 \sum_{i=1}^n v_i \left( y_i(\tilde{\theta}_i - \hat{\theta}_i) - a(\tilde{\theta}_i) + a(\hat{\theta}_i) \right).
+\end{aligned}
+$$
 
-Jest to miara odległości między konkretnym modelem a obserwowanymi danymi, zdefiniowana za pomocą modelu nasyconego. Podobnie jak suma kwadratów błędów, kwantyfikuje ona zmienność w danych, która nie jest wyjaśniona przez rozważany model.
+Jest to miara odległości między konkretnym modelem a obserwowanymi danymi zdefiniowanymi za pomocą modelu nasyconego. Podobnie do sumy kwadratów błędów, kwantyfikuje ona wahania w danych, które nie są wyjaśnione przez rozważany model.
 
-**Tabela 4.7:** Dewiancja związana z GLM dla wybranych rozkładów z rodziny ED.
+---
+**Tabela 4.7** Dewiancja związana z GLM opartymi na niektórych członkach rodziny rozkładów ED.
+
 | Rozkład | Dewiancja |
-| --- | --- |
-| **Dwumianowy** | $2 \sum_{i=1}^{n} \left( y_i \ln \frac{y_i}{\hat{\mu}_i} + (n_i - y_i) \ln \frac{n_i - y_i}{n_i - \hat{\mu}_i} \right)$ gdzie $\hat{\mu}_i = n_i \hat{q}_i$ |
-| **Poissona** | $2 \sum_{i=1}^{n} \left( y_i \ln \frac{y_i}{\hat{\mu}_i} - (y_i - \hat{\mu}_i) \right)$ gdzie $y \ln y = 0$ jeśli $y = 0$ |
-| **Normalny** | $\sum_{i=1}^{n} (y_i - \hat{\mu}_i)^2$ |
-| **Gamma** | $2 \sum_{i=1}^{n} \left( -\ln \frac{y_i}{\hat{\mu}_i} + \frac{y_i - \hat{\mu}_i}{\hat{\mu}_i} \right)$ |
-| **Odwrotny Gaussowski** | $\sum_{i=1}^{n} \frac{(y_i - \hat{\mu}_i)^2}{\hat{\mu}_i^2 y_i}$ |
+| :--- | :--- |
+| Dwumianowy | $2 \sum_{i=1}^n (y_i \ln \frac{y_i}{\hat{\mu}_i} + (n_i - y_i) \ln \frac{n_i - y_i}{n_i - \hat{\mu}_i})$ gdzie $\hat{\mu}_i = n_i \hat{q}_i$ |
+| Poissona | $2 \sum_{i=1}^n (y_i \ln \frac{y_i}{\hat{\mu}_i} - (y_i - \hat{\mu}_i))$ gdzie $y \ln y = 0$ jeśli $y=0$ |
+| Normalny | $\sum_{i=1}^n (y_i - \hat{\mu}_i)^2$ |
+| Gamma | $2 \sum_{i=1}^n (- \ln \frac{y_i}{\hat{\mu}_i} + \frac{y_i - \hat{\mu}_i}{\hat{\mu}_i})$ |
+| Odwrotny Gaussowski | $\sum_{i=1}^n \frac{(y_i - \hat{\mu}_i)^2}{\hat{\mu}_i^2 y_i}$ |
+---
 
-Ponieważ model nasycony musi pasować do danych co najmniej tak dobrze jak każdy inny model, dewiancja resztowa nigdy nie jest ujemne. Im większa dewiancja, tym większe różnice między rzeczywistymi danymi a dopasowanymi wartościami. Dewiancja modelu zerowego nazywana jest dewiancją zerową.
+Ponieważ model nasycony musi pasować do danych co najmniej tak samo dobrze jak każdy inny model, dewiancja resztowa nigdy nie jest ujemna. Im większa dewiancja, tym większe różnice między rzeczywistymi danymi a dopasowanymi wartościami. Dewiancja modelu zerowego nazywana jest dewiancją zerową.
 
-Tabela 4.7 przedstawia dewiancje związane z modelami GLM opartymi na niektórych członkach rodziny rozkładów ED. Drugi człon $\sum_{i=1}^{n} (y_i - \hat{\mu}_i)$ w dewiancji Poissona jest zwykle równy 0, gdy w punktacji uwzględniony jest wyraz wolny, więc dewiancja Poissona redukuje się do $2 \sum_{i=1}^{n} y_i \ln(y_i / \hat{\mu}_i)$. W przypadku Poissona dewiancja jest również nazywana **statystyką G**. Należy zauważyć, że w tej tabeli $y \ln y$ jest przyjmowane jako 0, gdy $y = 0$ (jego granica, gdy $y \to 0$).
+Tabela 4.7 przedstawia dewiancję związaną z GLM opartymi na niektórych członkach rodziny rozkładów ED. Drugi składnik $\sum_{i=1}^n (y_i - \hat{\mu}_i)$ w dewiancji Poissona jest zwykle równy 0, gdy w ocenie uwzględniony jest wyraz wolny, więc dewiancja Poissona redukuje się do $2\sum_{i=1}^n y_i \ln \frac{y_i}{\hat{\mu}_i}$. W przypadku Poissona, dewiancja jest również nazywana statystyką G. Zauważ, że w tej tabeli, $y \ln y$ przyjmuje się jako 0, gdy $y=0$ (jego granica, gdy $y \to 0$).
 
-#### 4.5.3.3 Skalowana dewiancja
+#### 4.5.3.3 Dewiancja Skalowana
 
-W rodzinach o znanym parametrze dyspersji $\phi$, takich jak rozkład dwumianowy, dla którego $\phi=1$, dewiancja stanowi podstawę do testowania braku dopasowania modelu lub do porównywania modeli zagnieżdżonych. Jeśli $\phi$ musi być estymowane na podstawie danych, zamiast tego należy użyć skalowanej dewiancji. Dokładniej, skalowana dewiancja jest dana wzorem:
-
-$$
-\tilde{D}(y, \hat{\mu}) = \frac{1}{\phi}D(y, \hat{\mu})
-$$
-
-Zauważmy, że skalowana dewiancja zależy od parametru dyspersji $\phi$. Gdy $\phi=1$ (podobnie jak w przypadkach rozkładu dwumianowego i Poissona), dewiancja i skalowana dewiancja są takie same. Powszechną praktyką jest po prostu podstawienie estymatora $\hat{\phi}$ w celu obliczenia $\tilde{D}$.
-
-#### 4.5.3.4 Rozkład z próby skalowanej dewiancji
-
-Pojęcie dewiancji rozszerza na wszystkich członków rodziny wykładniczej (ED family) znaną sumę kwadratów reszt stosowaną w normalnej regresji liniowej. Liczba stopni swobody związanej ze skalowaną dewiancją jest równa liczbie obserwacji $n$ pomniejszonej o liczbę $p + 1$ parametrów regresji $\beta_0, \beta_1, ..., \beta_p$, które mają być estymowane. W dużych próbach skalowana dewiancja ma w przybliżeniu rozkład Chi-kwadrat z $n - (p + 1)$ stopniami swobody, tj.
+Dla rodzin z znanym parametrem dyspersji $\phi$, takich jak dwumianowy lub Poissona, dla których $\phi=1$, dewiancja stanowi podstawę do testowania braku dopasowania modelu lub do porównywania zagnieżdżonych modeli. Jeśli $\phi$ musi być oszacowane na podstawie danych, wtedy należy użyć dewiancji skalowanej. Dokładniej, dewiancja skalowana jest dana przez
 
 $$
-\tilde{D} \approx \chi_{n-p-1}^{2} \quad \text{pod warunkiem, że } n \text{ jest wystarczająco duże.} \quad (4.16)
+\tilde{D}(\boldsymbol{y}, \boldsymbol{\hat{\mu}}) = \frac{1}{\phi} D(\boldsymbol{y}, \boldsymbol{\hat{\mu}}).
 $$
 
-Duża dewiancja wskazuje na źle dopasowany model. Dokładniej, jeśli uogólniony model liniowy (GLM) jest rozsądnie dopasowany do danych, to skalowana dewiancja $\tilde{D}$ powinna być bliska liczbie resztowych stopni swobody dla modelu, czyli $n - p - 1$.
+Zauważ, że dewiancja skalowana zależy od parametru dyspersji $\phi$. Gdy $\phi=1$ (podobnie jak w przypadkach dwumianowym i Poissona), dewiancja i dewiancja skalowana są takie same. Powszechną praktyką jest po prostu podłączenie oszacowania $\hat{\phi}$ w celu obliczenia $\tilde{D}$.
 
-Należy zauważyć, że do aproksymacji rozkładem Chi-kwadrat w (4.16) należy podchodzić z ostrożnością. Istnieją sytuacje, w których nie jest ona w ogóle prawdziwa, na przykład w przypadku odpowiedzi binarnych (jak pokazano w następnej sekcji).
+#### 4.5.3.4 Rozkład Próbkowy Dewiancji Skalowanej
+
+Koncepcja dewiancji rozciąga się na wszystkich członków rodziny ED znaną sumę kwadratów reszt używaną w regresji liniowej normalnej. Liczba stopni swobody związana z dewiancją skalowaną jest równa liczbie $n$ obserwacji minus liczba $p+1$ parametrów regresji $\beta_0, \beta_1, \dots, \beta_p$ do oszacowania. W dużych próbach, dewiancja skalowana ma w przybliżeniu rozkład Chi-kwadrat z $n-(p+1)$ stopniami swobody, tj.
+
+$$
+\tilde{D} \approx \chi^2_{n-p-1} \text{ pod warunkiem, że } n \text{ jest wystarczająco duże.}
+\quad\quad\text{(4.16)}
+$$
+
+Duża dewiancja wskazuje na źle dopasowany model. Dokładniej, jeśli GLM pasuje do danych rozsądnie dobrze, to skalowana dewiancja $\tilde{D}$ powinna być bliska liczbie resztowych stopni swobody, tj. $n-p-1$.
+
+Zauważ, że do aproksymacji Chi-kwadrat w (4.16) należy podchodzić z pewną ostrożnością. Istnieją sytuacje, w których nie jest ona w ogóle zachowana, na przykład w przypadku odpowiedzi binarnych (jak pokazano w następnej sekcji).
+
+### 4.5.4 Przypadek Bernoulliego
+
+Maksymalizacja log-wiarygodności lub minimalizacja dewiancji jest równoważna z punktu widzenia numerycznego, z wyjątkiem niektórych szczególnych przypadków, jak pokazano dalej. Załóżmy, że $Y_i \sim \mathcal{Ber}(q_i)$. Wtedy log-wiarygodność zapisuje się jako
+
+$$
+L(\boldsymbol{\beta}) = \sum_{i=1}^n (y_i \ln q_i + (1 - y_i) \ln(1 - q_i)).
+$$
+
+W modelu nasyconym, $\hat{q}_i = y_i$, więc log-wiarygodność jest równa 0, ponieważ
+
+$$
+y_i \ln y_i = (1 - y_i) \ln(1 - y_i) = 0 \text{ gdy } y_i \in \{0, 1\}.
+$$
+
+Dewiancja jest wtedy równa minus dwukrotności log-wiarygodności rozważanego modelu, to jest,
+
+$$
+\begin{aligned}
+D = -2L(\hat{\boldsymbol{\beta}}) &= -2 \sum_{i=1}^n (y_i \ln \hat{q}_i + (1 - y_i) \ln(1 - \hat{q}_i)) \\
+&= -2 \sum_{i=1}^n \left( y_i \ln \frac{\hat{q}_i}{1-\hat{q}_i} + \ln(1 - \hat{q}_i) \right).
+\end{aligned}
+\quad\quad\text{(4.17)}
+$$
+
+Różniczkując log-wiarygodność Bernoulliego $L(\boldsymbol{\beta})$ względem $\beta_j$, otrzymujemy
+
+$$
+\frac{\partial}{\partial\beta_j}L(\boldsymbol{\beta}) = \sum_{i=1}^n \left( \frac{y_i}{q_i} - \frac{1-y_i}{1-q_i} \right) q_i(1-q_i)x_{ij} = \sum_{i=1}^n (y_i - q_i)x_{ij}
+$$
+
+gdzie rozpoznajemy szczególny przypadek (4.4) (ponieważ logit jest kanoniczną funkcją łączącą dla GLM Bernoulliego). Stąd,
+
+$$
+\sum_{j=1}^p \beta_j \frac{\partial}{\partial\beta_j}L(\boldsymbol{\beta}) = \sum_{i=1}^n (y_i - q_i) \sum_{j=1}^p \beta_j x_{ij} = \sum_{i=1}^n (y_i - q_i) \ln \frac{q_i}{1-q_i}.
+$$
+
+Lewa strona jest równa zero, gdy jest oceniana przy estymacie największej wiarygodności $\hat{\boldsymbol{\beta}}$, tak że
+
+$$
+\sum_{i=1}^n (y_i - \hat{q}_i) \text{logit}(\hat{q}_i) = 0 \iff \sum_{i=1}^n y_i \text{logit}(\hat{q}_i) = \sum_{i=1}^n \hat{q}_i \text{logit}(\hat{q}_i).
+$$
+
+Wstawiając ten wynik do (4.17), otrzymujemy
+
+$$
+D = -2 \sum_{i=1}^n (\hat{q}_i \text{logit}(\hat{q}_i) + \ln(1 - \hat{q}_i)).
+$$
+
+Widzimy, że dewiancja $D$ zależy tylko od dopasowanych wartości $\hat{q}_i$ z $q_i$, a nie od rzeczywistych obserwacji $y_i$. Dla dewiancji, aby zmierzyć dobroć dopasowania, musi ona porównywać dopasowane wartości $\hat{q}_i$ z danymi $y_i$, ale tutaj mamy tylko funkcję $\hat{q}_i$. To pokazuje, że dewiancja nie wnosi żadnych informacji o dobroci dopasowania, gdy $Y_i \sim \mathcal{Ber}(q_i)$ i używana jest funkcja łącząca logit. Stąd nie można jej użyć do pomiaru adekwatności modelu w takim przypadku.
+
+### 4.5.5 Kary Kowariancyjne i AIC
+
+#### 4.5.5.1 Pomiar Dobroci Dopasowania
+
+Zagnieżdżone modele można porównywać za pomocą dewiancji. Jednakże, gdy modele nie są zagnieżdżone lub postulują różne rozkłady dla odpowiedzi, bezpośrednie porównanie staje się problematyczne. W takim przypadku, kryteria informacyjne pozwalają aktuariuszowi na porównywanie różnych modeli. Klasyczne kryteria obejmują Kryterium Informacyjne Akaikego
+
+$$
+AIC = -2L + 2\#\text{parametrów},
+$$
+
+i Bayesowskie Kryterium Informacyjne
+
+$$
+BIC = -2L + \ln(n)\#\text{parametrów}.
+$$
+
+Zauważ, że liczba parametrów uwzględnia wszystkie parametry zawarte w modelu (parametr dyspersji $\phi$ jest również liczony jako parametr w oparciu o log-wiarygodność $L$ i odpowiada za miarę złożoności modelu). Preferowane są mniejsze wartości AIC lub BIC.
+
+Powszechną praktyką jest odrzucanie części wiarygodności, które nie są funkcjami parametrów. To jest wspólne do porównywania modeli zakładających ten sam rozkład dla odpowiedzi, ponieważ odrzucone części są równe w takim przypadku. Dla odpowiedzi o różnych rozkładach, istotne jest jednak, aby wszystkie części wiarygodności zostały zachowane.
+
+Skorygowana wersja AIC (oznaczona jako AICC) została opracowana do użytku w małych próbach lub gdy liczba parametrów $p+1$ jest umiarkowaną do dużej częścią wielkości próby $n$, co jest typowe w przypadku rezerwowania strat w oparciu o dane zagregowane w trójkątach spływu. Jest formalnie zdefiniowana jako
+
+$$
+AICC = AIC + \frac{2(p+2)(p+3)}{n-p-1}.
+$$
+
+Z reguły, AICC powinno być używane zamiast AIC, chyba że
+
+$$
+n > 40 \times \#\text{parametrów}.
+$$
+
+#### 4.5.5.2 Powrót do Modelu Liniowej Regresji Normalnej: Kary Kowariancyjne
+
+Zdolność predykcyjna lub wydajność generalizacji (terminologia ze społeczności uczenia maszynowego) modelu opisuje jego zdolność do predykcji na nowych danych testowych. Zdolność predykcyjna modelu może być zatem oceniana tylko na nowych, niewidzianych danych. Posiadanie modelu, który może dobrze przewidywać, jest bardzo ważne do porównywania różnych modeli lub do wyboru optymalnych wartości parametrów. Walidacja krzyżowa jest ogólną metodą estymacji takiej generalizacji lub wydajności poza próbą. Dla modeli ustrukturyzowanych, takich jak GLM, dostępne są jednak pewne wyniki analityczne, dzięki czemu intensywna obliczeniowo walidacja krzyżowa nie jest potrzebna. Błąd predykcji w modelu regresyjnym można ocenić za pomocą kar kowariancyjnych.
+
+Rozważmy klasyczny model liniowej regresji normalnej dla odpowiedzi
+
+$$
+Y_i \sim \mathcal{Nor}(\mu_i, \sigma^2) \text{ z } \mu_i = \boldsymbol{\beta}^\top \boldsymbol{x}_i.
+$$
+
+Parametr $\boldsymbol{\beta}$ jest szacowany na podstawie dostępnych danych $(y_i, \boldsymbol{x}_i), i=1, \dots, n$, zwanych również próbą treningową, ponieważ służy do trenowania estymatora. Wydajność modelu można następnie ocenić za pomocą pozornego błędu podanego przez średnią sumę kwadratów reszt
+
+$$
+\widehat{MSRR} = \frac{1}{n} \sum_{i=1}^n (y_i - \hat{\mu}_i)^2
+$$
+
+jest zbyt optymistyczny, ponieważ model został dopasowany, aby jak najlepiej przewidywać dane $y_i$. Jeśli użyjemy tej samej próby treningowej ponownie do pomiaru zdolności predykcyjnej modelu w trakcie rozważania, wynik będzie zbyt optymistyczny i zawsze będzie faworyzował bardziej złożone modele (tj. modele z większą liczbą stopni swobody), ponieważ MSRR może tylko maleć wraz ze wzrostem złożoności modelu. Dlatego kryteria informacyjne, takie jak AIC, są tak pomocne w porównywaniu wydajności modelu.
+
+Alternatywnie, moglibyśmy ocenić wydajność modelu na nowych danych testowych. Pamiętaj, że wielkość $\widehat{MSRR}$ jest próbkowym analogiem
+
+$$
+MSRR = \frac{1}{n} \sum_{i=1}^n \mathrm{E}[(Y_i - \hat{\mu}_i)^2]
+$$
+
+w oparciu o próbę $(Y_i, \boldsymbol{x}_i), i=1, \dots, n$. Tutaj odpowiedzi $Y_i$ są tymi, które zostały użyte do wytrenowania modelu, to jest, do uzyskania $\hat{\mu}_i$. Aby usunąć to obciążenie, gdy oceniana jest wydajność modelu, przełączamy się na średni kwadratowy błąd predykcji zdefiniowany jako
+
+$$
+MSEP = \frac{1}{n} \sum_{i=1}^n \mathrm{E}[(Y_i^{\text{new}} - \hat{\mu}_i)^2]
+$$
+
+gdzie wartość oczekiwana jest obliczana w odniesieniu do nowej obserwacji $Y_i^{\text{new}}$ z cechą $\boldsymbol{x}_i$, rozłożoną jak $Y_i$, która nie została uwzględniona w obserwowanej próbie i jest niezależna od $Y_1, Y_2, \dots, Y_n$. Zatem $Y_i^{\text{new}}$ nie został użyty do budowy $\hat{\mu}_i$, co zależy od rzeczywistych obserwacji $Y_1, Y_2, \dots, Y_n$.
+
+Powiążmy teraz MSEP z MSRR. W tym celu piszemy
+
+$$
+\mathrm{E}[(Y_i - \hat{\mu}_i)^2] = \mathrm{E}[(Y_i - \mu_i)^2] - 2\mathrm{E}[(Y_i - \mu_i)(\hat{\mu}_i - \mu_i)] + \mathrm{E}[(\hat{\mu}_i - \mu_i)^2].
+$$
+
+Podobnie,
+
+$$
+\begin{aligned}
+\mathrm{E}[(Y_i^{\text{new}} - \hat{\mu}_i)^2] &= \mathrm{E}[(Y_i^{\text{new}} - \mu_i)^2] - 2\mathrm{E}[(Y_i^{\text{new}} - \mu_i)(\hat{\mu}_i - \mu_i)] + \mathrm{E}[(\hat{\mu}_i - \mu_i)^2] \\
+&= \text{Var}[Y_i^{\text{new}}] - 2\text{Cov}[Y_i^{\text{new}}, \hat{\mu}_i] + \mathrm{E}[(\hat{\mu}_i - \mu_i)^2] \\
+&= \text{Var}[Y_i] + \mathrm{E}[(\hat{\mu}_i - \mu_i)^2],
+\end{aligned}
+$$
+
+gdzie ostatnia równość wynika z niezależności $Y_i^{\text{new}}$ i $\hat{\mu}_i$ oraz faktu, że $Y_i^{\text{new}}$ ma taki sam rozkład jak $Y_i$. Ostatecznie otrzymujemy
+
+$$
+\mathrm{E}[(Y_i^{\text{new}} - \hat{\mu}_i)^2] = \mathrm{E}[(Y_i - \mu_i)^2] + 2\text{Cov}[Y_i, \hat{\mu}_i].
+$$
+
+Średnio, pozorny błąd zaniża zatem prawdziwy błąd predykcji o karę kowariancyjną $2\text{Cov}[Y_i, \hat{\mu}_i]$. Intuicyjnie mówiąc, $\text{Cov}[Y_i, \hat{\mu}_i]$ mierzy, jak bardzo $Y_i$ wpływa na własną prognozę $\hat{\mu}_i$. Zapewnia to skuteczny sposób oceny MSEP na podstawie dostępnych danych (które zostały użyte do wytrenowania modelu), używając tożsamości
+
+$$
+\widehat{MSEP} = \widehat{MSRR} + \frac{2}{n} \sum_{i=1}^n \widehat{\text{Cov}}[Y_i, \hat{\mu}_i].
+$$
+
+Jeśli $Y_i \sim \mathcal{Nor}(\mu_i, \sigma^2)$, a dopasowane wartości $\hat{\mu}_i$ są liniowe, wiemy, że
+
+$$
+\hat{\boldsymbol{\mu}} = \boldsymbol{H}\boldsymbol{Y}
+$$
+
+gdzie $\boldsymbol{H}$ jest znaną macierzą (4.12) odwzorowującą obserwacje na dopasowane wartości. Macierz kowariancji między $\hat{\boldsymbol{\mu}}$ a $\boldsymbol{Y}$ jest wtedy $\sigma^2 \boldsymbol{H}$, dając
+
+$$
+\text{Cov}[Y_i, \hat{\mu}_i] = \sigma^2 h_{ii}
+$$
+
+gdzie $h_{ii}$ jest $i$-tym diagonalnym elementem $\boldsymbol{H}$ mierzącym lewarowanie. W przypadku normalnym, kara kowariancyjna pokrywa się z estymatą $C_p$ Mallowa błędu predykcji:
+
+$$
+\widehat{MSEP} = \frac{1}{n} \sum_{i=1}^n (y_i - \hat{\mu}_i)^2 + \frac{2\sigma^2}{n} \text{trace}(\boldsymbol{H}).
+$$
+
+**Uwaga 4.5.1** Dla modelu regresji liniowej, można wywnioskować z (4.12), że
+
+$$
+\text{trace}(\boldsymbol{H}) = \sum_{i=1}^n h_{ii} = \dim(\boldsymbol{\beta}) = p+1.
+\quad\quad\text{(4.18)}
+$$
+
+To prowadzi również do ogólnej definicji liczby stopni swobody dla modelu regresji zbudowanego dla normalnych odpowiedzi $Y_i$. Zapewnia to aktuariuszowi odpowiednią miarę złożoności modelu. Jeśli równoważna liczba stopni swobody jest większa, model jest bardziej elastyczny i może stać się zbyt bliski rzeczywistym danym, co wymaga większych kar kowariancyjnych dla uczciwego porównania.
+
+#### 4.5.5.3 Kary Kowariancyjne w GLM
+
+Rozważmy teraz odpowiedzi $Y_i$ podlegające rozkładowi ED. Pozorny błąd jest mierzony przez dewiancję. Niech
+
+$$
+d(y, \hat{\theta}) = 2(y\hat{\theta}_y - a(\hat{\theta}_y)) - (y\hat{\theta} - a(\hat{\theta}))
+\quad\quad\text{(4.19)}
+$$
+
+oznacza wkład odpowiedzi $y$ do dewiancji, gdzie $\theta_y$ jest wartością parametru kanonicznego, taka że tożsamość
+
+$$
+a'(\theta_y) = y
+$$
+
+zachodzi (tak jak musi być w modelu pełnym). Postępujmy teraz jak w przypadku normalnym. Biorąc pod uwagę nową obserwację $Y_{\text{new}}$ rozłożoną jak $Y_i$ i niezależną od obserwacji $Y_1, \dots, Y_n$ produkujących $\hat{\theta}_1, \dots, \hat{\theta}_n$, otrzymujemy
+
+$$
+\begin{aligned}
+\mathrm{E}[d(Y_{\text{new}}, \hat{\theta}_i)] - \mathrm{E}[d(Y_i, \hat{\theta}_i)] &= 2(\mathrm{E}[Y_i^{\text{new}}\hat{\theta}_{Y_i^{\text{new}}} - a(\hat{\theta}_{Y_i^{\text{new}}})] - \mathrm{E}[Y_i^{\text{new}}\hat{\theta}_i - a(\hat{\theta}_i)] \\
+& -\mathrm{E}[Y_i\theta_{Y_i} - a(\theta_{Y_i})] + \mathrm{E}[Y_i\hat{\theta}_i - a(\hat{\theta}_i)]) \\
+&= 2(\mathrm{E}[Y_i\hat{\theta}_i] - \mathrm{E}[Y_i^{\text{new}}\hat{\theta}_i]) \\
+&= 2(\mathrm{E}[Y_i\hat{\theta}_i] - \mathrm{E}[Y_i]\mathrm{E}[\hat{\theta}_i]) \\
+&= 2\text{Cov}[Y_i, \hat{\theta}_i].
+\end{aligned}
+$$
+
+W GLM, kara kowariancyjna wynosi $2\text{Cov}[Y_i, \hat{\theta}_i]$, gdzie $\hat{\theta}_i = \hat{\theta}(\boldsymbol{x}_i)$ jest oszacowanym parametrem kanonicznym dla obserwacji $i$. Średnia predykcyjna dewiancja, to jest dewiancja obliczona na nowych, poza próbą obserwacjach, może być zatem oszacowana na podstawie sumy
+
+$$
+\frac{1}{n} D(\boldsymbol{y}, \boldsymbol{\hat{\mu}}) + \frac{2}{n} \sum_{i=1}^n \text{Cov}[Y_i, \hat{\theta}_i].
+$$
+
+Załóżmy, że aktuariusz określa kanoniczną funkcję łączącą. W badaniach ubezpieczeniowych, oznacza to zasadniczo, że rozważane są rozkłady odpowiedzi Poissona lub dwumianowe (więc możemy bezpiecznie założyć $\phi=1$). Teraz, jeśli estymaty zostały uzyskane metodą największej wiarygodności i $\dim(\boldsymbol{\beta}) = p+1$, to następująca aproksymacja jest wystarczająco dokładna do celów praktycznych:
+
+$$
+\frac{2}{n} \sum_{i=1}^n \text{Cov}[Y_i, \hat{\theta}_i] = \frac{2}{n} \sum_{i=1}^n \mathrm{E}[(Y_i - \mu_i)(\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}} - \boldsymbol{x}_i^\top \boldsymbol{\beta})] \approx \frac{2(p+1)}{n}.
+$$
+
+Ta aproksymacja jest uzyskiwana z właściwości estymatora największej wiarygodności $\hat{\boldsymbol{\beta}}$ w rodzinie ED dla dużych prób. Po więcej szczegółów odsyłamy do Efrona (1986). Średnia predykcyjna dewiancja jest wtedy przybliżona przez
+
+$$
+\frac{1}{n} D(\boldsymbol{y}, \boldsymbol{\hat{\mu}}) + \frac{2(p+1)}{n},
+$$
+
+pod warunkiem, że $n$ jest wystarczająco duże.
+
+#### 4.5.5.4 Kary Kowariancyjne i AIC
+
+Rozważmy teraz odpowiedzi Poissona lub dwumianowe z łączem kanonicznym i oznaczmy przez $p_\theta(\cdot)$ odpowiadającą funkcję masy prawdopodobieństwa związaną z parametrem kanonicznym $\theta$. Błąd predykcji można wtedy obliczyć jako
+
+$$
+\begin{aligned}
+\frac{1}{n}D(\boldsymbol{y}, \boldsymbol{\hat{\mu}}) + \frac{2}{n}\sum_{i=1}^n \text{Cov}[Y_i, \hat{\theta}_i] &\approx \frac{1}{n}D(\boldsymbol{y}, \boldsymbol{\hat{\mu}}) + \frac{2(p+1)}{n} \\
+&= -\frac{2}{n}\left(\sum_{i=1}^n \ln p_{\hat{\theta}_i}(y_i) - (p+1)\right) + \text{stała} \\
+&= \frac{\text{AIC}}{n} + \text{stała}
+\end{aligned}
+$$
+
+obejmując kryterium informacyjne Akaikego AIC oparte na ukaranej największej wiarygodności (zauważ, że założyliśmy $\phi=1$, więc $p+1$ liczy wszystkie parametry zaangażowane w model regresji). Porównywanie rozważanych GLM na podstawie wartości AIC sprowadza się zatem do uwzględnienia optymizmu w dewiancji obliczonej na zbiorze treningowym.
 
 ## 4.9 Surowe, standaryzowane i "studendyzowane" reszty
 
