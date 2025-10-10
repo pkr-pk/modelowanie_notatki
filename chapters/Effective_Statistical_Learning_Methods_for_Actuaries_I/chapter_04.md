@@ -186,7 +186,7 @@ $$
 g(\mu_i) = \text{score}_i \iff \mu_i = g^{-1}(\text{score}_i).
 $$
 
-Ważne jest, aby zdać sobie sprawę, że tutaj nie przekształcamy odpowiedzi $Y_i$, ale raczej jej oczekiwaną wartość $\mu_i$. Z punktu widzenia statystycznego, model, w którym $g(Y_i)$ jest liniowy w $\boldsymbol{x}_i$, nie jest taki sam jak GLM, w którym $g(\mu_i)$ jest liniowy w $\boldsymbol{x}_i$. Aby to zrozumieć, załóżmy, że $\ln Y_i \sim \mathcal{Nor}(\boldsymbol{x}_i^\top \boldsymbol{\beta}, \sigma^2)$. Chociaż model jest dopasowany w skali logarytmicznej, aktuariusz jest zainteresowany odpowiedziami w skali oryginalnej (w jednostkach monetarnych, dla kwot roszczeń). Jeśli estymowane wyniki $\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}}$ są potęgowane, aby wrócić do oryginalnej skali, $\exp(\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}})$ daje wartości dla mediany odpowiedzi, a nie dla średniej. Dla średniej, dopasowane wartości wynoszą
+Ważne jest, aby zdać sobie sprawę, że tutaj nie przekształcamy odpowiedzi $Y_i$, ale raczej jej oczekiwaną wartość $\mu_i$. Z punktu widzenia statystycznego, model, w którym $g(Y_i)$ jest liniowy w $\boldsymbol{x}_i$, nie jest taki sam jak GLM, w którym $g(\mu_i)$ jest liniowy w $\boldsymbol{x}_i$. Aby to zrozumieć, załóżmy, że $\ln Y_i \sim \mathcal{Noror}(\boldsymbol{x}_i^\top \boldsymbol{\beta}, \sigma^2)$. Chociaż model jest dopasowany w skali logarytmicznej, aktuariusz jest zainteresowany odpowiedziami w skali oryginalnej (w jednostkach monetarnych, dla kwot roszczeń). Jeśli estymowane wyniki $\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}}$ są potęgowane, aby wrócić do oryginalnej skali, $\exp(\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}})$ daje wartości dla mediany odpowiedzi, a nie dla średniej. Dla średniej, dopasowane wartości wynoszą
 
 $$
 \hat{\mu}_i = \exp\left(\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}} + \frac{\hat{\sigma}^2}{2}\right)
@@ -215,7 +215,7 @@ Tabela 4.3 wymienia zwykłe funkcje łączące i ich odwrotności. Te funkcje ł
 W następnej sekcji omówimy teraz niektóre funkcje łączące, które są szczególnie przydatne dla aktuariuszy.
 
 ---
-**Tabela 4.3** Typowe funkcje łączące i ich odwrotności. Tutaj $\mu_i$ to oczekiwana wartość odpowiedzi, $s_i$ to ocena, a $\Phi(\cdot)$ to dystrybuanta standardowego rozkładu normalnego $\mathcal{Nor}(0, 1)$.
+**Tabela 4.3** Typowe funkcje łączące i ich odwrotności. Tutaj $\mu_i$ to oczekiwana wartość odpowiedzi, $s_i$ to ocena, a $\Phi(\cdot)$ to dystrybuanta standardowego rozkładu normalnego $\mathcal{Noror}(0, 1)$.
 
 | Funkcja łącząca | $s_i = g(\mu_i)$ | $\mu_i = g^{-1}(s_i)$ |
 |----|----|----|
@@ -320,7 +320,7 @@ $$
 \mu_i \approx \exp(\beta_0) \prod_{j|x_{ij}=1} \exp(\beta_j)
 $$
 
-więc modele Poissona i regresji logistycznej dają podobne wyniki w tym przypadku. Model probit wykorzystuje dystrybuantę $\Phi$ rozkładu $\mathcal{Nor}(0, 1)$ do odwzorowania przedziału jednostkowego $[0, 1]$. Komplementarna funkcja łącząca log-log wykorzystuje rozkład Ekstremalnej (minimum) Wartości w tym celu. Ten link dokładnie łączy GLM-y Poissona i dwumianowe, jak pokazano dalej. Rozważmy $Y \sim \mathcal{Poi}(\mu)$ i zdefiniujmy obciętą odpowiedź $\tilde{Y} = \min\{1, Y\}$.
+więc modele Poissona i regresji logistycznej dają podobne wyniki w tym przypadku. Model probit wykorzystuje dystrybuantę $\Phi$ rozkładu $\mathcal{Noror}(0, 1)$ do odwzorowania przedziału jednostkowego $[0, 1]$. Komplementarna funkcja łącząca log-log wykorzystuje rozkład Ekstremalnej (minimum) Wartości w tym celu. Ten link dokładnie łączy GLM-y Poissona i dwumianowe, jak pokazano dalej. Rozważmy $Y \sim \mathcal{Poi}(\mu)$ i zdefiniujmy obciętą odpowiedź $\tilde{Y} = \min\{1, Y\}$.
 
 Jeśli dla obciętej odpowiedzi $Y$ zastosowano funkcję łączącą logarytmiczną, tj. $\ln \mu = \text{score}$, to
 
@@ -794,7 +794,7 @@ gdzie $\text{offset}_i$ oznacza przesunięcie specyficzne dla $i$-tej osoby.
 W modelu regresji liniowej normalnej mamy
 
 $$
-Y_i = \text{offset}_i + \boldsymbol{x}_i^\top \boldsymbol{\beta} + Z_i \quad \text{gdzie } Z_i \sim \mathcal{Nor}(0, \sigma^2).
+Y_i = \text{offset}_i + \boldsymbol{x}_i^\top \boldsymbol{\beta} + Z_i \quad \text{gdzie } Z_i \sim \mathcal{Noror}(0, \sigma^2).
 $$
 
 Ponieważ przesunięcie jest znaną wielkością, jest to równoważne odjęciu tej wielkości od odpowiedzi $Y_i$ przed uruchomieniem regresji na $Y_i - \text{offset}_i$. Ta ostatnia wielkość może być traktowana jako reszta, do wyjaśnienia przez $\boldsymbol{x}_i$. To dlatego przesunięcia nie są omawiane w normalnej regresji liniowej z łączem tożsamościowym. Czasami przesunięcie odpowiada dopasowanym wartościom $\hat{\mu}_i$ dla średniej $Y_i$ uzyskanej z poprzedniego modelu regresji. Wtedy, przesunięcie jest równoważne użyciu reszt z wstępnej regresji odpowiedzi (która stanowi podstawę boosting, jak zobaczymy w Rozdz. 6).
@@ -864,6 +864,580 @@ W szczególnym przypadku GLM Poissona z kanonicznym łączem logarytmicznym jest
 - **Przypadek Gamma ($\xi=2$)** Włączenie przesunięcia $\ln z_i$, tj. mnożenie oczekiwanej odpowiedzi przez $z_i$, jest równoważne uruchomieniu GLM z przekształconymi odpowiedziami $y_i/z_i$ i wagami $v_i$. W przypadku Gamma z łączem logarytmicznym, wagi pozostają zatem nienaruszone przez tę transformację odpowiedzi.
 
 To podejście może być również użyte do wykazania, że w niektórych bardzo szczególnych przypadkach estymacje uzyskane z różnych GLM-ów mogą w rzeczywistości się pokrywać. Na przykład, ze względu na ustawienie procesu Poissona, analiza danych zliczeniowych za pomocą regresji Poissona lub czasów między zdarzeniami za pomocą regresji Gamma jest równoważna. W ubezpieczeniach na życie, na przykład, oznacza to, że aktuariusz może dopasować model za pomocą regresji Poissona na liczbie zgonów lub za pomocą regresji Gamma na ekspozycjach na ryzyko, lub całkowitych czasach przeżycia.
+
+## 4.4 Rozwiązywanie Równań Wiarygodności w GLM
+
+### 4.4.1 Powrót do Modelu Liniowej Regresji Normalnej
+
+Nawet jeśli symetryczna zmienna losowa o rozkładzie normalnym ze stałą wariancją nie opisuje adekwatnie ani liczby szkód, ani kwot szkód, klasyczny model liniowej regresji normalnej pozostaje mimo wszystko bardzo użyteczny do dopasowywania GLM. Algorytm iteracyjny używany do estymacji współczynników regresji w GLM w rzeczywistości wykorzystuje model liniowej regresji normalnej na każdym kroku, stosując go do odpowiedzi roboczych (working responses) wyprowadzonych z rzeczywistych, co zostanie pokazane w następnej sekcji. Dlatego zaczniemy od przypomnienia estymacji współczynników regresji w modelu wielorakiej regresji liniowej
+
+$$
+Y_i \sim \mathcal{Nor} \left( \text{score}_i, \frac{\sigma^2}{v_i} \right), \quad i=1, 2, \dots, n, \text{ gdzie } \text{score}_i = \boldsymbol{x}_i^\top \boldsymbol{\beta}.
+$$
+
+To jest normalny GLM z funkcją łączącą tożsamościową. Zatem pracujemy z łączem kanonicznym, a równania wiarygodności zapisują się jako
+
+$$
+\boldsymbol{X}^\top \boldsymbol{W} (\boldsymbol{y} - \boldsymbol{X}\hat{\boldsymbol{\beta}}) = \boldsymbol{0},
+$$
+
+gdzie $\boldsymbol{W}$ jest macierzą diagonalną z wagami $v_1, \dots, v_n$ pojawiającymi się wzdłuż przekątnej. Jest to szczególny przypadek (4.5). Pod warunkiem, że $\boldsymbol{X}^\top \boldsymbol{W} \boldsymbol{X}$ jest odwracalna, daje to
+
+$$
+\hat{\boldsymbol{\beta}} = (\boldsymbol{X}^\top \boldsymbol{W} \boldsymbol{X})^{-1} \boldsymbol{X}^\top \boldsymbol{W} \boldsymbol{y}.
+\quad\quad\text{(4.11)}
+$$
+
+Mamy więc w tym przypadku jawne wyrażenie na $\boldsymbol{\beta}$. Definiując macierz kapeluszową (hat matrix) $\boldsymbol{H}$ jako
+
+$$
+\boldsymbol{H} = \boldsymbol{W}^{1/2} \boldsymbol{X} (\boldsymbol{X}^\top \boldsymbol{W} \boldsymbol{X})^{-1} \boldsymbol{X}^\top \boldsymbol{W}^{1/2}
+\quad\quad\text{(4.12)}
+$$
+
+widzimy, że estymator $\hat{\boldsymbol{Y}} = \boldsymbol{X}\hat{\boldsymbol{\beta}}$ z $\mathrm{E}[\boldsymbol{Y}]$ jest $\hat{\boldsymbol{Y}} = \mathrm{E}[\hat{\boldsymbol{Y}}] = \boldsymbol{H}\boldsymbol{Y}$. Wartości dopasowane $\hat{\boldsymbol{Y}}$ są zatem otrzymywane przez pomnożenie obserwacji $\boldsymbol{Y}$ przez macierz kapeluszową $\boldsymbol{H}$. Ta ostatnia odwzorowuje, czyli rzutuje $\boldsymbol{Y}$ na $\hat{\boldsymbol{Y}}$.
+
+### 4.4.2 Algorytm IRLS
+
+Równanie wiarygodności (4.1) nie dopuszcza jawnych rozwiązań (z wyjątkiem przypadku normalnego, jak pokazano powyżej) i dlatego musi być rozwiązywane iteracyjnie. Jedną z przyczyn, które przyczyniły się do sukcesu GLM, jest możliwość użycia jednego algorytmu do rozwiązywania równania wiarygodności (4.1) we wszystkich przypadkach. Zaczynając od odpowiedniej wartości początkowej dla $\boldsymbol{\beta}$, do uzyskania rozwiązań można użyć algorytmu Newtona-Raphsona. Algorytm Newtona-Raphsona wykorzystuje macierz Hessego, czyli drugie pochodne funkcji celu. W odniesieniu do maksymalizacji funkcji log-wiarygodności, hesjan odpowiada obserwowanej informacji Fishera, ze zmianą znaku (jak przypomniano w Rozdz. 3). W porównaniu z algorytmem Newtona-Raphsona, algorytm scoringu Fishera zastępuje obserwowaną macierz informacyjną jej oczekiwanym odpowiednikiem, czyli informacją Fishera. Gdy obie macierze informacyjne pokrywają się, scoring Fishera odpowiada metodzie Newtona-Raphsona. Oczekiwane i obserwowane macierze informacyjne są równe, gdy używane są kanoniczne funkcje łączące (pamiętaj, że funkcja log-wiarygodności jest zawsze wklęsła w tym przypadku, więc estymator największej wiarygodności jest zawsze unikalny, jeśli istnieje). Zazwyczaj potrzeba tylko kilku kroków, aby uzyskać $\boldsymbol{\beta}$, gdy używane są łącza kanoniczne. Każdą iterację algorytmu Newtona-Raphsona można zinterpretować jako dopasowanie normalnego modelu regresji liniowej na odpowiedziach roboczych, co daje początek podejściu iteracyjnie ważonych najmniejszych kwadratów (IRLS) wyjaśnionemu dalej. IRLS działa zatem poprzez sekwencję problemów najmniejszych kwadratów, dla których dostępne są dobrze zbadane techniki numeryczne.
+
+W GLM średnia odpowiedź jest powiązana z oceną liniową przez funkcję łączącą. Aby oszacować parametry, przełączamy się na alternatywne podejście polegające na transformacji odpowiedzi przez funkcję łączącą. Zamiast używać $g(y_i)$, definiujemy odpowiedzi robocze $z_i$ jako lokalną aproksymację liniową do $g(y_i)$. W szczególności, ograniczone rozwinięcie Taylora
+
+$$
+\begin{aligned}
+g(y_i) &\approx g(\mu_i) + (y_i - \mu_i) g'(\mu_i) \\
+&= s_i + (y_i - \mu_i) \frac{\partial s_i}{\partial \mu_i} \text{ ponieważ } g(\mu_i) = s_i \\
+&= z_i.
+\end{aligned}
+$$
+
+Rozwiązywanie równań wiarygodności z GLM jest zatem równoważne dopasowywaniu odpowiedzi roboczych $z_i$ metodą ważonych najmniejszych kwadratów w sposób iteracyjny. Jak w każdym dopasowaniu ważonych najmniejszych kwadratów, wagi do użycia są odwrotnie proporcjonalne do wariancji odpowiedzi roboczej, danej przez
+
+$$
+\text{Var}[z_i] = \text{Var}[Y_i] \left( \frac{\partial s_i}{\partial \mu_i} \right)^2 = \frac{\phi}{v_i} V(\mu_i) \left( \frac{\partial s_i}{\partial \mu_i} \right)^2.
+\quad\quad\text{(4.13)}
+$$
+
+Odwrócenie (4.13) prowadzi do wag pomocniczych $\tilde{v}_i$ zdefiniowanych w (4.2). Ponieważ wagi $\tilde{v}_i$ zależą od $\boldsymbol{\beta}$, potrzebna jest procedura iteracyjna. Dokładniej, proces jest inicjowany z pewnymi odpowiednimi wartościami początkowymi, takimi jak
+
+$$
+\begin{cases}
+\hat{\beta}_0^{(0)} = g^{-1}(\bar{Y}) \\
+\hat{\beta}_j^{(0)} = 0 \text{ dla } j = 1, \dots, p.
+\end{cases}
+$$
+
+Oznacza to, że proces dopasowywania rozpoczyna się od przypadku jednorodnego, w którym wszystkie wyniki są równe wyrazowi wolnemu $\beta_0$. Alternatywnie, $\boldsymbol{\beta}^{(0)}$ można przyjąć jako parametry regresji w modelu liniowym $(g(y_i), \boldsymbol{x}_i), i=1, \dots, n$, modyfikując definicję dla $g(y_i)$ w przypadku, gdy $g$ nie jest zdefiniowane (na przykład, $y_i=0$ w przypadku Poissona z łączem logarytmicznym).
+
+Zdefiniuj odpowiedź roboczą w kroku $r$ jako
+
+$$
+z_i^{(r)} = \hat{s}_i^{(r)} + (y_i - \hat{\mu}_i^{(r)}) \left. \frac{\partial s_i}{\partial \mu_i} \right|_{\boldsymbol{\beta}=\hat{\boldsymbol{\beta}}^{(r)}}
+$$
+
+gdzie
+
+$$
+\hat{s}_i^{(r)} = \sum_{j=0}^p \hat{\beta}_j^{(r)} x_{ij} \text{ i } \hat{\mu}_i^{(r)} = g^{-1}(\hat{s}_i^{(r)}).
+$$
+
+Przypomnijmy, że
+
+$$
+\frac{\partial s_i}{\partial \mu_i} = g'(\mu_i).
+$$
+
+Odpowiadające wagi robocze wchodzące do algorytmu IRLS są dane przez
+
+$$
+\tilde{v}_i^{(r)} = \left. \frac{1}{V(\hat{\mu}_i^{(r)})} \left( \frac{\partial \mu_i}{\partial s_i} \right|_{\boldsymbol{\beta}=\hat{\boldsymbol{\beta}}^{(r)}} \right)^2 \text{ gdzie } \frac{\partial \mu_i}{\partial s_i} = \frac{1}{g'(\mu_i)}.
+$$
+
+Estymata największej wiarygodności $\hat{\boldsymbol{\beta}}$ dla GLM jest następnie otrzymywana za pomocą sekwencji dopasowań ważonych najmniejszych kwadratów odpowiedzi roboczej $z_i^{(r)}$ do cech $\boldsymbol{x}_i$, z wagami $\tilde{v}_i^{(r)}$, to jest,
+
+$$
+\hat{\boldsymbol{\beta}}^{(r+1)} = \left( \boldsymbol{X}^\top \tilde{\boldsymbol{W}}^{(r)} \boldsymbol{X} \right)^{-1} \boldsymbol{X}^\top \tilde{\boldsymbol{W}}^{(r)} \boldsymbol{z}^{(r)}
+\quad\quad\text{(4.14)}
+$$
+
+co pokrywa się ze wzorem (4.11) dającym szacowane parametry regresji metodą ważonych najmniejszych kwadratów, z macierzą diagonalną $\tilde{\boldsymbol{W}}^{(r)}$ wypełnioną wagami $\tilde{v}_i^{(r)}$ i odpowiedziami roboczymi $z_i^{(r)}$ w iteracji $r+1$. Dopasowanie GLM jest zatem równoważne dopasowaniu kilku normalnych liniowych modeli regresji w rzędzie. IRLS implementuje tak zwaną metodę scoringu Fishera do dopasowywania GLM. Pomimo swojej pozornej prostoty, wzór (4.14) może czasami stać się niestabilny numerycznie, zwłaszcza w wysokich wymiarach, to jest, gdy liczba $p$ cech staje się duża. Jest to spowodowane odwracaniem macierzy. Metody spadku gradientu oferowane w Hainaut et al. (2019) oferują w tym przypadku solidną alternatywę.
+
+Zauważ, że wagi robocze $\tilde{v}_i^{(r)}$ są odwrotnie proporcjonalne do wariancji odpowiedzi roboczej $z_i^{(r)}$ podanej w (4.13). Parametr dyspersji $\phi$ upraszcza się, tak że znika z iteracyjnego wzoru (4.14) na $\hat{\boldsymbol{\beta}}^{(r+1)}$. To wyjaśnia, dlaczego nie pojawia się on w definicji wag roboczych $\tilde{v}_i^{(r)}$ podanej powyżej, w porównaniu do (4.2).
+
+Reguła zatrzymania dla algorytmu IRLS generalnie polega na utrzymywaniu bieżącej iteracji, gdy
+
+$$
+\|\hat{\boldsymbol{\beta}}^{(r)} - \hat{\boldsymbol{\beta}}^{(r+1)}\| \quad \text{lub} \quad \frac{L(\hat{\boldsymbol{\beta}}^{(r+1)}) - L(\hat{\boldsymbol{\beta}}^{(r)})}{L(\hat{\boldsymbol{\beta}}^{(r)})} \text{ staje się wystarczająco małe.}
+$$
+
+Niech $r_{\text{stop}}$ będzie liczbą kroków przed zatrzymaniem algorytmu IRLS. Ostateczna iteracja $\hat{\boldsymbol{\beta}}^{(r_{\text{stop}})}$ jest przyjmowana jako estymata największej wiarygodności $\hat{\boldsymbol{\beta}}$. Wagi robocze $\tilde{v}_i^{(r_{\text{stop}})}$ w ostatniej iteracji są przechowywane w macierzy diagonalnej
+
+$$
+\tilde{\boldsymbol{W}}^{(r_{\text{stop}})} = \begin{pmatrix}
+\tilde{v}_1^{(r_{\text{stop}})} & 0 & \dots & 0 \\
+0 & \tilde{v}_2^{(r_{\text{stop}})} & \dots & 0 \\
+\vdots & \vdots & \ddots & \vdots \\
+0 & 0 & \dots & \tilde{v}_n^{(r_{\text{stop}})}
+\end{pmatrix}.
+$$
+
+Zauważ, że procedura dopasowywania dla GLM wykorzystuje tylko funkcję łączącą $s=g(\mu)$ i zależność średnia-wariancja $V(\cdot)$, ale nie wymaga dalszej wiedzy o rozkładzie odpowiedzi.
+
+W większości przypadków zbieżność algorytmu IRLS jest bardzo szybka. Jednak czasami pojawiają się trudności. Gdy zbieżność nie występuje, może to być spowodowane problemem z rozważanymi danymi. Na przykład, gdy dwie grupy są liniowo rozdzielalne w przestrzeni cech z odpowiedziami binarnymi, dane mogą być dopasowane idealnie, a niestabilne estymaty parametrów z wysokimi błędami standardowymi są typowo uzyskiwane. Powoduje to problemy ze zbieżnością w algorytmie IRLS.
+
+Jako przykład, rozważmy ponownie dane ubezpieczenia komunikacyjnego wyświetlone w Tabeli 4.1. Odpowiedzi $Y_1, \dots, Y_n$ reprezentują liczbę szkód zgłoszonych przez $n$ ubezpieczających, zakłada się, że są niezależne i podlegają rozkładowi Poissona. Istnieją dwie zmienne objaśniające:
+- Płeć z dwoma poziomami, mężczyzna i kobieta, oraz
+- Zakres ubezpieczenia z trzema poziomami, tylko OC, szkody ograniczone i kompleksowe.
+
+Wiemy, że analiza GLM może być przeprowadzona na danych zagregowanych w formie tabelarycznej z indywidualnych rekordów, bez utraty informacji. Dlatego indeks $i$ odnosi się teraz do całej klasy ryzyka.
+
+Klasa referencyjna dla portfela jest taka, że $x_{ij}=0$ dla wszystkich $j$. Tutaj odpowiada to ubezpieczającym posiadającym ubezpieczenie od szkód ograniczonych, oprócz obowiązkowego OC. Odpowiadająca roczna oczekiwana liczba szkód wynosi $\exp(\beta_0)$. Wszystkie wyniki są interpretowane w odniesieniu do klasy referencyjnej (dla której $x_{i1}=x_{i2}=x_{i3}=0$). Portfel jest podzielony na 6 klas ryzyka zgodnie z płcią i zakresem ubezpieczenia posiadaczy polis. Na przykład, sekwencja $(0, 1, 0)$ reprezentuje mężczyznę posiadającego polisę z OC.
+
+Wyniki dla każdej komórki są podane przez kombinację liniową $\boldsymbol{\beta}^\top \boldsymbol{x}_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_3 x_{i3}$. Roczna oczekiwana częstotliwość szkód dla każdej komórki jest dana przez
+
+$$\begin{align*}
+\exp(\boldsymbol{\beta}^\top \boldsymbol{x}_i) &= \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_3 x_{i3}\\
+&=\begin{cases}
+\exp(\beta_0) & \text{dla mężczyzny z ubezpieczeniem od szkód ograniczonych} \\
+\exp(\beta_0 + \beta_2) & \text{dla mężczyzny z OC} \\
+\exp(\beta_0 + \beta_3) & \text{dla mężczyzny z ubezpieczeniem kompleksowym} \\
+\exp(\beta_0 + \beta_1) & \text{dla kobiety z ubezpieczeniem od szkód ograniczonych} \\
+\exp(\beta_0 + \beta_1 + \beta_2) & \text{dla kobiety z OC} \\
+\exp(\beta_0 + \beta_1 + \beta_3) & \text{dla kobiety z ubezpieczeniem kompleksowym}
+\end{cases}
+\end{align*}$$
+
+Zastosujmy algorytm IRLS do oszacowania współczynników regresji $\beta_j$. Pracujemy ze wskaźnikiem szkód $y_i / e_i$ jako odpowiedzią, tak że używamy wag $v_i = e_i$ odpowiadających całkowitej ekspozycji na ryzyko dla każdej klasy ryzyka. W przypadku Poissona z łączem logarytmicznym, mamy
+
+$$
+s_i = \ln \mu_i \implies \frac{\partial s_i}{\partial \mu_i} = \frac{1}{\mu_i}
+$$
+
+więc odpowiedzi robocze są dane przez
+
+$$
+z_i = s_i + \frac{y_i - \mu_i}{\mu_i}.
+$$
+
+Wagi robocze są podane przez $\tilde{v}_i = v_i \mu_i$.
+
+Zaczynamy algorytm IRLS od przypadku jednorodnego, dla którego wszystkie dopasowane wartości są równe $\exp(\beta_0)$. Tutaj $\beta_0$ powiela obserwowaną średnią częstotliwość szkód w portfelu, to jest,
+
+$$
+\exp(\hat{\beta}_0^{(0)}) = \frac{1,683 + 3,403 + 626 + 873 + 2,423 + 766}{10,000 + 30,000 + 5,000 + 6,000 + 24,000 + 7,000}
+$$
+
+co daje $\hat{\beta}_0^{(0)} = -2.126993$. Zaczynając od
+
+$$
+\hat{\beta}^{(0)} = \begin{pmatrix} -2.126993 \\ 0.000000 \\ 0.000000 \\ 0.000000 \end{pmatrix},
+$$
+
+po trzech krokach otrzymujemy
+
+$$
+\hat{\beta}^{(1)} = \begin{pmatrix} -2.16632152 \\ -0.12493520 \\ 0.42641819 \\ 0.08540113 \end{pmatrix}, \quad
+\hat{\beta}^{(2)} = \begin{pmatrix} -2.17244198 \\ -0.12633430 \\ 0.38501342 \\ 0.09002269 \end{pmatrix}, \quad \text{i} \quad
+\hat{\beta}^{(3)} = \begin{pmatrix} -2.17245491 \\ -0.12635812 \\ 0.38384364 \\ 0.09004595 \end{pmatrix}
+$$
+
+co jest dokładnie wynikiem funkcji `glm` z R implementującej algorytm IRLS.
+
+### 4.4.3 Wybór Poziomu Bazowego dla Cech Kategorycznych
+
+Oprogramowanie GLM automatycznie zastępuje każdą cechę kategoryczną zbiorem wskaźników, po jednym dla każdego poziomu innego niż poziom bazowy. Ten ostatni musi być wybrany z rozwagą, ponieważ cała analiza jest wykonywana w kategoriach względnych, w odniesieniu do wybranego poziomu bazowego.
+
+Rozważmy na przykład Przykład 1.4.3, gdzie obszar zamieszkania posiadacza polisy jest uważany za potencjalną zmienną objaśniającą dla częstotliwości szkód $Y$. Istnieją trzy obszary, A, B i C, zakodowane za pomocą dwóch wskaźników (zmiennych zero-jedynkowych) $x_{i1}$ (równe 1, jeśli posiadacz polisy mieszka w obszarze A, a 0 w przeciwnym razie) i $x_{i2}$ (równe 1, jeśli posiadacz polisy mieszka w obszarze B, a 0 w przeciwnym razie). Nie jest potrzebny żaden wskaźnik dla poziomu referencyjnego C. Wtedy, wyraz wolny $\beta_0$ odpowiada za efekt poziomu referencyjnego, tutaj obszaru C. Następnie, $\beta_1$ kwantyfikuje różnicę między obszarami A i C, podczas gdy $\beta_2$ kwantyfikuje różnicę między obszarami B i C. Zauważ, że aktuariusz nie jest ograniczony do porównywania tylko z poziomem bazowym: różnice między obszarami A i B są kwantyfikowane przez $\beta_1 - \beta_2$.
+
+Wybór poziomu bazowego należy do aktuariusza, ale nie powinien on być rzadki. Załóżmy na przykład, że nie ma posiadaczy polis w obszarze C. Wtedy dla każdego posiadacza polisy albo $x_{i1}$ lub $x_{i2}$ jest równe 1, a drugi jest równy 0. To z kolei oznacza, że $x_{i1} + x_{i2} = 1$ dla wszystkich $i$ i stąd macierz projektowa $\boldsymbol{X}$ jest osobliwa: suma dwóch ostatnich kolumn jest równa pierwszej (kolumna jedynek odpowiadająca wyrazowi wolnemu). To sprawia, że oszacowanie $\boldsymbol{\beta}$ jest niemożliwe, ponieważ algorytm IRLS musi odwrócić macierz $\boldsymbol{X}^\top \boldsymbol{X}$. Intuicyjnie, jedna z dwóch cech binarnych w takiej sytuacji jest redundantna, a model nie może rozwikłać ich odpowiednich współczynników regresji $\beta_1$ i $\beta_2$: każda modyfikacja w $\beta_1$ może być skompensowana przez odpowiednią zmianę w $\beta_2$ i odwrotnie.
+
+Bardziej realistycznie, jeśli poziom bazowy ma bardzo mało przypadków, wtedy kolumny $\boldsymbol{X}$ są prawie zależne, co sprawia, że obliczenie $\boldsymbol{\beta}$ jest numerycznie niestabilne. Nie zawsze jest to brane pod uwagę w zautomatyzowanym kodowaniu implementowanym w oprogramowaniu, więc domyślny wybór musi być czasami modyfikowany przez aktuariusza.
+
+Zauważ, że nie jest sensowne definiowanie cechy
+
+$$
+\text{area}_i = \begin{cases}
+2 & \text{jeśli posiadacz polisy } i \text{ mieszka w obszarze A} \\
+1 & \text{jeśli posiadacz polisy } i \text{ mieszka w obszarze B} \\
+0 & \text{jeśli posiadacz polisy } i \text{ mieszka w obszarze C.}
+\end{cases}
+$$
+
+Odpowiadający wynik GLM jest wtedy równy
+
+$$
+\beta_0 + \beta_{\text{area}}\text{area}_i = \begin{cases}
+\beta_0 + 2\beta_{\text{area}} & \text{jeśli posiadacz polisy } i \text{ mieszka w obszarze A,} \\
+\beta_0 + \beta_{\text{area}} & \text{jeśli posiadacz polisy } i \text{ mieszka w obszarze B,} \\
+\beta_0 & \text{jeśli posiadacz polisy } i \text{ mieszka w obszarze C,}
+\end{cases}
+$$
+
+więc ta specyfikacja implikuje równe „odstępy” między A, B i C: wynik $\beta_0 + \beta_{\text{area}}\text{area}_i$ daje różnicę $\beta_{\text{area}}$ między obszarami A i B, i taką samą różnicę $\beta_{\text{area}}$ między obszarami B i C. Niekoniecznie jest to zgodne z danymi i może obciążać analizę.
+
+Nawet jeśli analiza GLM jest przeprowadzana warunkowo na wartościach $x_{ij}$ cech $X_{ij}$, struktura korelacji wektorów losowych $(X_{i1}, \dots, X_{ip})$ może wpłynąć na oszacowanie współczynników regresji. Korelacja między losowymi zmiennymi $X_{ij}$ oznacza, że niektóre cechy mogą służyć jako substytuty dla innych w obliczaniu wyniku.
+
+### 4.4.4 Skorelowane Cechy, Współliniowość
+
+Większość czasu, cechy $X_{ij}$ są skorelowane w badaniach obserwacyjnych. Gdy te korelacje są umiarkowane, GLM są w stanie wyizolować wpływ każdego czynnika ryzyka na średnią odpowiedź. Jest to jedna z wielkich zalet GLM w porównaniu z analizami jednowymiarowymi lub wielowymiarowymi, które są często zniekształcone, ponieważ ten sam efekt jest liczony wielokrotnie. Jednakże, gdy korelacja między niektórymi cechami staje się duża, GLM mogą napotkać problemy. Takie wysokie korelacje oznaczają, że ta sama informacja jest zakodowana w kilku cechach, co prowadzi do nadmiarowości informacji, jak wyjaśniono dalej.
+
+Aliasing występuje, gdy istnieje liniowa zależność między cechami. Na przykład, jedna cecha może być identyczna z jakąś liniową kombinacją niektórych innych. Rozważmy następujące zmienne objaśniające:
+
+$x_{i1}$ = wiek, w którym rozpoczęto prowadzenie pojazdu
+
+$x_{i2}$ = staż prawa jazdy
+
+$x_{i3}$ = obecny wiek posiadacza polisy $i$.
+
+Oczywiście, tożsamość
+
+$$
+x_{i3} = x_{i1} + x_{i2}
+$$
+
+zachodzi dla wszystkich $i$, więc $x_{i3}$ jest redundantny w wyjaśnianiu odpowiedzi. Wynik można zapisać jako funkcję tylko dwóch cech. Na przykład, możemy napisać
+
+$$
+\beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_3 x_{i3} = \beta_0 + (\beta_1 + \beta_3) x_{i1} + (\beta_2 + \beta_3) x_{i2}.
+$$
+
+Stąd, trzy zmienne $x_{i1}, x_{i2}$ i $x_{i3}$ wyjaśniają to samo co dowolne dwie z tych zmiennych. Zatem, indywidualne efekty każdej z trzech zmiennych nie mogą być ocenione.
+
+Takie zmienne są doskonale współliniowe lub aliasowane. Aliasing odpowiada zatem liniowej zależności między kolumnami macierzy projektowej $\boldsymbol{X}$. Gdy dwie cechy są doskonale skorelowane, mówi się, że są aliasowane, a estymaty parametrów nie są unikalne. W tych przypadkach, macierz projektowa $\boldsymbol{X}$ ma dokładną zależność liniową między swoimi kolumnami i stąd $\boldsymbol{X}^\top \boldsymbol{X}$ jest osobliwa, co unieważnia podejście IRLS.
+
+Oprócz dokładnej współliniowości zilustrowanej powyżej, częściej spotyka się sytuacje bliskiej współliniowości (lub prawie aliasowania). Na przykład, w zbiorze danych, w którym obszar zamieszkania, poziom dochodów i poziom wykształcenia posiadacza polisy są silnie skorelowane, włączenie trzech zmiennych objaśniających sprawia, że $\boldsymbol{X}^\top \boldsymbol{X}$ jest bliska osobliwości i powoduje trudności w obliczaniu odwrotności $(\boldsymbol{X}^\top \boldsymbol{X})^{-1}$. Regularyzacja Tichonowa i regresja grzbietowa (dokładnie omówione w Hainaut et al. 2019) mogą być w tym względzie pomocne.
+
+Jeśli odwrotność jest obliczalna, zazwyczaj będzie miała duże wpisy diagonalne, co implikuje duże błędy standardowe dla jednego lub więcej współczynników regresji (z powodów wyjaśnionych w następnej sekcji). Współliniowość może również wprowadzać w błąd analityka w wyborze predykcyjnych zmiennych: jeśli 2 zmienne objaśniające są silnie skorelowane i obie są predykcyjne dla odpowiedzi, to każda z nich, przy obecności drugiej, nie wniesie wiele dodatkowych informacji do odpowiedzi. Testy hipotez dla każdej zmiennej, przy założeniu, że druga jest w modelu, pokażą brak istotności. Rozwiązaniem jest włączenie tylko jednej z tych dwóch zmiennych objaśniających do modelu. To wyjaśnia, dlaczego wstępne badanie struktury korelacji cech jest przydatne przed rozpoczęciem analizy GLM.
+
+**Uwaga 4.4.1** (Współliniowość a Interakcja). Współliniowość pochodzi z korelacji między czynnikami ryzyka, z których kilka koduje te same informacje. Interakcja nie ma nic wspólnego ze współliniowością/korelacją. Na przykład, rozważmy portfel ubezpieczeń komunikacyjnych z taką samą strukturą wiekową dla mężczyzn i kobiet (tak, że czynniki ryzyka wiek i płeć są wzajemnie niezależne). Jeśli młodzi mężczyźni są bardziej niebezpieczni w porównaniu z młodymi kobietami, podczas gdy ta różnica zanika lub odwraca się w starszym wieku, to wiek i płeć oddziałują na siebie pomimo bycia niezależnymi.
+
+### 4.4.5 V Craméra
+
+Siłę zależności między dwiema zmiennymi ciągłymi można ocenić za pomocą współczynnika korelacji liniowej Pearsona (tj. kowariancji podzielonej przez iloczyn odchyleń standardowych) lub, preferencyjnie, za pomocą współczynników korelacji rang, takich jak rho Spearmana lub tau Kendalla. Jednak te klasyczne miary zależności nie są odpowiednie do oceny korelacji między cechami nieciągłymi. Biorąc pod uwagę różne formaty cech wchodzących do GLM (binarne, kategoryczne, dyskretne lub ciągłe), istnieje potrzeba miary korelacji mającej zastosowanie do wszystkich tych przypadków. Dlatego V Craméra jest często używane do mierzenia siły powiązania między cechami w badaniach ubezpieczeniowych. To podejście opiera się na danych wyświetlanych w formie tabelarycznej, tak że cechy dyskretne lub kategoryczne mogą być traktowane bezpośrednio. Cechy ciągłe muszą być skutecznie traktowane (lub grupowane) przez podział ich dziedziny na rozłączne przedziały i stąd traktowane jako dyskretne.
+
+Rozważmy na przykład wiek i płeć posiadacza polisy. Wiek jest najpierw kategoryzowany w kilku klasach: na przykład, kategoria „młody kierowca” grupująca posiadaczy polis w wieku poniżej 25 lat, kategoria „w średnim wieku” grupująca posiadaczy polis w wieku od 26 do 50 lat i kategoria „senior” grupująca posiadaczy polis w wieku 51 lat i starszych. Portfel można następnie podzielić na 6 klas, krzyżując 3 wspomniane kategorie wiekowe z 2 płciami. W każdej komórce aktuariusz rejestruje obserwowane odpowiedzi i związaną z nimi ekspozycję. Jednak takie wstępne grupowanie zmiennej ciągłej (jak wiek w naszym przykładzie) jest subiektywne (wybór punktów odcięcia jest generalnie nieco arbitralny przez analityka) i może prowadzić do możliwej utraty informacji. Nie są dostępne ogólne optymalne punkty odcięcia.
+
+V Craméra opiera się na tablicy kontyngencji klasyfikującej krzyżowo dane według pary cech w badaniu. Przypomnijmy, że statystyka Chi-Kwadrat dla testowania niezależności między dwiema cechami w tablicy kontyngencji, oznaczona jako $\chi^2$, jest otrzymywana przez zsumowanie kwadratów różnic między obserwowaną częstotliwością a oczekiwaną częstotliwością w każdej komórce tabeli, podzielonych przez oczekiwaną częstotliwość. Oczekiwana częstotliwość w każdej komórce odpowiada niezależności między dwiema cechami. Jest ona otrzymywana przez pomnożenie sumy wiersza przez sumę kolumny, podzieloną przez sumę całkowitą. Zauważ, że ekspozycje muszą być uwzględnione w obliczeniach.
+
+Teraz, biorąc pod uwagę dwie cechy $X_{i1j_1}$ i $X_{i1j_2}$ przyjmujące odpowiednio $k_1$ i $k_2$ wartości dyskretnych, V Craméra jest zdefiniowane jako
+
+$$
+V = \sqrt{\frac{\chi^2/n}{\min\{k_1-1, k_2-1\}}} \in [0, 1]
+$$
+
+gdzie $\chi^2$ jest statystyką testu Chi-Kwadrat Pearsona dla niezależności cech $X_{i1j_1}$ i $X_{i1j_2}$. Dzielenie $\chi^2$ przez liczbę obserwacji sprawia, że statystyka jest niezależna od liczby obserwacji, tj. mnożenie każdej komórki tablicy kontyngencji przez dodatnią liczbę całkowitą nie zmienia wartości V Craméra. Co więcej, V Craméra przyjmuje wartości w przedziale jednostkowym [0, 1], przy czym 0 i 1 odpowiadają niezależności i doskonałej zależności. Będąc opartym na danych wyświetlanych w formie tabelarycznej, V Craméra jest szeroko stosowane.
+
+Co więcej, maksimum $\chi^2/n$ jest osiągane, gdy istnieje całkowita zależność, tj. każdy wiersz (lub kolumna, w zależności od tego, na której stronie tabeli) wykazuje tylko jeden ściśle dodatni wiersz. Oznacza to, że wartość $X_{i1j_1}$ determinuje wartości $X_{i1j_2}$. Ta maksymalna wartość $\chi^2/n$ jest równa najmniejszemu wymiarowi minus 1. Zatem, dzielenie $\chi^2/n$ przez $\min\{k_1-1, k_2-1\}$ zapewnia, że V przyjmuje wartości w przedziale jednostkowym [0, 1]. Wyciągnięcie pierwiastka kwadratowego gwarantuje, że V Craméra i współczynnik korelacji liniowej Pearsona pokrywają się w tabelach 2x2 (tj. dla dwóch cech binarnych, z $k_1=k_2=2$).
+
+**Przykład 4.4.2** Rozważmy ponownie dane wyświetlone w Tabeli 4.5. Ten hipotetyczny zbiór danych jest sklasyfikowany krzyżowo według dwóch zmiennych kategorycznych (z dwoma kategoriami zdefiniowanymi w odniesieniu do progu 20 000 km). V Craméra jest równe 0.533, co wskazuje na dość silną dodatnią korelację między płcią a przejechanym dystansem, mężczyźni posiadający polisy mają tendencję do przejeżdżania dłuższych dystansów. Dla danych w Tabeli 4.1, stwierdzamy, że V Craméra jest równe 0.123, więc powiązanie jest słabsze.
+
+### 4.4.6 Błąd Pominiętej Zmiennej
+
+Z Rozdziału 2 wiemy, że aktuariusz nie może pominąć ważnych informacji o ryzyku posiadaczy polis. Jeśli ukryte czynniki ryzyka są skorelowane zarówno z odpowiedzią, jak i z jedną lub więcej dostępnymi cechami, będą one obciążać estymatę odpowiedniego współczynnika regresji. Zjawisko to jest powszechnie znane jako błąd pominiętej zmiennej i można je wyjaśnić w następujący sposób.
+
+Rozważmy liczbę roszczeń $Y_i$ złożonych przez posiadacza polisy $i$ z ekspozycją $e_i$ i cechami $\boldsymbol{x}_i$. Załóżmy, że
+
+$$
+\mathrm{E}[Y_i] = e_i \exp\left( \beta_0 + \sum_{j=1}^p \beta_j x_{ij} + \beta^+ x_i^+ \right).
+$$
+
+Jeśli cecha $x_i^+$ jest pominięta i $x_i^+$ jest skorelowana z pozostałymi cechami $x_{i1}, \dots, x_{ip}$ w tym sensie, że przybliżenie
+
+$$
+x_i^+ \approx \beta_0^+ + \sum_{j=1}^p \beta_j^+ x_{ij}
+$$
+
+jest stosunkowo dokładne, to
+
+$$
+\mathrm{E}[Y_i] \approx e_i \exp\left( \beta_0 + \beta^+\beta_0^+ + \sum_{j=1}^p (\beta_j + \beta^+\beta_j^+) x_{ij} \right).
+$$
+
+W takim przypadku, estymata największej wiarygodności $\tilde{\beta}_j$ wyprodukowana przez algorytm IRLS nie może być wyizolowana, tylko $\beta_j + \beta_j^+$, a nie $\beta_j$. Prawdziwy efekt $\beta_j$ z $x_{ij}$ na skali oceny nie może być oszacowany, tylko efekt obciążony
+
+$$
+\beta_j + \beta^+\beta_j^+
+$$
+
+może być oszacowany, mieszając
+
+- prawdziwy efekt $\beta_j$ z $x_{ij}$
+- z efektem $\beta^+\beta_j^+$ pominiętej cechy $x_i^+$.
+
+W takim przypadku, możemy mieć nawet $\tilde{\beta}_j < 0$, podczas gdy $\beta_j > 0$.
+Zatem, każda pominięta cecha skorelowana z $x_{ij}$ obciąża oszacowanie $\beta_j$ uzyskane z algorytmu IRLS. Dlatego standardowe modele branżowe nie mogą być używane do ustanawiania związku przyczynowego, a jedynie do wykrywania korelacji.
+
+Zilustrujmy teraz efekt pominiętej zmiennej na prostym przykładzie. Rozważmy ponownie zbiór danych wyświetlony w Tabeli 4.5 sklasyfikowany krzyżowo według płci i rocznego przebiegu (z punktem odcięcia 20 000 km). Ponieważ obie cechy są kategoryczne z dwoma poziomami, można je zakodować za pomocą dwóch cech binarnych. Dokładniej, $x_{i1}$ rejestruje roczny przebieg, z
+
+$$
+x_{i1} = \begin{cases}
+0 & \text{jeśli posiadacz polisy } i \text{ przejeżdża więcej niż 20,000 km rocznie} \\
+1 & \text{w przeciwnym razie}.
+\end{cases}
+$$
+
+Podobnie, $x_{i2}$ rejestruje płeć, z
+
+$$
+x_{i2} = \begin{cases}
+0 & \text{jeśli posiadacz polisy } i \text{ jest mężczyzną} \\
+1 & \text{w przeciwnym razie}.
+\end{cases}
+$$
+
+Tutaj wybraliśmy poziomy bazowe odpowiadające najbardziej zaludnionym kategoriom: mężczyzna dla płci i ponad 20 000 km rocznie dla przejechanego dystansu.
+
+Włączając obie binarne cechy kodujące informacje w odniesieniu do tej polisy ($x_{i1}$ dla płci i $x_{i2}$ dla rocznego przebiegu), IRLS daje następujące wyniki po trzech iteracjach:
+
+$$
+\begin{aligned}
+\hat{\beta}_0 &= -2.20597 \\
+\hat{\beta}_1 &= -0.54753 \\
+\hat{\beta}_2 &= -0.26383.
+\end{aligned}
+$$
+
+Teraz, jeśli płeć zostanie usunięta z oceny, zachowując tylko przejechany dystans, otrzymujemy po trzech iteracjach:
+
+$$
+\begin{aligned}
+\hat{\beta}_0 &= -2.24904 \\
+\hat{\beta}_1 &= -0.69552.
+\end{aligned}
+$$
+
+Zatem widzimy, że oszacowane współczynniki regresji są modyfikowane w porównaniu z oszacowaniami uzyskanymi z płcią w modelu. W szczególności, oszacowany współczynnik regresji $\hat{\beta}_1$ związany z przejechanym dystansem staje się bardziej ujemny, zmieniając się z -0.55 na -0.70. Można to wyjaśnić korelacją istniejącą między dwiema cechami. Wiemy, że korelacja jest dodatnia, na co wskazuje stosunkowo wysoka wartość V Craméra uzyskana w Przykładzie 4.4.2. Słownie, mężczyźni posiadający polisy mają tendencję do przejeżdżania więcej niż 20 000 km rocznie, podczas gdy kobiety posiadające polisy mają tendencję do przejeżdżania mniej. Stąd, jeśli wiemy, że posiadacz polisy przejeżdża mniej niż 20 000 km rocznie, jest prawdopodobne, że jest to kobieta. Formalnie,
+
+$$
+\text{P}[\text{kobieta} | < 20,000 \text{ km}] = \frac{6,000}{6,000+2,000} = \frac{3}{4}.
+$$
+
+Stąd, $\hat{\beta}_1$ staje się bardziej ujemny, gdy płeć jest pominięta w ocenie, ponieważ przejmuje negatywny wpływ bycia kobietą na ocenę.
+
+Wstępne badanie powiązań istniejących między dostępnymi cechami wskazuje, że włączenie lub przesunięcie (offsetting) jednej z nich będzie miało największy wpływ na te cechy, które są silnie skorelowane z pominiętą.
+
+### 4.4.7 Ilustracje Numeryczne
+
+#### 4.4.7.1 Graduacja Rocznych Prawdopodobieństw Zgonu
+
+Rozważmy zamkniętą grupę osób, obserwowaną przez jeden rok. W każdym wieku $x$ od urodzenia do wieku 100, odpowiedzią jest liczba zgonów $D_x$ odnotowana wśród $l_x$ osób w wieku $x$ 1 stycznia. Rysunek 4.1 przedstawia dostępne dane $D_x$ i $l_x$. Odpowiadające surowe roczne prawdopodobieństwa zgonu
+
+$$
+\hat{q}_x = \frac{D_x}{l_x}
+$$
+
+są estymatami największej wiarygodności parametru $q_x$ w modelu $D_x \sim \mathcal{B}in(l_x, q_x)$, jak pokazano w Sekcji 3.6.1. Są one wyświetlone na Rys. 4.2. Można je również uzyskać za pomocą dwumianowego GLM traktującego wiek $x$ jako cechę kategoryczną, to jest, używając cech binarnych
+
+$$
+x_{ij} = \begin{cases}
+1 & \text{jeśli wiek} = j, \\
+0 & \text{w przeciwnym razie},
+\end{cases}
+$$
+
+dla $j=1, 2, \dots, 100$ (wybierając wiek 0 jako referencyjny). Mając do czynienia z odpowiedziami dwumianowymi, używamy parametru kanonicznego $\ln \frac{q_x}{1-q_x}$, to jest, logitu $q_x$. Odpowiadające estymaty największej wiarygodności są wtedy podane przez
+
+$$
+\hat{\beta}_j = \ln \frac{\hat{q}_j}{1-\hat{q}_j} - \ln \frac{\hat{q}_0}{1-\hat{q}_0}, \quad j=1, \dots, 100,
+$$
+
+i
+
+$$
+\hat{\beta}_0 = \ln \frac{\hat{q}_0}{1-\hat{q}_0}.
+$$
+
+Rysunek 4.2 pokazuje, że logit $\hat{q}_x$ wydaje się być rozsądnie liniowy w wieku $x$, z wyjątkiem młodego wieku (gdzie wysoka śmiertelność okołoporodowa, spłaszczenie około 30 roku życia i garb wypadkowy około 20 roku życia są bardziej skomplikowane do uchwycenia), z lekką krzywizną po wieku emerytalnym. Dało to początek tak zwanej (kwadratowej) formule Perksa, zgodnie z którą
+
+$$
+\ln \frac{q_x}{1-q_x} = \beta_0 + \beta_1 x + \beta_2 x^2 \iff q_x = \frac{\exp(\beta_0 + \beta_1 x + \beta_2 x^2)}{1 + \exp(\beta_0 + \beta_1 x + \beta_2 x^2)}.
+\quad\quad\text{(4.15)}
+$$
+
+Wiek $x$ jest traktowany jako cecha ciągła i uzupełniony o swój kwadrat, używany jako dodatkowa cecha, a model jest ograniczony do wieku 65 lat i więcej.
+
+Wzór (4.15) zapewnia oszczędną reprezentację jednorocznych prawdopodobieństw zgonu w starszym wieku. Może być dopasowany za pomocą dwumianowego GLM do danych ($D_x, l_x$) wyświetlonych na Rys. 4.1. Plik danych zawiera odpowiedź $D_x$ wraz z jedną cechą (Wiek) i rozmiarami dwumianowymi $l_x$. Używając funkcji R `glm`, otrzymujemy $\hat{\beta}_0 = -3.34$, $\hat{\beta}_1 = -0.1038$ i $\hat{\beta}_2 = 0.001384$. Algorytm IRLS zbiegł się w zaledwie trzech iteracjach. Wynikowe dopasowane wartości są wyświetlone na Rys. 4.3. Przedstawiamy tam również wynik dopasowania liniowego, które wyraźnie pomija krzywiznę obecną w danych.
+
+W tym przykładzie, Rys. 4.3 wyraźnie pokazuje, że kwadratowa formuła Perksa przewyższa swój liniowy odpowiednik na rozważanym zbiorze danych. Należy jednak podkreślić, że ten wniosek jest wyciągany na podstawie inspekcji wizualnej, co może być niemożliwe w badaniach ubezpieczeniowych obejmujących wiele cech. Dlatego potrzebujemy również formalnych procedur testowych do porównywania dwóch specyfikacji modelu, takich jak te przedstawione w następnych sekcjach.
+
+#### 4.4.7.2 Rezerwacja Strat
+
+W ubezpieczeniach majątkowych i wypadkowych (P&C), roszczenia są czasami rozliczane przez kilka lat. Może to być spowodowane długimi procedurami prawnymi związanymi z roszczeniami z tytułu odpowiedzialności cywilnej (spory sądowe w celu ustalenia odpowiedzialności w spornych sprawach mogą być długim procesem) lub po prostu dlatego, że roszczenie może być zgłoszone dopiero później. W przypadku odpowiedzialności za produkt, na przykład, roszczenie może powstać na długo po odkryciu i zgłoszeniu szkody, a nawet dłużej przed oceną zakresu szkody.
+
+Typowa historia roszczenia jest przedstawiona na Rys. 4.4. Rozważane roszczenie pochodzi ze zdarzenia (wypadku, na przykład), które miało miejsce w czasie $t_1$. Zostało zgłoszone ubezpieczycielowi w czasie $t_2$. Proces rozliczenia dla tego konkretnego roszczenia rozwijał się od czasu $t_2$ do czasu $t_6$, to jest, od zgłoszenia do ostatecznego rozliczenia, lub zamknięcia. Roszczenie jest otwarte od czasu $t_2$ do czasu $t_6$. Dwa poziomy widoczne na Rys. 4.4 reprezentują punkt widzenia posiadacza polisy (górna część), gdzie
+- wystąpienie,
+- zgłoszenie i
+- płatności na rzecz ubezpieczonego lub osób trzecich)
+i punkt widzenia ubezpieczyciela (dolna część), gdzie
+- ubezpieczyciel nie jest świadomy roszczenia przed jego zgłoszeniem,
+- tworzy rezerwę, zaczynając od początkowej oceny przypadku w czasie $t_2$,
+- dostosowuje rezerwę w czasie, aby odzwierciedlić najlepszą ocenę ostatecznego kosztu roszczenia, w zależności od informacji otrzymanych od ubezpieczonego (ocena eksperta lub orzeczenie, na przykład).
+
+Zaległe roszczenia odpowiadają wszystkim roszczeniom, które nie zostały jeszcze rozliczone. Są one klasyfikowane w różnych kategoriach:
+- **IBNR** (Incurred But Not Reported): roszczenia, które wystąpiły, ale nie zostały zgłoszone (plik roszczenia jest klasyfikowany jako IBNR od czasu $t_1$ do czasu $t_2$ na Rys. 4.4).
+- **otwarte lub RBNS** roszczenia (Reported But Not Settled): roszczenia, które zostały zgłoszone ubezpieczycielowi, ale nie (całkowicie) zapłacone (plik roszczenia jest klasyfikowany jako RBNS od czasu $t_2$ do czasu $t_6$ na Rys. 4.4).
+
+Na dzień bilansowy aktuariusz ma zestaw otwartych roszczeń i oblicza odpowiadającą rezerwę RBNS, plus zestaw ukrytych roszczeń, dla których należy ustalić rezerwę IBNR. Całkowita rezerwa na zaległe roszczenia oznacza sumę rezerwy RBNS plus IBNR.
+
+Oczywiście, wzorzec zgłaszania i rozliczania roszczeń różni się w zależności od linii biznesowej. Ogólnie rzecz biorąc, szkody majątkowe prowadzą do krótkiego ogona w spływie (co oznacza, że roszczenie jest szybko zgłaszane i rozliczane), a odpowiedzialność cywilna do średniego lub długiego ogona. Dopóki wszystkie roszczenia nie zostaną rozliczone, ubezpieczyciele muszą tworzyć rezerwy reprezentujące ich szacunkowe zobowiązania z tytułu roszczeń, które wystąpiły w dniu wyceny lub przed nim. Dla ogólnej firmy ubezpieczeniowej, największą pozycją bilansową jest często rezerwa na zaległe roszczenia. W praktyce, rezerwy te muszą być oceniane metodami aktuarialnymi
+- aby uniknąć subiektywnych osądów i w celu raportowania do władz regulacyjnych.
+- ponieważ organy podatkowe wymagają, aby kwoty rezerw były obliczane na podstawie dobrze ugruntowanych metod/ogólnie przyjętych zasad.
+- aby uwzględnić ukryte, roszczenia IBNR.
+
+Obliczanie rezerw tradycyjnie było przeprowadzane na podstawie zagregowanych danych podsumowanych w trójkątach spływu odpowiadających latom wypadku i kolumnom odpowiadającym latom rozwoju. Takie dane wykazują trzy wymiary: dla każdego wypadku (lub roku underwritingowego) AY i okresu rozwoju (uważanego za jeden rok, nawet jeśli może to być semestr lub kwartał) DY = 1, 2, ..., odczytujemy w komórce (AY, DY) wewnątrz trójkąta całkowitą kwotę zapłaconą przez ubezpieczyciela w roku kalendarzowym CY = AY + DY - 1 dla roszczeń pochodzących z roku AY, liczbę dokonanych płatności lub średnią kwotę na płatność. Na podstawie danych o roszczeniach w trójkącie spływu, aktuariusz chce dokonać prognoz dotyczących płatności, które mają być dokonane w przyszłych latach kalendarzowych. Celem aktuarialnych technik rezerwacji jest przewidzenie tych danych, tak aby uzupełnić trójkąt do prostokąta.
+
+Często obliczenia rezerw są przeprowadzane na jednym trójkącie zbierającym roczne sumy płatności przez AY. To podejście miesza dynamikę częstotliwości i ciężkości, a to często zaciemnia analizę. Prowadzenie oddzielnych analiz dla częstotliwości i ciężkości pozwala aktuariuszowi wyizolować każdy efekt, co ułatwia interpretację modelu i prognozy.
+
+Załóżmy na przykład, że tabele używane w sprawach sądowych do obliczania przyszłych strat w sprawach o obrażenia ciała i śmiertelne wypadki są korygowane w roku kalendarzowym $c^*$ (takie tabele są dostępne w większości krajów; nazywane są tabelami Ogdena w Wielkiej Brytanii). Może to być spowodowane na przykład zmianą stopy dyskontowej, w wyniku czego wszystkie kwoty płatne do rozliczenia zostaną zwiększone w znacznym stopniu. Biorąc pod uwagę trójkąt z (przyrostowymi) rocznymi płatnościami, oczekuje się, że spowoduje to wzrost wzdłuż diagonali $c^*$ i następnych przekątnych CY. Jednak efekt ten wpływa tylko na koszty i nie modyfikuje komponentu częstotliwości. Staje się to jasne, gdy aktuariusz pracuje z dwoma oddzielnymi trójkątami, to jest,
+
+Trójkąt 1: liczba płatności przez AY i DY, oraz
+
+Trójkąt 2: średnia kwota płatności przez AY i DY.
+
+Zmiany w tabelach referencyjnych manifestują się w trójkącie 2, powodując wzrost na przekątnych $c^*$ i następnych. W modelach regresyjnych można wprowadzić dodatkowe cechy, takie jak $1[CY \ge c^*]$ w analizie trójkąta 2, aby uwzględnić ten efekt. Wiele problemów można uniknąć, jeśli analizy oddzielnych liczebności i ciężkości są analizowane.
+
+Rozważmy dane roszczeń z portfela ubezpieczeń OC komunikacyjnych firmy ubezpieczeniowej działającej w Unii Europejskiej. Dostępne informacje obejmują 11 lat wypadków. Tabela 4.6 przedstawia statystyki opisowe dla płatności na rok wypadku i rok rozwoju. Widzimy tam liczbę płatności, średnie płatności na AY, a także odpowiadające odchylenie standardowe. Dane są wyświetlane na rok wypadku i rok rozwoju. Odpowiedzią rozważaną tutaj jest średnia wypłacona kwota. Tabela 4.6 pokazuje typowy wzrost średnich płatności wraz z rozwojem, wraz z odpowiadającym spadkiem liczby płatności.
+
+Kwoty pojawiające się w Tabeli 4.6 są wyrażone w euro. Wypłaty ubezpieczeniowe są generalnie korygowane o inflację przed rozpoczęciem analizy GLM. Kwoty odszkodowań za obrażenia ciała są często korygowane za pomocą wskaźnika płac, podczas gdy wskaźnik cen konsumpcyjnych jest używany do szkód materialnych. Ale często pozostaje pewna inflacja, nawet po tej korekcie. Dzieje się tak, ponieważ inflacja ubezpieczeniowa podlega również superinflacji, to jest, odbiega od wskaźników makroekonomicznych (i generalnie rośnie w szybszym tempie). Modele regresyjne, takie jak GLM, mogą być używane do szacowania efektów inflacji. Odbywa się to poprzez włączenie odpowiednich cech CY do oceny. Szacowane efekty regresji odpowiadające CY ujawniają wtedy inflację mającą zastosowanie do rozważanego produktu ubezpieczeniowego. Jeśli kwoty inflacji wchodzą do analizy GLM, to te współczynniki regresji korygują inflację zawartą w danych o roszczeniach wstępnie przetworzonych.
+
+Trzy efekty AY, DY i CY obecne w trójkątach spływu wychwytują różne aspekty dynamiki strat ubezpieczeniowych:
+
+**AY** rok wypadku AY (efekt wiersza), zwany również rokiem wystąpienia lub rokiem pochodzenia, reprezentuje wariacje wielkości portfela.
+
+**DY** rok rozwoju DY (efekt kolumny), zwany również opóźnieniem zgłoszenia lub opóźnieniem rozliczenia, reprezentuje opóźnienia w raportowaniu przez posiadaczy polis i procedurze obsługi roszczeń przez firmę.
+
+**CY** rok kalendarzowy CY (efekt diagonalny), zwany również rokiem płatności, reprezentuje inflację i orzecznictwo.
+
+Przejdźmy teraz od klasycznej reprezentacji trójkątnej do danych wyświetlanych dla analizy GLM. Mamy tutaj trzy cechy: AY, DY i CY, powiązane relacją CY = AY + DY - 1. W pierwszym kroku analizy cechy te są traktowane jako kategoryczne w celu maksymalizacji elastyczności. Oznacza to, że jeden parametr jest powiązany z każdym okresem w celu wyjaśnienia wypłaconej kwoty. Każda obserwacja $i$ odpowiada jednej komórce trójkąta spływu. Odtąd, oznaczamy przez AY(i), DY(i) i CY(i) odpowiedni rok wypadku, rok rozwoju i rok kalendarzowy dla obserwacji $i$.
+
+Całkowita płatność $Y_i$ w roku kalendarzowym CY(i) pochodząca z roku wypadku AY(i) jest rozkładana na złożoną sumę
+
+$$
+Y_i = \sum_{k=1}^{N_i} P_{ik} = N_i \bar{P}_i,
+$$
+
+gdzie
+
+$N_i$ = liczba płatności dokonanych w roku kalendarzowym CY(i) dla roszczeń pochodzących z roku wypadku AY(i) wciąż otwartych w roku rozwoju DY(i);
+
+$P_{ik}$ = odpowiadające kwoty;
+
+$\bar{P}_i = \frac{Y_i}{N_i}$ = średnia płatność dokonana w roku kalendarzowym CY(i) dla roszczeń pochodzących z roku wypadku AY(i) wciąż otwartych w roku rozwoju DY(i).
+
+Zakłada się, że wszystkie te zmienne losowe są wzajemnie niezależne. Dla danego $i$, zakłada się, że zmienne losowe $P_{i1}, P_{i2}, \dots$ są identycznie rozłożone. Zauważ, że tutaj płatności związane z indywidualnymi polisami nie są śledzone, tylko płatności za zbiór są modelowane, a wszystkie płatności związane z tym samym roszczeniem są agregowane w jednej, rocznej kwocie.
+
+Wszystkie zmienne losowe $P_i$ zakłada się, że są wzajemnie niezależne, biorąc pod uwagę efekty AY, DY i CY zawarte w ocenie. Zauważ, że znajomość średniej kwoty płatności jest wystarczająca do oszacowania parametrów w ustawieniu GLM (nie ma utraty informacji z powodu agregacji wszystkich pojedynczych płatności $P_{i1}, P_{i2}, \dots, P_{iN_i}$ w jedną wartość $\bar{P}_i$ w tym przypadku, jak wyjaśniono wcześniej).
+
+Plik danych zawiera cechy AY i DY, wraz z liczbą płatności, średnią spłatą i odpowiadającym odchyleniem standardowym. Odtąd zakładamy, że baza danych obejmuje $m$ lat wypadków. Oznaczamy przez $\omega$ maksymalną liczbę lat potrzebnych do rozliczenia wszystkich roszczeń pochodzących z danego roku kalendarzowego. Oczywiście, $\omega \ge m$, ale tutaj zakładamy $\omega=m$ dla uproszczenia.
+
+Biorąc pod uwagę liczbę płatności, pozwalamy sobie przyjąć podejście modelowania zgodne z klasycznym podejściem Chain-Ladder do rezerwowania. W tym celu zakładamy, że liczba płatności w komórce $i$ może być zapisana jako
+
+$$
+\mathrm{E}[N_i] = \alpha_{\text{AY}(i)} \delta_{\text{DY}(i)}.
+$$
+
+Czasami jako przesunięcie (takie jak całkowity dochód ze składek, na przykład) używana jest miara wolumenu. Aby uniknąć nadmiernej parametryzacji, aktuariusze generalnie nakładają tożsamość
+
+$$
+\sum_{j=1}^\omega \delta_j = 1
+$$
+
+zachodzi. Wtedy,
+
+$$
+\alpha_k = \alpha_k \sum_{j=1}^\omega \delta_j = \sum_{i|AY(i)=k} \mathrm{E}[N_i]
+$$
+
+więc $\alpha_k$ reprezentuje oczekiwaną liczbę płatności potrzebnych do rozliczenia wszystkich roszczeń pochodzących z roku wypadku $k$. Z tym ograniczeniem, $\delta_j$ jest proporcją każdej $\alpha_k$ odpowiadającą rozwojowi $j$. Intuicyjna idea stojąca za tym modelem polega na tym, że stabilny procent $\delta_j$ całkowitej liczby płatności potrzebnych do rozliczenia wszystkich roszczeń jest dokonywany w każdym roku wypadku, to jest, kolumny trójkąta spływu są z grubsza proporcjonalne (ponieważ oczekiwane wartości są zakładane jako proporcjonalne).
+Parametry $\alpha_k$ i $\delta_j$ są szacowane metodą największej wiarygodności w modelu
+
+$$
+N_i \sim \mathcal{Poi}(\alpha_{\text{AY}(i)} \delta_{\text{DY}(i)}) \text{ niezależnie.}
+$$
+
+Oznacza to, że używamy GLM Poissona z oceną postaci
+
+$$
+\text{score}_i = \sum_{k=1}^\omega \beta_k I[\text{AY}(i)=k] + \sum_{l=1}^\omega \beta_{\omega+l} I[\text{DY}(i)=l]
+$$
+
+gdzie cechy binarne $I[AY(i)=k]$ i $I[DY(i)=l]$ kodują cechy kategoryczne AY i DY, a $\beta_k = \ln \alpha_k$, podczas gdy $\beta_{\omega+k} = \ln \delta_k$, $k=1, 2, \dots, \omega$.
+
+Równania wiarygodności można łatwo rozwiązać bezpośrednio, bez użycia algorytmu IRLS. Idea (znana jako algorytm Verbeeka we wspólnocie aktuarialnej) polega na postępowaniu w następujący sposób. Ponieważ użyliśmy kanonicznej funkcji łączącej dla GLM Poissona, równania wiarygodności polegają na zrównaniu sumy wszystkich liczb płatności w każdym wierszu i w każdej kolumnie z ich odpowiadającą wartością oczekiwaną. Obliczając sumę wszystkich wartości wzdłuż pierwszego wiersza trójkąta spływu (odpowiadającego pierwszemu rokowi wypadku, założonemu jako w pełni rozliczony jako $m=\omega$) i przyrównując wynik do sumy wartości oczekiwanych, otrzymujemy
+
+$$
+\sum_{i|AY_i=1} N_i = \omega \sum_{j=1}^\omega \alpha_1 \beta_j \implies \hat{\alpha}_1 = \sum_{i|AY_i=1} N_i.
+$$
+
+Teraz, rozważmy ostatnią kolumnę trójkąta spływu, dla której jest jedna komórka z obserwowaną wartością. Równanie wiarygodności daje wtedy
+
+$$
+N_i|_{AY_i=1 \text{ i } DY_i=\omega} = \alpha_1 \beta_\omega \implies \hat{\beta}_\omega = \frac{N_i|_{AY_i=1 \text{ i } DY_i=\omega}}{\hat{\alpha}_1}.
+$$
+
+Przejdźmy teraz do drugiego wiersza trójkąta, rejestrując obserwacje dla drugiego roku wypadku. Wszystkie wartości pojawiające się w drugim wierszu zostały zaobserwowane, z wyjątkiem ostatniej komórki (w rozwoju $\omega$). Sumując wszystkie wartości pojawiające się w tym wierszu i przyrównując wynik do odpowiadających wartości oczekiwanych, otrzymujemy
+
+$$
+\sum_{i|AY_i=2} N_i = \sum_{j=1}^{\omega-1} \alpha_2 \beta_j = \alpha_2(1-\beta_\omega) \implies \hat{\alpha}_2 = \frac{\sum_{i|AY_i=2} N_i}{1 - \hat{\beta}_\omega}.
+$$
+
+Następnie rozważamy kolumnę $\omega-1$, wiersz 3, kolumnę $\omega-2$ i tak dalej, aż wszystkie parametry zostaną oszacowane. Oczywiście, połączenie linku z GLM uzupełnia klasyczny wynik Chain-Ladder o błędy standardowe i miary diagnostyczne, które wydają się być przydatne do oceny adekwatności tego podejścia na konkretnym trójkącie spływu.
+
+Rozważmy liczbę płatności $N_i$, wyświetloną w Tabeli 4.6. Jeśli użyjemy specyfikacji multiplikatywnej odpowiadającej podejściu Chain-Ladder, faktoringu $E[N_i]$ w iloczyn efektu wiersza i kolumny, oznacza to, że ocena postaci
+
+$$
+\text{score}_i = \sum_{k=1}^{11} \beta_k I[\text{AY}(i)=k] + \sum_{j=1}^{11} \beta_{11+j} I[\text{DY}(i)=l]
+$$
+
+jest w GLM Poissona. Efekt kolumny podlega teraz ograniczeniu identyfikowalności
+
+$$
+\sum_{j=12}^{22} \exp(\beta_j) = 1.
+$$
+
+Stąd $\exp(\beta_j), j=11, \dots, 22$, można interpretować jako proporcję oczekiwanej całkowitej liczby płatności $\exp(\beta_1)$, potrzebnych do rozliczenia wszystkich roszczeń pochodzących z roku wypadku $l \in \{1, \dots, 11\}$ dokonanych w rozwoju $j=11$. Rysunek 4.5 przedstawia oszacowane $\alpha_j$ i $\delta_j$, które zostały uzyskane metodą największej wiarygodności Poissona.
+
+Algorytm Chain-Ladder zastosowany do tych samych danych dałby te same dopasowane wartości (ale inne czynniki łączące, ponieważ Chain-Ladder pozwala aktuariuszowi przełączać się z jednego rozwoju na następny w trójkącie spływu). Widzimy, że oczekiwane liczby płatności, to jest, oszacowane parametry $\alpha_j$ dla $j=1, \dots, 11$, wyświetlone na Rys. 4.5, najpierw rosną, osiągając maksimum przed spadkiem. To odzwierciedla konkretną zmianę wolumenu dla rozważanego portfela. Intuicyjnie, oczekiwalibyśmy, że oszacowane $\alpha_j$ pozostaną z grubsza stabilne w czasie, co sugeruje, że wolumen biznesu pozostaje niezmieniony, lub umiarkowanie wzrasta, kompensowany przez postępującą redukcję roszczeń w ubezpieczeniach komunikacyjnych. W tym przypadku, kształt dzwonu może być wyjaśniony okolicznościami specyficznymi dla tej firmy ubezpieczeniowej, w tym postępującą integracją działalności sprzedawanej za pośrednictwem banku.
+
+Kształt oszacowanych parametrów $\delta_j$ w odniesieniu do DY, $j=1, \dots, 11$, wyświetlony na Rys. 4.5, jest dość standardowy. Widzimy, że większość płatności jest dokonywana w roku wypadku (około 55%) i rok później (około 35%), późniejsze developments uwzględniają pozostałe roszczenia. W ubezpieczeniach OC komunikacyjnych, doświadczenie generalnie pokazuje, że zdecydowana większość roszczeń jest rozliczana w rozwoju 1-2.
+
+Przejdźmy teraz do średnich płatności. Oczywiście, podejście Poissona leżące u podstawy metody Chain-Ladder nie jest tutaj bardzo atrakcyjne. Jak wyjaśniono w Sekcji 4.11, ważnym aspektem modelowania jest relacja średnia-wariancja. Założenie Poissona odpowiada przypadkowi, w którym średnia-wariancja jest równa. Założenie Poissona jest równoznaczne z oczekiwaną wartością wypłaconej kwoty. Jest to kluczowe założenie ukryte za podejściem Chain-Ladder: w przypadku, gdy średnia wypłacona kwota jest równa 1 milionowi, wariancja jest również równa tej kwocie, a odchylenie standardowe wynosi tysiąc. Biorąc pod uwagę, że rozkład Poissona z tak wysoką średnią jest bardzo zbliżony do rozkładu normalnego, oznacza to, że mamy bardzo dużą koncentrację wokół średniej, z dyspersją wynoszącą zaledwie kilka tysięcy. Tak mała dyspersja może być zbyt optymistyczna, a relacja średnia-wariancja musi być zakwestionowana i nie ufana ślepo, jak wyjaśniono dalej.
+
+Biorąc pod uwagę średnie kwoty płatności $\bar{P}_i$, moglibyśmy użyć specyfikacji Gamma lub odwrotnej Gaussa. Wiemy, że te dwa modele różnią się funkcją wariancji: $V(\mu)=\mu^2$ dla dystrybucji Gamma, podczas gdy $V(\mu)=\mu^3$ dla dystrybucji odwrotnej Gaussa. Aby wybrać bardziej odpowiednią odpowiedź, dopasowujemy model regresji kubicznej i kwadratowej z odpowiedzią wariancji na średnią odpowiedzi (bez wyrazu wolnego). Skorygowany R-kwadrat wynosi 73.66% (100% reprezentuje idealne dopasowanie) dla funkcji łącza kubicznego, podczas gdy zmniejsza się do 52.53% dla funkcji łącza kwadratowego. Sugeruje to użycie dystrybucji odwrotnej Gaussa dla odpowiedzi. Zauważ, że funkcja wariancji $V(\mu)=\mu$ odpowiadająca modelowi Chain-Ladder nie jest dobrym kandydatem dla rozważanych danych, ponieważ skorygowany R-kwadrat wynosi tylko 31.41% w tym przypadku.
+
+Najpierw porównujemy model dekomponujący oczekiwaną kwotę na płatność na iloczyn efektu AY i DY oraz efektu CY z modelem dekomponującym go na iloczyn efektu AY i DY. Dopasowanie uzyskane w tym drugim przypadku było znacznie lepsze, więc odtąd zakładamy, że
+
+$$
+\bar{P}_i \sim \mathcal{IGau}(\mu_i, \tau)
+$$
+
+ze średnią wypłaconą kwotą rozłożoną na iloczyn efektu AY i DY:
+
+$$
+\mu_i = \alpha_{\text{AY}(i)} \delta_{\text{DY}(i)}.
+$$
+
+Zauważ, że ta specyfikacja uwzględnia stałą stopę inflacji $i$, jako inflację
+
+$$
+(1+i)^{\text{AY}(i)+\text{DY}(i)-2}
+$$
+
+przyjmując pierwszy rok wypadku jako rok bazowy dla inflacji. To uwzględnia
+
+$$
+(1+i)^{\text{AY}(i)+\text{DY}(i)-2} = (1+i)^{\text{AY}(i)-1} (1+i)^{\text{DY}(i)-1}
+$$
+
+gdzie każdy $(1+i)^{\text{AY}(i)-1}$ i $(1+i)^{\text{DY}(i)-1}$ może być wchłonięty przez efekty AY $\alpha$ i efekty DY $\delta$. Stopa inflacji $i$ jest zatem implicite zawarta w oszacowanym wierszu i kolumnie. Odpowiadająca ocena to
+
+$$
+\text{score}_i = \sum_{k=1}^{11} \beta_k I[\text{AY}(i)=k] + \sum_{l=1}^{11} \beta_{11+l} I[\text{DY}(i)=l]
+$$
+
+gdzie cechy binarne $I[AY(i)=k]$ i $I[DY(i)=l]$ kodują cechy kategoryczne AY i DY. Rozważając wyniki analizy GLM, musimy pamiętać, że dopasowanie jest idealne w ostatniej komórce pierwszego wiersza (AY=1, DY=11). Dzieje się tak, ponieważ jest to jedyna obserwacja obejmująca współczynnik regresji $\beta_{22}$, który jest zatem określany tylko przez tę obserwację. Podobnie, dla ostatniej komórki w pierwszym kolumnie (AY=11, DY=1), która jest jedyną obejmującą $\beta_{11}$.
+
+Model jest dopasowywany za pomocą funkcji R `glm`, z łączem logarytmicznym i liczbą płatności w każdej komórce jako wagą. Algorytm IRLS zbiegł się w 7 krokach. Wyniki są wyświetlone na Rys. 4.6. Widzimy, że oszacowane współczynniki regresji odpowiadające latom wypadków są najpierw stabilne w latach AY 1-6, a następnie rosną w ostatnich latach. Biorąc pod uwagę oszacowane współczynniki regresji związane z opóźnieniem rozwoju, widzimy, że najpierw rosną regularnie wraz z rozwojem, ale wykazują mniej stabilne zachowanie w ostatnich latach rozwoju.
 
 ## 4.5 Dewiancja
 
