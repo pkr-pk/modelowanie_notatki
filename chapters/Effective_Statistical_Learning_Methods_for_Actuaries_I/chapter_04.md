@@ -467,6 +467,404 @@ Podsumowując, podejście GLM do modelowania danych ubezpieczeniowych wychodzi z
 
 Zauważ, że wybór rozkładu ED sprowadza się do określenia funkcji kumulacyjnej $a(\cdot)$, więc jest to równoważne z wyborem funkcji wariancji $V(\cdot) = a''(\cdot)$ odzwierciedlającej zależność średnia-wariancja popartą rozważanymi danymi.
 
+## 4.3 Równania Wiarygodności w GLM
+
+### 4.3.1 Postać Ogólna
+
+Gdy GLM zostanie określony pod względem funkcji łączącej i rozkładu ED, lub równoważnie, gdy funkcja wariancji zostanie wybrana przez aktuariusza, estymowane parametry są uzyskiwane metodą największej wiarygodności (przypomnianą w Rozdz. 3). Dostarcza to aktuariuszowi nie tylko estymat współczynników regresji $\beta_j$, ale także estymowanych błędów standardowych dla dużych prób. W istocie, to podejście dąży do estymacji GLM, który ma najwyższe prawdopodobieństwo wygenerowania rzeczywistych danych.
+
+Niektóre z rozkładów ED, na których opierają się GLM, zawierają nieznany parametr dyspersji $\phi$. Chociaż ten parametr mógłby być również estymowany metodą największej wiarygodności, zamiast tego generalnie stosuje się estymator momentów, w drugim kroku, gdy $\boldsymbol{\beta}$ zostanie już oszacowane. W rzeczywistości okaże się, że znajomość $\phi$ nie jest potrzebna do oszacowania $\boldsymbol{\beta}$, więc te dwa zbiory parametrów można traktować oddzielnie. Dlatego tutaj postrzegamy funkcję wiarygodności jako funkcję tylko $\boldsymbol{\beta}$.
+
+Funkcja wiarygodności jest iloczynem prawdopodobieństw zaobserwowania wartości każdej odpowiedzi, z funkcją gęstości prawdopodobieństwa używaną w miejsce funkcji masy prawdopodobieństwa dla odpowiedzi ciągłych. Jak wyjaśniono w Rozdz. 3, zwykle przełącza się na logarytm wiarygodności, ponieważ obejmuje on sumę, a nie iloczyn (a dowolna wartość parametru maksymalizująca logarytm wiarygodności maksymalizuje również samą wiarygodność). Zatem estymaty największej wiarygodności parametrów $\beta_0, \beta_1, \dots, \beta_p$ maksymalizują
+
+$$
+L(\boldsymbol{\beta}) = \sum_{i=1}^n \ln f_{\theta_i}(y_i) = \sum_{i=1}^n \frac{y_i\theta_i - a(\theta_i)}{\phi/v_i} + \text{stała względem } \boldsymbol{\beta}
+$$
+
+gdzie $\theta_i$ zależy od liniowej oceny $s_i = \boldsymbol{x}_i^\top \boldsymbol{\beta}$, ponieważ $\theta_i = g^{-1}(\boldsymbol{x}_i^\top \boldsymbol{\beta})$. Aby znaleźć estymatę największej wiarygodności dla $\beta$, $L$ jest różniczkowane względem $\beta_j$ i przyrównywane do 0. Używając reguły łańcuchowej, otrzymujemy
+
+$$
+\begin{aligned}
+\frac{\partial}{\partial\beta_j}L(\boldsymbol{\beta}) &= \sum_{i=1}^n \frac{\partial}{\partial\beta_j}\left(\frac{y_i\theta_i - a(\theta_i)}{\phi/v_i}\right) \\
+&= \sum_{i=1}^n \frac{\partial}{\partial\theta_i}\left(\frac{y_i\theta_i - a(\theta_i)}{\phi/v_i}\right) \frac{\partial\theta_i}{\partial\mu_i} \frac{\partial\mu_i}{\partial\beta_j} \\
+&= \sum_{i=1}^n \left(\frac{y_i - \mu_i}{\phi/v_i}\right) \frac{\partial\theta_i}{\partial\mu_i} \frac{\partial\mu_i}{\partial\beta_j}.
+\end{aligned}
+$$
+
+Teraz, jako że
+
+$$
+\frac{\partial\mu_i}{\partial\theta_i} = a''(\theta_i) = \frac{v_i \text{Var}[Y_i]}{\phi}
+$$
+
+$$
+\frac{\partial\mu_i}{\partial\beta_j} = \frac{\partial\mu_i}{\partial s_i} \frac{\partial s_i}{\partial\beta_j} = \frac{\partial\mu_i}{\partial s_i} x_{ij}
+$$
+
+musimy rozwiązać
+
+$$
+\sum_{i=1}^n \frac{(y_i - \mu_i)x_{ij}}{\text{Var}[Y_i]} \frac{\partial\mu_i}{\partial s_i} = 0 \iff \sum_{i=1}^n \frac{(y_i - \mu_i)x_{ij}}{V(\mu_i)/v_i} \frac{\partial\mu_i}{\partial s_i} = 0.
+\quad\quad\text{(4.1)}
+$$
+
+System (4.1) nie posiada jawnego rozwiązania i musi być rozwiązany numerycznie, przy użyciu algorytmu iteracyjnego. Zauważalnym wyjątkiem jest model regresji normalnej z funkcją łączącą tożsamościową, gdzie $\boldsymbol{\hat{\beta}}$ posiada analityczne wyrażenie. Rozwiązanie (4.1) zostanie wyjaśnione w Sekcji 4.4.
+
+### 4.3.2 Informacja Fishera
+
+Aby uzyskać informację Fishera, zapiszmy element $(j,k)$ macierzy informacji Fishera $I(\boldsymbol{\beta})$:
+
+$$
+\begin{aligned}
+I_{jk}(\boldsymbol{\beta}) &= \mathrm{E}\left[\frac{\partial}{\partial\beta_j}L(\boldsymbol{\beta})\frac{\partial}{\partial\beta_k}L(\boldsymbol{\beta})\right] \\
+&= \mathrm{E}\left[\sum_{i=1}^n \frac{(Y_i - \mu_i)x_{ij}}{\text{Var}[Y_i]} \frac{\partial\mu_i}{\partial s_i} \sum_{l=1}^n \frac{(Y_l - \mu_l)x_{lk}}{\text{Var}[Y_l]} \frac{\partial\mu_l}{\partial s_l}\right] \\
+&= \sum_{i=1}^n \sum_{l=1}^n \frac{\text{Cov}[Y_i, Y_l] x_{ij} x_{lk}}{\text{Var}[Y_i]\text{Var}[Y_l]} \frac{\partial\mu_i}{\partial s_i} \frac{\partial\mu_l}{\partial s_l}.
+\end{aligned}
+$$
+
+Ponieważ odpowiedzi są niezależne, składniki kowariancji znikają, to jest, $\text{Cov}[Y_i, Y_l] = 0$ dla $i \ne l$. Zatem pozostają tylko składniki odpowiadające $i=l$. Otrzymujemy
+
+$$
+I_{jk}(\boldsymbol{\beta}) = \sum_{i=1}^n \frac{x_{ij}x_{ik}}{\text{Var}[Y_i]} \left(\frac{\partial\mu_i}{\partial s_i}\right)^2.
+$$
+
+Zdefiniujmy wagę pomocniczą
+
+$$
+\tilde{v}_i = \frac{1}{\text{Var}[Y_i]} \left(\frac{\partial\mu_i}{\partial s_i}\right)^2 = \frac{v_i}{\phi V(\mu_i)} \left(\frac{\partial\mu_i}{\partial s_i}\right)^2
+\quad\quad\text{(4.2)}
+$$
+
+oraz macierz diagonalną $n \times n$ $\tilde{\boldsymbol{W}}$ z elementami $\tilde{v}_1, \tilde{v}_2, \dots, \tilde{v}_n$. W postaci macierzowej mamy wtedy
+
+$$
+I(\boldsymbol{\beta}) = \boldsymbol{X}^\top \tilde{\boldsymbol{W}} \boldsymbol{X} = \sum_{i=1}^n \tilde{v}_i \boldsymbol{x}_i \boldsymbol{x}_i^\top.
+\quad\quad\text{(4.3)}
+$$
+
+### 4.3.3 Wpływ Funkcji Wariancji
+
+Rozważając równanie wiarygodności GLM (4.1), ważne jest, aby zdać sobie sprawę, jak wybór funkcji wariancji $V(\cdot)$ wpływa na dopasowanie modelu. Widzimy, że im większa wariancja $V(\mu_i)$, tym mniejszy wkład obserwacji $i$ do sumy pojawiającej się w równaniach wiarygodności. Innymi słowy, dopuszczalne są większe różnice $y_i - \mu_i$, gdy $\mu_i$ jest duże.
+
+Z Rozdziału 2 wiemy, że typowe funkcje wariancji mają postać Tweediego $V(\mu) = \mu^\xi$. W rodzinie Tweediego:
+- Dla $\xi=0$ (przypadek normalny), każda obserwacja ma taką samą ustaloną wariancję niezależnie od jej średniej, a dopasowane wartości są jednakowo przyciągane do obserwowanych punktów danych.
+- Dla $\xi=1$ (przypadek Poissona), wariancja jest proporcjonalna do oczekiwanej wartości każdej obserwacji: obserwacje z mniejszą oczekiwaną wartością będą miały mniejszą założoną wariancję, co skutkuje większą wagą (lub wiarygodnością) przy estymacji parametrów. Dopasowanie modelu jest zatem bardziej pod wpływem obserwacji o mniejszej oczekiwanej wartości niż o większej oczekiwanej wartości (a więc większej założonej wariancji).
+- Gdy $\xi=2$ (przypadek Gamma) i $\xi=3$ (przypadek odwrotny Gaussa), dopasowanie GLM jest jeszcze bardziej pod wpływem obserwacji o mniejszych oczekiwanych wartościach, tolerując większe błędy dla obserwacji o większych oczekiwanych wartościach.
+
+Wagi a priori $v_i$ również działają na wariancję i skutkują tym, że punkty danych mają mniejszy wpływ na dopasowanie modelu. Rzeczywiście, zwiększenie wagi zmniejsza wariancję, a odpowiadająca jej obserwacja odgrywa ważniejszą rolę w dopasowaniu modelu.
+
+Wybór funkcji wariancji jest zatem sprawą najwyższej wagi, aby uzyskać dokładne dopasowanie modelu. Jak zobaczymy, stosując techniki quasi-wiarygodności, techniki oparte na GLM wydają się być dość odporne na błędy w rozkładzie, o ile funkcja wariancji została poprawnie określona.
+
+### 4.3.4 Równania Wiarygodności i Informacja Fishera z Łączem Kanonicznym
+
+Z kanoniczną funkcją łączącą, parametr kanoniczny jest równy ocenie: $\theta_i = s_i$. W tym przypadku mamy
+
+$$
+\frac{\partial\mu_i}{\partial s_i} = \frac{\partial\mu_i}{\partial\theta_i} = \frac{\partial a'(\theta_i)}{\partial\theta_i} = a''(\theta_i).
+$$
+
+Stąd (4.1) dalej się upraszcza i musimy rozwiązać
+
+$$
+\frac{\partial}{\partial\beta_j}L(\boldsymbol{\beta}) = 0 \iff \sum_{i=1}^n \left(\frac{y_i - \mu_i}{\phi/v_i}\right) x_{ij} = 0.
+$$
+
+Jeśli $v_i=1$ dla wszystkich $i$, to równania wiarygodności zapewniają, że dopasowane wartości średnie
+
+$$
+\hat{\mu}_i = \mu_i(\hat{\boldsymbol{\beta}}) = g^{-1}(\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}})
+$$
+
+spełniają warunek
+
+$$
+\sum_{i=1}^n (y_i - \hat{\mu}_i) x_{ij} = 0 \iff \sum_{i=1}^n y_i x_{ij} = \sum_{i=1}^n \hat{\mu}_i x_{ij} \quad \text{dla } j=0, 1, \dots, p.
+\quad\quad\text{(4.4)}
+$$
+
+Można to przepisać jako $\boldsymbol{X}^\top (\boldsymbol{y} - \hat{\boldsymbol{\mu}}) = \boldsymbol{0}$ w postaci macierzowej. Ogólnie, zdefiniujmy $\boldsymbol{W}$ jako macierz diagonalną z $i$-tym elementem $v_i$, to jest,
+
+$$
+\boldsymbol{W} = \begin{pmatrix}
+v_1 & 0 & \dots & 0 \\
+0 & v_2 & \dots & 0 \\
+\vdots & \vdots & \ddots & \vdots \\
+0 & 0 & \dots & v_n
+\end{pmatrix}.
+$$
+
+Z kanoniczną funkcją łączącą, równania wiarygodności są
+
+$$
+\boldsymbol{X}^\top \boldsymbol{W} (\boldsymbol{y} - \boldsymbol{\mu}(\hat{\boldsymbol{\beta}})) = \boldsymbol{0}.
+\quad\quad\text{(4.5)}
+$$
+
+Maksymalizacja logarytmu wiarygodności jest dobrze postawiona z kanonicznymi funkcjami łączącymi. Dzieje się tak, ponieważ z kanoniczną funkcją łączącą, logarytm wiarygodności jest dany przez
+
+$$
+L(\boldsymbol{\beta}) = \frac{1}{\phi} \sum_{i=1}^n v_i(y_i s_i - a(s_i)) + \text{stała względem } \boldsymbol{\beta}
+$$
+
+co jest wklęsłe w $\boldsymbol{\beta}$ (ponieważ $a$ jest wypukłe, a ocena $s_i$ jest liniowa w $\boldsymbol{\beta}$).
+
+Inna interesująca właściwość kanonicznych funkcji łączących dotyczy macierzy informacji Fishera. Gdy wybrano kanoniczną funkcję łączącą, otrzymujemy
+
+$$
+\begin{aligned}
+\frac{\partial^2}{\partial\beta_j \partial\beta_k}L(\boldsymbol{\beta}) &= -\sum_{i=1}^n \frac{v_i x_{ij}}{\phi} \frac{\partial\mu_i}{\partial\beta_k} \\
+&= -\sum_{i=1}^n \frac{v_i x_{ij}}{\phi} \frac{\partial\mu_i}{\partial s_i} x_{ik} \\
+&= -\sum_{i=1}^n \frac{v_i x_{ij} x_{ik}}{\phi} a''(\theta_i).
+\end{aligned}
+$$
+
+Dlatego element $(j, k)$ obserwowanej macierzy informacyjnej jest dany przez
+
+$$
+H_{jk}(\boldsymbol{\beta}) = \sum_{i=1}^n \frac{x_{ij}x_{ik}}{\text{Var}[Y_i]} (a''(\theta_i))^2
+$$
+
+co nie zależy od odpowiedzi. Zakładając $\theta_i = s_i$, mamy zatem
+
+$$
+\frac{\partial^2}{\partial\beta_j \partial\beta_k}L(\boldsymbol{\beta}) = \mathrm{E}\left[\frac{\partial^2}{\partial\beta_j \partial\beta_k}L(\boldsymbol{\beta})\right]
+$$
+
+tak że oczekiwane i obserwowane macierze informacyjne pokrywają się.
+
+### 4.3.5 Dane Indywidualne czy Grupowe
+
+Rozważmy dane przedstawione w Tabeli 4.5. Interesujący nas portfel został pogrupowany w 4 klasy według dwóch cech binarnych kodujących informacje dostępne o każdym posiadaczu polisy (płeć i roczny dystans przejechany poniżej 20 000 km rocznie). Odpowiedź $Y_i$ jest liczbą szkód zgłoszonych przez posiadacza polisy $i$. Zakładamy, że $Y_1, \dots, Y_n$ są niezależne i mają rozkład Poissona z odpowiednimi średnimi $\mu_1, \dots, \mu_n$. Oczekiwana liczba szkód dla polisy $i$ w portfelu jest wyrażona jako
+
+$$
+\mu_i = e_i \exp(\beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2})
+$$
+
+gdzie $e_i$ jest ekspozycją na ryzyko dla posiadacza polisy $i$, $x_{i1}$ rejestruje roczny przebieg, a $x_{i2}$ rejestruje płeć. Dokładniej,
+
+$$
+x_{i1} = \begin{cases} 1 & \text{jeśli posiadacz polisy } i \text{ przejeżdża mniej niż 20,000 km rocznie} \\ 0 & \text{w przeciwnym razie}, \end{cases}
+$$
+
+i
+
+$$
+x_{i2} = \begin{cases} 1 & \text{jeśli posiadacz polisy } i \text{ jest kobietą}, \\ 0 & \text{w przeciwnym razie}. \end{cases}
+$$
+
+Poziomy referencyjne odpowiadają najbardziej zaludnionym kategoriom w zbiorze danych: ponad 20 000 km dla dystansu ($x_{i1}=0$) i mężczyzna dla płci ($x_{i2}=0$).
+
+Tabela 4.5 podsumowuje doświadczenie całego portfela w zaledwie czterech liczbach: po jednej dla każdej klasy ryzyka (to jest, agregując wszystkie polisy, które są identyczne pod względem dwóch cech $x_{i1}$ i $x_{i2}$). Pokażmy teraz, że takie grupowanie jest dozwolone podczas pracy z odpowiedziami o rozkładzie Poissona (i ogólniej, z dowolnymi odpowiedziami o rozkładzie ED). Można to łatwo zobaczyć w następujący sposób. Zacznijmy od indywidualnych rekordów $y_i$ dla posiadacza polisy $i$. Tutaj $y_i$ oznacza obserwowaną liczbę szkód dla posiadacza polisy $i$ dla ekspozycji $e_i$. Odpowiadająca funkcja wiarygodności to
+
+---
+**Tabela 4.5** Liczba szkód (ekspozycja na ryzyko) i odpowiadające im ekspozycje na ryzyko (w osobolatach, w nawiasach) dla hipotetycznego portfela ubezpieczeń komunikacyjnych obserwowanego w ciągu jednego roku kalendarzowego.
+
+<table border="1" style="border-collapse: collapse; width: 100%;">
+  <thead>
+    <tr>
+      <th rowspan="2" style="text-align: left; padding: 8px;">Płeć</th>
+      <th colspan="2" style="text-align: center; padding: 8px;">Roczny przejechany dystans</th>
+    </tr>
+    <tr>
+      <th style="text-align: center; padding: 8px;">&lt;20 000 km</th>
+      <th style="text-align: center; padding: 8px;">&ge;20 000 km</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left; padding: 8px;">Mężczyźni</td>
+      <td style="text-align: center; padding: 8px;">143<br>(2 000)</td>
+      <td style="text-align: center; padding: 8px;">1 967<br>(18 000)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left; padding: 8px;">Kobiety</td>
+      <td style="text-align: center; padding: 8px;">278<br>(6 000)</td>
+      <td style="text-align: center; padding: 8px;">354<br>(4 000)</td>
+    </tr>
+  </tbody>
+</table>
+
+$$
+\mathcal{L}_{ind}(\beta_0, \beta_1, \beta_2) = \prod_{i=1}^n \exp(-\mu_i) \frac{\mu_i^{y_i}}{y_i!}.
+$$
+
+Czynniki pojawiające się w iloczynie można uporządkować według 4 kategorii w Tabeli 4.5. Dokładniej, $\mathcal{L}_{ind}(\beta_0, \beta_1, \beta_2)$ można przepisać jako
+
+$$
+\begin{aligned}
+\mathcal{L}_{ind} &= \prod_{i|x_{i1}=x_{i2}=0} \exp(-\mu_i) \frac{\mu_i^{y_i}}{y_i!} \prod_{i|x_{i1}=0, x_{i2}=1} \exp(-\mu_i) \frac{\mu_i^{y_i}}{y_i!} \\
+&\quad \prod_{i|x_{i1}=1, x_{i2}=0} \exp(-\mu_i) \frac{\mu_i^{y_i}}{y_i!} \prod_{i|x_{i1}=1, x_{i2}=1} \exp(-\mu_i) \frac{\mu_i^{y_i}}{y_i!} \\
+&\propto \exp\left(-\exp(\beta_0)\sum_{i|x_{i1}=x_{i2}=0} e_i\right) (\exp(\beta_0))^{\sum_{i|x_{i1}=x_{i2}=0} k_i} \\
+&\quad \exp\left(-\exp(\beta_0+\beta_2)\sum_{i|x_{i1}=0, x_{i2}=1} e_i\right) (\exp(\beta_0+\beta_2))^{\sum_{i|x_{i1}=0, x_{i2}=1} k_i} \\
+&\quad \exp\left(-\exp(\beta_0+\beta_1)\sum_{i|x_{i1}=1, x_{i2}=0} e_i\right) (\exp(\beta_0+\beta_1))^{\sum_{i|x_{i1}=1, x_{i2}=0} k_i} \\
+&\quad \exp\left(-\exp(\beta_0+\beta_1+\beta_2)\sum_{i|x_{i1}=1, x_{i2}=1} e_i\right) (\exp(\beta_0+\beta_1+\beta_2))^{\sum_{i|x_{i1}=1, x_{i2}=1} k_i},
+\end{aligned}
+$$
+
+gdzie „$\propto$” wskazuje, że dwa wyrażenia są proporcjonalne aż do stałych czynników (nie obejmujących żadnego współczynnika regresji $\beta_j$ do oszacowania). To pokazuje, że $\mathcal{L}_{ind}(\beta_0, \beta_1, \beta_2)$ jest proporcjonalna do wiarygodności opartej na danych zagregowanych dla 4 klas ryzyka, ponieważ angażuje tylko całkowitą ekspozycję i całkowitą liczbę szkód dla każdej klasy ryzyka (tj. dane przedstawione w Tabeli 4.5). Zatem, praca z indywidualnymi danymi $Y_1, \dots, Y_n$ lub z czterema zagregowanymi zliczeniami
+
+$$
+\begin{aligned}
+Y_{00} &= \sum_{i|x_{i1}=x_{i2}=0} Y_i \\
+Y_{01} &= \sum_{i|x_{i1}=0,x_{i2}=1} Y_i \\
+Y_{10} &= \sum_{i|x_{i1}=1,x_{i2}=0} Y_i \\
+Y_{11} &= \sum_{i|x_{i1}=1,x_{i2}=1} Y_i
+\end{aligned}
+$$
+
+daje procedury wiarygodności, które są proporcjonalne, tak że oszacowania największej wiarygodności są dokładnie takie same. Z rozkładem Poissona wiemy, że cztery sumy $Y_{00}, Y_{01}, Y_{10}$ i $Y_{11}$ są nadal Poissona. Dokładniej,
+
+$$
+\begin{aligned}
+Y_{00} &\sim \mathcal{Poi}(\lambda_{00}) \text{ z } \lambda_{00} = e_{00}\exp(\beta_0) \text{ gdzie } e_{00} = \sum_{i|x_{i1}=x_{i2}=0} e_i \\
+Y_{01} &\sim \mathcal{Poi}(\lambda_{01}) \text{ z } \lambda_{01} = e_{01}\exp(\beta_0+\beta_2) \text{ gdzie } e_{01} = \sum_{i|x_{i1}=0,x_{i2}=1} e_i \\
+Y_{10} &\sim \mathcal{Poi}(\lambda_{10}) \text{ z } \lambda_{10} = e_{10}\exp(\beta_0+\beta_1) \text{ gdzie } e_{10} = \sum_{i|x_{i1}=1,x_{i2}=0} e_i \\
+Y_{11} &\sim \mathcal{Poi}(\lambda_{11}) \text{ z } \lambda_{11} = e_{11}\exp(\beta_0+\beta_1+\beta_2) \text{ gdzie } e_{11} = \sum_{i|x_{i1}=1,x_{i2}=1} e_i.
+\end{aligned}
+$$
+
+Stąd funkcja wiarygodności $\mathcal{L}_{group}(\beta_0, \beta_1, \beta_2)$ związana z danymi zgrupowanymi jest iloczynem czterech prawdopodobieństw Poissona, to jest,
+
+$$
+\begin{aligned}
+\mathcal{L}_{group} &= \exp(-\ e_{00}\exp(\beta_0)) \frac{(e_{00}\exp(\beta_0))^{y_{00}}}{y_{00}!} \\
+&\quad \exp(-\ e_{01}\exp(\beta_0+\beta_2)) \frac{(e_{01}\exp(\beta_0+\beta_2))^{y_{01}}}{y_{01}!} \\
+&\quad \exp(-\ e_{10}\exp(\beta_0+\beta_1)) \frac{(e_{10}\exp(\beta_0+\beta_1))^{y_{10}}}{y_{10}!} \\
+&\quad \exp(-\ e_{11}\exp(\beta_0+\beta_1+\beta_2)) \frac{(e_{11}\exp(\beta_0+\beta_1+\beta_2))^{y_{11}}}{y_{11}!}.
+\end{aligned}
+$$
+
+Oczywiście,
+
+$$
+\mathcal{L}_{ind}(\beta_0, \beta_1, \beta_2) \propto \mathcal{L}_{group}(\beta_0, \beta_1, \beta_2)
+$$
+
+więc możemy pracować z zagregowanymi danymi do celów estymacji, to jest, agregując doświadczenie całego portfela na poziomie 4 jednorodnych klas ryzyka, co nie skutkuje utratą informacji.
+
+Należy jednak podkreślić, że ta właściwość jest ważna tylko pod założeniem ED dla odpowiedzi. Można to postrzegać jako zastosowanie Właściwości 2.4.6 zapewniającej, że ważone średnie obserwacji podlegających rozkładowi ED nadal podlegają temu samemu rozkładowi z zaktualizowanym parametrem dyspersji i zaktualizowaną wagą. Ogólnie, z rozkładami spoza rodziny ED, agregowanie danych może skutkować utratą informacji, dlatego aktuariusz powinien zawsze powstrzymywać się od postępowania w ten sposób, i przechowywać bazy danych rejestrujące indywidualne doświadczenia posiadaczy polis, gdy tylko jest to możliwe.
+
+### 4.3.6 Sumy krańcowe pod łączem kanonicznym
+
+Podajmy teraz intuicyjne wyjaśnienie dla równań wiarygodności z łączem kanonicznym (4.4). Pierwsze równanie wiarygodności (odpowiadające $j=0$) zapewnia, że globalna równowaga
+
+$$
+\underbrace{\sum_{i=1}^n \hat{\mu}_i}_{\text{dopasowana suma}} = \underbrace{\sum_{i=1}^n y_i}_{\text{obserwowana suma}}
+\quad\quad\text{(4.6)}
+$$
+
+musi być zachowana. Dlatego, pod warunkiem, że w ocenach uwzględniony jest wyraz wolny $\beta_0$, suma dopasowanych wartości uzyskanych z modelu regresji jest równa jego obserwowanej sumie. Równość obowiązuje dla okresu obserwacji i niekoniecznie dla przyszłości, ale estymacje są wiarygodne tak długo, jak przyszłe doświadczenie jest podobne do przeszłego (założenie stacjonarności), ewentualnie z uwzględnieniem korekt na inflację lub inne przewidywalne efekty. Włączenie wyrazu wolnego $\beta_0$ jest zatem zasadą w zastosowaniach aktuarialnych, o ile globalna równowaga (4.6) ma sens.
+
+Aby zrozumieć rzeczywiste znaczenie pozostałych równań wiarygodności GLM z łączem kanonicznym, rozważmy ponownie dane przedstawione w Tabeli 4.5, z $x_{i1}$ kodującym przejechany dystans (równe 1, jeśli mniej niż 20 000 km rocznie) i $x_{i2}$ kodującym płeć (równe 1, jeśli posiadaczem polisy jest kobieta). Wtedy (4.4) pokazuje, że $\hat{\boldsymbol{\beta}}$ jest takie, że
+
+$$
+\sum_{<20,000\text{ kms}} y_i = \sum_{<20,000\text{ kms}} \hat{\mu}_i
+$$
+
+i
+
+$$
+\sum_{\text{kobiety}} y_i = \sum_{\text{kobiety}} \hat{\mu}_i
+$$
+
+oba zachodzą. Oznacza to, że model pasuje dokładnie do całkowitych roszczeń zgłoszonych przez posiadaczy polis przejeżdżających mniej niż 20 000 km rocznie, z jednej strony, i przez kobiety posiadające polisy, z drugiej strony. Zatem, wraz z globalną równowagą (4.6) gwarantowaną przez włączenie wyrazu wolnego do oceny, równania wiarygodności zapewniają, że nie ma subsydiowania krzyżowego między posiadaczami polis przejeżdżającymi mniej niż 20 000 km rocznie a tymi przejeżdżającymi więcej, ani między mężczyznami a kobietami.
+
+Jest to równoważne podejściu aktuarialnemu sum krańcowych (MMT). Idea polega na tym, że akceptowalny zestaw względności powinien odtwarzać doświadczenie dla każdego poziomu czynników ryzyka, a także ogólne doświadczenie, tj. być zrównoważonym na każdym poziomie i w całości. To podejście poprzedza GLM-y w praktyce aktuarialnej. Zostało zaproponowane w latach 60. przez północnoamerykańskich aktuariuszy.
+
+**Uwaga 4.3.1** (Od technicznego do komercyjnego cennika). Równanie wiarygodności (4.4) narzuca naturalne ograniczenia od przełączania z technicznego na komercyjny cennik, unikając premiowych transferów między kategoriami w portfelu. Całe komercyjne pozycjonowanie może być narzucone przez odpowiednie ograniczenie niektórych współczynników regresji. Zmienną odpowiedzi jest techniczna składka $\mu(\boldsymbol{X})$, a zmiennymi objaśniającymi są tylko czynniki ratingowe. Ponieważ często pożądane są multiplikatywne składki premium, używana jest funkcja łącząca logarytmiczna, a odpowiadający rozkład odpowiedzi to Poisson. Wyjaśnia to, dlaczego założenie Poissona jest czasami przyjmowane dla odpowiedzi wykraczających poza zliczenia, nie dlatego, że założenie Poissona jest rozsądne, ale jako wygodny sposób implementacji ograniczeń MMT (4.4).
+
+Dla każdego GLM z łączem kanonicznym istnieje dokładna równowaga między dopasowanymi i obserwowanymi zagregowanymi odpowiedziami w całym zbiorze danych, o ile ocena zawiera wyraz wolny. Jest to również prawdziwe dla każdego poziomu cech kategorycznych. Ta równowaga zachodzi dla regresji Poissona z łączem logarytmicznym lub dla regresji dwumianowej z łączem logitowym, nie wspominając o klasycznej regresji normalnej z łączem tożsamościowym. Zatem, po dopasowaniu jakiegokolwiek GLM, dopasowane wartości zawsze pasują do obserwacji w agregacie. Jednak te równowagi niekoniecznie są zachowane, gdy używane są łącza kanoniczne. Na przykład, ta równowaga nie jest zachowana w przypadku GLM Gamma z łączem logarytmicznym, co jest bardzo powszechnym modelem aktuarialnym. Powodem jest to, że łącze logarytmiczne nie jest kanoniczną funkcją łączącą dla rozkładu Gamma.
+
+Ponieważ równania wiarygodności wyrażają globalne równowagi, sprawia to, że dopasowanie GLM jest stabilne w czasie z jednego zbioru danych do drugiego, o ile liczby roszczeń pozostają stabilne. Jest to atrakcyjna właściwość dla zastosowań ubezpieczeniowych.
+
+### 4.3.7 Przesunięcia (Offsets)
+
+#### 4.3.7.1 Definicja
+
+Przesunięcia są używane w zdecydowanej większości badań aktuarialnych. Nie należy ich mylić z wagami, przesunięcia wchodzą do oceny addytywnie, bez mnożenia przez współczynnik regresji do oszacowania na podstawie danych. Przesunięcia reprezentują zatem znane wkłady i a priori informacje do oceny addytywnej. W przeciwieństwie do wyrazu wolnego $\beta_0$ wchodzącego do wszystkich ocen, przesunięcia zwykle różnią się w zależności od osoby.
+
+W szczególności, przesunięcie jest wielkością dodawaną do oceny, bez mnożenia przez znany lub wstępnie określony współczynnik, który nie jest estymowany na podstawie danych. Zatem, przesunięcie można postrzegać jako dodatkową cechę, której współczynnik jest ograniczony, powiedzmy, do 1. Ocena staje się wtedy
+
+$$
+\text{score}_i = \text{offset}_i + \boldsymbol{x}_i^\top \boldsymbol{\beta}
+$$
+
+gdzie $\text{offset}_i$ oznacza przesunięcie specyficzne dla $i$-tej osoby.
+
+W modelu regresji liniowej normalnej mamy
+
+$$
+Y_i = \text{offset}_i + \boldsymbol{x}_i^\top \boldsymbol{\beta} + Z_i \quad \text{gdzie } Z_i \sim \mathcal{Nor}(0, \sigma^2).
+$$
+
+Ponieważ przesunięcie jest znaną wielkością, jest to równoważne odjęciu tej wielkości od odpowiedzi $Y_i$ przed uruchomieniem regresji na $Y_i - \text{offset}_i$. Ta ostatnia wielkość może być traktowana jako reszta, do wyjaśnienia przez $\boldsymbol{x}_i$. To dlatego przesunięcia nie są omawiane w normalnej regresji liniowej z łączem tożsamościowym. Czasami przesunięcie odpowiada dopasowanym wartościom $\hat{\mu}_i$ dla średniej $Y_i$ uzyskanej z poprzedniego modelu regresji. Wtedy, przesunięcie jest równoważne użyciu reszt z wstępnej regresji odpowiedzi (która stanowi podstawę boosting, jak zobaczymy w Rozdz. 6).
+
+#### 4.3.7.2 Zliczenia Poissona i Wskaźniki Poissona
+
+Typowym zastosowaniem przesunięcia jest włączenie miary ekspozycji przy modelowaniu stawek. Na przykład, jeśli niektóre rekordy w ubezpieczeniach komunikacyjnych odpowiadają polisom obowiązującym przez 6 miesięcy, podczas gdy inne odpowiadają polisom obowiązującym przez cały rok, właściwe jest użycie z łączem logarytmicznym logarytmu okresu ubezpieczenia jako przesunięcia, jak wyjaśniono dalej. W modelu regresji Poissona, ekspozycja jest generalnie liczbą pojazdo-lat ubezpieczonych, a odpowiedzią jest liczba $Y_i$ zgłoszonych roszczeń. Biorąc pod uwagę proces Poissona z Rozdziału 2, wiemy, że ta ekspozycja mnoży roczną stopę szkód. Ponieważ ten przesunięcie musi być dodane w skali oceny, logarytm ekspozycji jest używany jako przesunięcie: oznaczając ekspozycję jako $e_i$,
+
+$$
+\ln \mu_i(\boldsymbol{x}_i) = \ln e_i + \boldsymbol{x}_i^\top \boldsymbol{\beta} \implies \text{offset}_i = \ln e_i.
+\quad\quad\text{(4.7)}
+$$
+
+W przypadku Poissona, jest to równoważne zastąpieniu liczby roszczeń $Y_i$ obserwowaną stopą szkód $\tilde{Y}_i = \frac{Y_i}{e_i}$ przy użyciu ekspozycji $e_i$ jako wag $v_i$ i rezygnacji z przesunięcia, tak że
+
+$$
+\ln \tilde{\mu}_i(\boldsymbol{x}_i) = \boldsymbol{x}_i^\top \boldsymbol{\beta}
+$$
+
+co jest oczywiście równoważne (4.7). Jest to bezpośrednie zastosowanie wyników ustalonych w Przykładzie 2.5.2.
+
+#### 4.3.7.3 Inne Zastosowania Przesunięć
+
+Innym przydatnym zastosowaniem przesunięcia jest ograniczenie niektórych czynników ratingowych do wartości wstępnie określonych przy przechodzeniu z technicznego na komercyjny cennik. Takie ograniczenia są często motywowane konkurencją i względami marketingowymi, pozwalając na optymalne dostosowanie współczynników pozostałych czynników ratingowych do tych ograniczeń.
+
+Przesunięcie może nawet pomóc w przejrzeniu lub udoskonaleniu istniejącego cennika. Ten ostatni jest wtedy umieszczany w przesunięciu, a oszacowane współczynniki regresji wskazują wtedy korekty potrzebne do poprawy obecnego cennika.
+
+W ubezpieczeniach na życie, ekspozycje portfela są czasami ograniczone do rynku (lub innego odniesienia) tablicy życia. Sugeruje to pracę w kategoriach względnych, w odniesieniu do znaczącej referencyjnej tablicy życia. Odbywa się to poprzez wprowadzenie do wyniku regresji Poissona logarytmu oczekiwanej liczby zgonów zgodnie z tą tablicą życia, aby wyjaśnić specyficzną dla portfela siłę śmiertelności. To samo podejście dotyczy stawek chorobowości w ubezpieczeniach zdrowotnych.
+
+Przesunięcia są również szczególnie przydatne, gdy ocena jest estymowana przy użyciu algorytmu backfittingu ogólnego dla Uogólnionych Modeli Addytywnych (lub GAMów, patrz Rozdz. 6) lub przy użyciu podejścia forward stagewise (lub boosting, patrz Sekcja 6.8). Poprzez forward stagewise budujemy ocenę, uwzględniając wariacje, które nie są jeszcze wyjaśnione przez obecny model. Obecny model służy zatem jako przesunięcie przy udoskonalaniu oceny.
+
+#### 4.3.7.4 Przesunięcie w przypadku Tweediego z Łączem Logarytmicznym
+
+Skomentujmy teraz subtelną różnicę między wagami a przesunięciami. Dopóki używane jest łącze logarytmiczne, to jest, średnia odpowiedź jest wykładniczą funkcją oceny, wagi i przesunięcia mogą być używane zamiennie w przypadku Tweediego, pod warunkiem, że odpowiedzi są odpowiednio zmodyfikowane. Jest to precyzyjnie pokazane dalej.
+
+Rozważmy GLM Tweediego dla odpowiedzi $Y_i$, z funkcją łączącą logarytmiczną. W równaniu wiarygodności (4.1), mamy wtedy
+
+$$
+\frac{\partial\mu_i}{\partial s_i} = \mu_i \quad \text{ponieważ } \mu_i = \exp(s_i)
+$$
+
+i $V(\mu_i) = \phi \mu_i^\xi$ z $1 < \xi < 2$. Równania wiarygodności są zatem podane w tym przypadku przez
+
+$$
+\sum_{i=1}^n v_i \frac{y_i - \mu_i}{\mu_i^{\xi-1}} x_{ij} = 0, \quad j=0, 1, \dots, p.
+\quad\quad\text{(4.8)}
+$$
+
+Załóżmy, że teraz wprowadzamy przesunięcie, tak że $\mu_i = z_i \tilde{\mu}_i$, przy czym przesunięcie to $\text{offset}_i = \ln z_i$. Równania wiarygodności (4.8) stają się
+
+$$
+\sum_{i=1}^n v_i \frac{y_i - z_i \tilde{\mu}_i}{(z_i \tilde{\mu}_i)^{\xi-1}} x_{ij} = 0, \quad j=0, 1, \dots, p,
+\quad\quad\text{(4.9)}
+$$
+
+$$
+\iff \sum_{i=1}^n v_i z_i^{2-\xi} \frac{y_i/z_i - \tilde{\mu}_i}{\tilde{\mu}_i^{\xi-1}} x_{ij} = 0, \quad j=0, 1, \dots, p.
+\quad\quad\text{(4.10)}
+$$
+
+Z GLM Tweediego widzimy zatem, że włączenie przesunięcia $z_i$ jest równoważne użyciu GLM z przekształconymi odpowiedziami $y_i/z_i$ i wagami $v_i z_i^{2-\xi}$. Wyniki wyprowadzone tutaj za pomocą równania wiarygodności Tweediego (4.8) można postrzegać jako szczególne przypadki uzyskane z $\delta = \frac{\xi-2}{\xi-1}$ i łączem logarytmicznym (tak, że logarytm czynnika $z_i$ może wejść do oceny) przy użyciu Właściwości 2.5.1.
+
+Rozważmy teraz dwa szczególne przypadki:
+- **Przypadek Poissona ($\xi=1$)** Włączenie przesunięcia $\ln z_i$, tj. mnożenie oczekiwanej odpowiedzi przez $z_i$, jest równoważne uruchomieniu GLM z przekształconymi odpowiedziami $y_i/z_i$ i wagami $v_i z_i$.
+W szczególnym przypadku GLM Poissona z kanonicznym łączem logarytmicznym jest to zatem równoważne modelowaniu liczby szkód z terminem przesunięcia równym logarytmowi ekspozycji (i wagami jednostkowymi) lub modelowaniu częstotliwości szkód bez terminu przesunięcia, ale z wagami równymi ekspozycji każdej obserwacji. Zgadza się to z ustaleniami z Sekcji 4.3.7.2.
+
+- **Przypadek Gamma ($\xi=2$)** Włączenie przesunięcia $\ln z_i$, tj. mnożenie oczekiwanej odpowiedzi przez $z_i$, jest równoważne uruchomieniu GLM z przekształconymi odpowiedziami $y_i/z_i$ i wagami $v_i$. W przypadku Gamma z łączem logarytmicznym, wagi pozostają zatem nienaruszone przez tę transformację odpowiedzi.
+
+To podejście może być również użyte do wykazania, że w niektórych bardzo szczególnych przypadkach estymacje uzyskane z różnych GLM-ów mogą w rzeczywistości się pokrywać. Na przykład, ze względu na ustawienie procesu Poissona, analiza danych zliczeniowych za pomocą regresji Poissona lub czasów między zdarzeniami za pomocą regresji Gamma jest równoważna. W ubezpieczeniach na życie, na przykład, oznacza to, że aktuariusz może dopasować model za pomocą regresji Poissona na liczbie zgonów lub za pomocą regresji Gamma na ekspozycjach na ryzyko, lub całkowitych czasach przeżycia.
+
 ## 4.5 Dewiancja
 
 ### 4.5.3 Dewiancja
