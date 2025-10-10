@@ -1,5 +1,475 @@
 # Rozdział 4: Uogólnione modele liniowe (GLMs)
 
+## 4.1 Wprowadzenie
+
+GLM jest definiowany przez określenie dwóch komponentów:
+- odpowiedź musi podlegać rozkładowi ED przedstawionemu w Rozdz. 2, oraz
+- funkcja łącząca opisuje, jak średnia odpowiedź jest powiązana z liniową kombinacją dostępnych cech (ogólnie nazywaną oceną (score) w zastosowaniach ubezpieczeniowych, nie mylić z oceną Fishera w statystyce przywołaną w Rozdz. 3).
+
+GLM-y zostały pierwotnie wprowadzone w praktyce aktuarialnej jako metoda poprawy dokładności wyceny ubezpieczeń komunikacyjnych. Ich zastosowanie zostało następnie gwałtownie rozszerzone na większość linii biznesowych. Dziś są rutynowo stosowane w underwritingu, wycenie lub zarządzaniu szkodami. Oto kilka typowych zastosowań GLM-ów w ubezpieczeniach:
+
+- **Modelowanie liczby szkód.** Doświadczenie związane z konkretną umową ubezpieczeniową jest generalnie rozkładane na liczbę szkód wraz z odpowiednimi kosztami tych szkód. Rozkład Poissona jest naturalnym kandydatem do modelowania liczby szkód zgłaszanych przez ubezpieczających. Typowe założenie w tych okolicznościach jest takie, że warunkowa średnia częstotliwość szkód może być zapisana jako funkcja wykładnicza liniowej oceny estymowanej na podstawie danych.
+- **Modelowanie wysokości szkód.** Ponieważ koszty szkód są nieujemne i dodatnio skośne, rozkłady Gamma i Odwrotny Gaussowski są naturalnymi kandydatami do ich modelowania. Tutaj również aktuariusze generalnie zakładają, że warunkowa średnia wysokość szkody może być zapisana jako wykładnicza funkcja liniowej oceny.
+- **Graduacja umieralności i chorobowości.** Aktuariusze są świadomi, że w przeżywalności ubezpieczających występuje duża heterogeniczność. Czynniki ryzyka wpływające na śmiertelność obejmują wiek, płeć, wykształcenie, dochód, zawód, stan cywilny i zachowania zdrowotne. Ogólnie rzecz biorąc, osoby o wyższym statusie społeczno-ekonomicznym mają tendencję do życia dłużej niż te z niższych grup społeczno-ekonomicznych. GLM-y dwumianowe i Poissona pozwalają aktuariuszowi na przeprowadzanie tego rodzaju klasyfikacji ryzyka w ubezpieczeniach na życie i zdrowotnych. Podejście zależy od rodzaju dostępnych danych: grupa otwarta lub zamknięta, dane indywidualne lub dane pogrupowane w przedziały według niektórych cech (takich jak np. suma ubezpieczenia).
+- **Modelowanie elastyczności.** Modele elastyczności dla nowych i wznowionych transakcji pomagają firmom ubezpieczeniowym przewidywać wpływ różnych działań (i podwyżek składek) na udział w rynku. Rentowność i modele elastyczności można następnie połączyć w celu podjęcia optymalnych decyzji cenowych.
+- **Rezerwacja strat.** Oprócz nadmiernie dyspersyjnego GLM Poissona odpowiadającego zagregowanej metodzie rezerwacji Chain-Ladder, GLM-y mogą być również stosowane w indywidualnej rezerwacji szkód w celu przewidywania czasu do rozliczenia w zależności od niektórych cech szkody, a także ostatecznej kwoty szkody. Pozwala to likwidatorom szkód na tworzenie bardziej odpowiednich rezerw i wczesną identyfikację roszczeń, które mogą być oszukańcze lub najprawdopodobniej zakończą się procesem sądowym.
+- **Analiza konkurencji.** GLM-y mogą być wykorzystane do odtworzenia komercyjnych cenników stosowanych przez konkurentów. Odbywa się to poprzez inżynierię wsteczną ich cennika. Pozwala to aktuariuszom na ekstrapolację składek premium na inne profile ryzyka poza te, dla których dostępne są oferty.
+
+Ten rozdział ma na celu staranne przejrzenie, krok po kroku, maszynerii GLM. Bardziej zaawansowane metody przedstawione w kolejnych rozdziałach można postrzegać jako rozszerzenia podstawowego podejścia GLM zaproponowanego w celu zaradzenia niektórym jego wadom. Dlatego głębokie zrozumienie mechanizmu GLM jest potrzebne i uzasadnia szczegółowe omówienie oferowane w tym rozdziale.
+
+Jak wspomniano powyżej, GLM-y opierają się na wyborze rozkładu (wyborze członka rodziny ED do modelowania losowych odchyleń od średniej), liniowej ocenie obejmującej dostępne cechy oraz założonej funkcji łączącej oczekiwaną odpowiedź i ocenę. Gdy aktuariusz wybierze te składniki zgodnie z rozważanymi danymi, wnioskowanie statystyczne jest przeprowadzane za pomocą przeglądanej w Rozdz. 3 zasady największej wiarygodności. Miary diagnostyczne pozwalają następnie aktuariuszowi zbadać względne zalety rozważanych modeli w celu wybrania optymalnego dla rozważanych danych ubezpieczeniowych. Całą analizę można przeprowadzić przy użyciu istniejącego oprogramowania, w tym swobodnie dostępnego, otwartego oprogramowania R używanego w tej książce.
+
+## 4.2 Struktura GLM-ów
+
+Podejście GLM jest przykładem modelowania regresyjnego lub nadzorowanego uczenia się. Model regresyjny ma na celu wyjaśnienie niektórych cech odpowiedzi, z pomocą cech działających jako zmienne objaśniające. W zastosowaniach ubezpieczeniowych aktuariusze zazwyczaj chcą wyjaśnić średnią wartość odpowiedzi wchodzącą w skład czystych składek: na przykład oczekiwaną liczbę szkód i odpowiadającą jej oczekiwaną składkę za szkodę.
+
+GLM-y oddzielają systematyczne cechy danych od losowych wariacji, które muszą być kompensowane przez ubezpieczenie. Cechy systematyczne są reprezentowane przez funkcję regresji, podczas gdy losowe wariacje są reprezentowane przez rozkład prawdopodobieństwa w rodzinie ED. Dokładniej, GLM składa się z trzech komponentów:
+- rozkładu odpowiedzi (losowy komponent) wybranego z rodziny ED,
+- liniowej oceny (komponent systematyczny), oraz
+- funkcji łączącej, która wiąże średnią odpowiedź z oceną obejmującą dostępne cechy.
+
+Komponent systematyczny podaje czystą składkę odpowiadającą obserwowalnym profilom ubezpieczających, podczas gdy komponent losowy reprezentuje zmienność, która ma być skompensowana przez ubezpieczyciela na mocy wzajemności lub solidarności losowej. Używając GLM, aktuariusz domyślnie zakłada, że wszystkie niezbędne informacje są dostępne (to znaczy, że wektory losowe $\boldsymbol{X}$ i $\boldsymbol{X}^{+}$ pokrywają się, zobacz notację w Sekcji 1.3.4). Jeśli tak nie jest, należy zamiast tego użyć modeli mieszanych (takich jak te badane w Rozdz. 5).
+
+### 4.2.1 Rozkład Odpowiedzi
+
+Rozważmy odpowiedzi $Y_1, Y_2, \dots, Y_n$ mierzone na $n$ osobach. Dla każdej odpowiedzi, aktuariusz ma informacje podsumowane w wektorze $\boldsymbol{x}_i = (1, x_{i1}, \dots, x_{ip})^\top$ wymiaru $p+1$ zawierającym odpowiadające mu cechy (uzupełnione o 1 z przodu, gdy w ocenie uwzględniony jest wyraz wolny, jak w większości zastosowań ubezpieczeniowych). Cechy zazwyczaj składają się z terminów polisy lub cech ubezpieczającego. Pomyśl o rodzaju typu pojazdu, wieku lub zakresie ubezpieczenia w ubezpieczeniach komunikacyjnych, lub rodzaju konstrukcji, dacie budowy lub kwocie ubezpieczenia w ubezpieczeniach domów. Ubezpieczyciele mają teraz dostęp do wielu zmiennych klasyfikacyjnych, które są oparte na warunkach polisy lub informacjach dostarczonych przez ubezpieczających, lub które zawarte są w zewnętrznych bazach danych. Czasami aktuariusz musi uzupełnić ubezpieczenie o dane bankowe lub telematyczne, znacznie rozszerzając dostępne informacje. Odtąd zakładamy, że cechy $x_{ij}$ zostały zarejestrowane bez błędów i brakujących wartości.
+
+Oprócz odpowiedzi, mamy cel, tj. interesującą nas wielkość. W taryfikacji celem jest czysta składka
+
+$$
+\mu(\boldsymbol{x}) = \mathrm{E}[Y | \boldsymbol{X} = \boldsymbol{x}],
+$$
+
+zwana także funkcją regresji. Zauważ, że celem nie jest odpowiedź $Y$ sama w sobie (jak byłoby w przypadku predykcji). Dzieje się tak, ponieważ aktuariusz chce określić czyste składki, czyli oczekiwane straty. Do celów taryfikacji aktuariusz nie jest zainteresowany przewidywaniem rzeczywistych strat jakiegokolwiek ubezpieczającego, ale raczej średnimi stratami dla jednorodnej grupy ubezpieczonych osób.
+
+Aktuariusze generalnie mają do czynienia z danymi obserwacyjnymi, tak że same cechy są zmiennymi losowymi. Analiza jest następnie przeprowadzana na próbie $(y_i, \boldsymbol{x}_i)$ obserwacji, które można rozumieć jako realizacje wektora losowego łączącego odpowiedź z wektorem cech. Jednak nie próbujemy modelować łącznego rozkładu tego wektora losowego. Zamiast tego, biorąc pod uwagę informacje zawarte w $\boldsymbol{x}_i$, odpowiedzi $Y_i$ zakłada się, że są niezależne z rozkładem warunkowym w rodzinie ED gruntownie zbadanym w Rozdz. 2. Warto zauważyć, że odpowiedzi nie muszą mieć identycznych rozkładów. W szczególności, $Y_i$ podlega rozkładowi (2.3) z określonym parametrem kanonicznym
+
+$$
+\theta_i = \theta(\boldsymbol{x}_i)
+$$
+
+wyrażonym w funkcji dostępnych cech $\boldsymbol{x}_i$, a ten sam parametr dyspersji $\phi$. Sposób, w jaki $\theta_i$ jest powiązany z informacjami zawartymi w $\boldsymbol{x}_i$, jest wyjaśniony dalej. Interesującą nas wielkością jest średnia odpowiedź specyficzna dla ubezpieczającego $\mu_i$ dana przez
+
+$$
+\mu_i = \mu(\boldsymbol{x}_i) = a'(\theta_i) = a'(\theta(\boldsymbol{x}_i)).
+$$
+
+Można uwzględnić określone wagi $\nu_i$ w celu uwzględnienia różnych ilości informacji, np. gdy $Y_i$ reprezentuje średnią wyników dla grupy jednorodnych ryzyk, a nie wynik pojedynczych ryzyk. Na przykład, odpowiedź może być średnią kwotą straty dla kilku roszczeń, wszystkie z tymi samymi cechami. Waga $\nu_i$ jest wtedy przyjmowana jako liczba strat wchodzących w skład średniej, w zastosowaniu Właściwości 2.4.2. Pomimo tej niezwykłej właściwości GLM-ów, pozwalającej aktuariuszowi na przeprowadzanie analiz na danych pogrupowanych, ważne jest, aby pamiętać, że zawsze jest preferowane nie agregowanie danych i zachowywanie jak największej liczby indywidualnych rekordów.
+
+W praktyce aktuarialnej wagi czasami odzwierciedlają również wiarygodność przypisaną danej obserwacji. Wagi pozwalają aktuariuszowi zidentyfikować odpowiedzi niosące więcej informacji. Ponieważ obserwacje o wyższych wagach mają mniejszą wariancję, dopasowanie modelu będzie bardziej pod wpływem tych punktów danych. Wrócimy do tego zagadnienia w kilku przypadkach w tym rozdziale podczas omawiania estymacji.
+
+### 4.2.2 Ocena Liniowa
+
+Ocena GLM dla odpowiedzi $Y_i$ jest zdefiniowana jako
+
+$$
+\text{score}_i = \boldsymbol{x}_i^\top \boldsymbol{\beta} = \beta_0 + \sum_{j=1}^p \beta_j x_{ij}, \quad i=1, 2, \dots, n,
+$$
+
+gdzie $\boldsymbol{\beta} = (\beta_0, \beta_1, \dots, \beta_p)^\top$ jest wektorem wymiaru $p+1$ zawierającym nieznane współczynniki regresji. Zatem $\beta_j$ są parametrami do estymacji na podstawie danych. Jak wskazano w Rozdz. 3, ocena odnosi się do liniowej kombinacji $\boldsymbol{x}_i^\top \boldsymbol{\beta}$ cech, a nie do oceny Fishera.
+
+Ilość $\beta_0$ odpowiada wszystkim wynikom. Nazywa się to wyrazem wolnym, ponieważ odpowiada ocenie dla osoby, dla której $x_{ij} = 0$ dla wszystkich $j=1, \dots, p$. Następnie, każda wielkość $\beta_j$ kwantyfikuje wpływ na ocenę wzrostu o jedną jednostkę w odpowiadającej jej cesze $x_{ij}$. Obecność wyrazu wolnego $\beta_0$ wyjaśnia, dlaczego pierwszy wpis wektora $\boldsymbol{x}_i$ to 1.
+
+Wyjaśnijmy znaczenie liniowości oceny. Słowo „liniowy” w GLM oznacza, że zmienne objaśniające są łączone liniowo, aby przewidzieć (funkcję) średniej. Liniowość w GLM-ach odnosi się do liniowości w współczynnikach $\beta_j$, a nie w cechach. Na przykład, oceny
+
+$$
+\text{score}_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i1}^2 \quad \text{i} \quad \text{score}_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_3 x_{i1}x_{i3}
+$$
+
+są obie „liniowe” w sensie GLM, pomimo kwadratu $x_{i1}^2$ i iloczynu $x_{i1}x_{i3}$. W rzeczywistości w GLM zawsze dozwolone jest przekształcanie cech $x_{ij}$, tworząc nowe, przekształcone cechy, takie jak $x_{ij}^2$ lub $x_{ij}x_{ik}$ (chociaż GAM-y oferują lepsze podejście do radzenia sobie z nieliniowymi efektami w skali oceny, jak zobaczymy w Rozdz. 6). Jednak ocena
+
+$$
+\text{score}_i = \beta_0 + \beta_1 x_{i1} + \exp(\beta_2 x_{i2})
+$$
+
+nie jest liniowa (i nie może być brana pod uwagę w ustawieniu GLM), więc takie nieliniowe oceny, które nie kwalifikują się do analizy GLM, będą rozważane w Rozdz. 8.
+
+### 4.2.3 Macierz Projektowa
+
+Wprowadźmy macierz $\boldsymbol{X}$, często nazywaną macierzą projektową w statystyce, otrzymaną przez powiązanie $\boldsymbol{x}_i$, wiersz po wierszu. Dokładniej, $i$-ty wiersz $\boldsymbol{X}$ jest $\boldsymbol{x}_i^\top$, tak że
+
+$$
+\boldsymbol{X} = \begin{pmatrix} \boldsymbol{x}_1^\top \\ \boldsymbol{x}_2^\top \\ \vdots \\ \boldsymbol{x}_n^\top \end{pmatrix} = \begin{pmatrix} 1 & x_{11} & \dots & x_{1p} \\ 1 & x_{21} & \dots & x_{2p} \\ \vdots & \vdots & \ddots & \vdots \\ 1 & x_{n1} & \dots & x_{np} \end{pmatrix}.
+$$
+
+Gdy model regresji zawiera wyraz wolny, macierz projektowa $\boldsymbol{X}$ zawiera kolumnę jedynek. Wektor $\boldsymbol{s}$ zbierający wyniki $s_1, \dots, s_n$ dla wszystkich $n$ odpowiedzi jest następnie otrzymywany z
+
+$$
+\boldsymbol{s} = (s_1, \dots, s_n)^\top = \boldsymbol{X}\boldsymbol{\beta}.
+$$
+
+W całym tym rozdziale zawsze zakładamy, że macierz projektowa $\boldsymbol{X}$ ma pełny rząd. To założenie jest naruszone, jeśli jedna z cech jest liniową kombinacją niektórych innych cech, co implikuje nadmiarowość informacji. Wrócimy do tego zagadnienia, omawiając współliniowość.
+
+Jako przykład, rozważmy zbiór danych wyświetlony w Tabeli 4.1 sklasyfikowany krzyżowo według płci posiadaczy polis (z dwoma poziomami, mężczyzna i kobieta) oraz zakresu ubezpieczenia (z trzema poziomami, obowiązkowe ubezpieczenie od odpowiedzialności cywilnej (zwane dalej TPL), ograniczone szkody i kompleksowe). Gdy cechy $x_{ij}$ są numeryczne, całkowite lub ciągłe, mogą one bezpośrednio wejść do oceny: ich wkład jest wtedy otrzymywany przez pomnożenie $x_{ij}$ przez odpowiadający mu współczynnik $\beta_j$. Jednakże, jakościowe lub kategoryczne dane muszą być najpierw przetworzone przed wejściem do obliczenia oceny. GLM-y efektywnie uwzględniają efekty cech kategorycznych przez „dummyfikację” włączenia do oceny, jak wyjaśniono w Przykładzie 1.4.3.
+
+Dwie cechy w Tabeli 4.1 są kategoryczne. Można je zakodować za pomocą cech binarnych. Dokładniej, każdego ubezpieczającego można reprezentować za pomocą wektora $\boldsymbol{x}_i = (1, x_{i1}, x_{i2}, x_{i3})^\top$ z trzema cechami binarnymi:
+
+$$
+\begin{aligned}
+x_{i1} &= \begin{cases} 1 & \text{jeśli posiadacz polisy } i \text{ jest kobietą} \\ 0 & \text{w przeciwnym razie} \end{cases} \\
+x_{i2} &= \begin{cases} 1 & \text{jeśli posiadacz polisy } i \text{ ma tylko TPL} \\ 0 & \text{w przeciwnym razie} \end{cases} \\
+x_{i3} &= \begin{cases} 1 & \text{jeśli posiadacz polisy } i \text{ ma ubezpieczenie kompleksowe} \\ 0 & \text{w przeciwnym razie}. \end{cases}
+\end{aligned}
+$$
+
+Tutaj wybraliśmy poziomy bazowe odpowiadające najbardziej zaludnionym kategoriom, a dokładniej kategorii o największej całkowitej ekspozycji: mężczyzna dla płci ($x_{i1} = 0$) i ograniczony zakres ubezpieczenia ($x_{i2} = x_{i3} = 0$). Powody tego wyboru staną się jaśniejsze później.
+
+Dane można następnie wyświetlić w formacie używanym do analizy statystycznej, jak pokazano w Tabeli 4.2. Zobaczymy w Sekcji 4.3.5, dlaczego analiza GLM może być przeprowadzona na danych zagregowanych w formie tabelarycznej zamiast na indywidualnych rekordach, bez utraty informacji. Dlatego indeks $i$ może odnosić się do pojedynczej polisy lub całej klasy ryzyka (jak to ma miejsce tutaj).
+
+Macierz projektowa dla danych wyświetlonych w Tabeli 4.1 to
+
+$$
+\boldsymbol{X} = \begin{pmatrix}
+1 & 0 & 1 & 0 \\
+1 & 0 & 0 & 0 \\
+1 & 0 & 0 & 1 \\
+1 & 1 & 1 & 0 \\
+1 & 1 & 0 & 0 \\
+1 & 1 & 0 & 1
+\end{pmatrix}.
+$$
+
+---
+**Tabela 4.1** Obserwowana liczba szkód wraz z odpowiadającymi jej ekspozycjami na ryzyko (w osobolatach) pojawiającymi się w nawiasach. Ubezpieczenia komunikacyjne, dane hipotetyczne.
+
+|           | Tylko TPL    | Ograniczone szkody | Kompleksowe |
+|-----------|--------------|--------------------|-------------|
+| **Mężczyźni** | 1,683        | 3,403              | 626         |
+|           | (10,000)     | (30,000)           | (5,000)     |
+| **Kobiety** | 873          | 2,423              | 766         |
+|           | (6,000)      | (24,000)           | (7,000)     |
+---
+
+---
+**Tabela 4.2** Dane z Tabeli 4.1 ułożone w formacie wejściowym do analizy GLM za pomocą oprogramowania statystycznego, takiego jak R.
+
+| $X_1$ | $X_2$ | $X_3$ | # szkód | Ekspozycja |
+|-------|-------|-------|---------|------------|
+| 0     | 1     | 0     | 1,683   | 10,000     |
+| 0     | 0     | 0     | 3,403   | 30,000     |
+| 0     | 0     | 1     | 626     | 5,000      |
+| 1     | 1     | 0     | 873     | 6,000      |
+| 1     | 0     | 0     | 2,423   | 24,000     |
+| 1     | 0     | 1     | 766     | 7,000      |
+---
+
+Odpowiadający wektor obserwacji to
+
+$$
+\boldsymbol{Y} = \begin{pmatrix}
+1,683 \\
+3,403 \\
+626 \\
+873 \\
+2,423 \\
+766
+\end{pmatrix}.
+$$
+
+### 4.2.4 Funkcja Łącząca
+
+#### 4.2.4.1 Łączenie Średniej z Oceną Liniową
+
+Zamiast utożsamiać średnią odpowiedź z oceną, jak w modelu regresji normalnej, istnieje jednoznaczne, różniczkowalne odwzorowanie mapujące średnią na ocenę liniową, zwane w żargonie GLM funkcją łączącą. W szczególności, średnia
+
+$$
+\mu_i = \mu(\boldsymbol{x}_i)
+$$
+
+odpowiedzi $Y_i, i = 1, 2, \dots, n$, jest powiązana z oceną obejmującą zmienne objaśniające za pomocą gładkiej i odwracalnej transformacji linearyzującej, to jest,
+
+$$
+g(\mu_i) = \text{score}_i.
+$$
+
+Funkcja $g$ jest monotoniczna, różniczkowalna i nazywana jest funkcją łączącą. Ponieważ funkcja łącząca $g$ jest jednoznaczna, możemy ją odwrócić, aby uzyskać
+
+$$
+g(\mu_i) = \text{score}_i \iff \mu_i = g^{-1}(\text{score}_i).
+$$
+
+Ważne jest, aby zdać sobie sprawę, że tutaj nie przekształcamy odpowiedzi $Y_i$, ale raczej jej oczekiwaną wartość $\mu_i$. Z punktu widzenia statystycznego, model, w którym $g(Y_i)$ jest liniowy w $\boldsymbol{x}_i$, nie jest taki sam jak GLM, w którym $g(\mu_i)$ jest liniowy w $\boldsymbol{x}_i$. Aby to zrozumieć, załóżmy, że $\ln Y_i \sim \mathcal{Nor}(\boldsymbol{x}_i^\top \boldsymbol{\beta}, \sigma^2)$. Chociaż model jest dopasowany w skali logarytmicznej, aktuariusz jest zainteresowany odpowiedziami w skali oryginalnej (w jednostkach monetarnych, dla kwot roszczeń). Jeśli estymowane wyniki $\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}}$ są potęgowane, aby wrócić do oryginalnej skali, $\exp(\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}})$ daje wartości dla mediany odpowiedzi, a nie dla średniej. Dla średniej, dopasowane wartości wynoszą
+
+$$
+\hat{\mu}_i = \exp\left(\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}} + \frac{\hat{\sigma}^2}{2}\right)
+$$
+
+zgodnie ze wzorem na matematyczną wartość oczekiwaną związaną z rozkładem LogNormalnym.
+
+Zauważ, że GLM jest modelem warunkowym, który określa rozkład odpowiedzi $Y_i$ przy danym wektorze cech $\boldsymbol{X}_i = (X_{i1}, X_{i2}, \dots, X_{ip})$. W szczególności, $Y_i$ przy danym $\boldsymbol{X}_i = \boldsymbol{x}_i$ podlega rozkładowi z rodziny ED z
+
+$$
+\mu(\boldsymbol{x}_i) = g^{-1}\left(\beta_0 + \sum_{j=1}^p \beta_j x_{ij}\right).
+$$
+
+Niemniej jednak ważne jest, aby zdać sobie sprawę, że losowy wektor $\boldsymbol{X}_i^\top = (X_{i1}, X_{i2}, \dots, X_{ip})$ może mieć złożoną strukturę zależności, która wpływa na oszacowanie $\boldsymbol{\beta}$, jak zobaczymy później. Ważne jest również, aby pamiętać, że bezwarunkowo, $Y_i$ nie podlega temu samemu rozkładowi. Na przykład, jeśli $Y_i$ przy danym $\boldsymbol{X}_i = \boldsymbol{x}_i$ podlega $\mathcal{Poi}(\exp(\boldsymbol{\beta}^\top \boldsymbol{x}_i))$, to bezwarunkowo, $Y_i$ oznacza losową zmienną $\exp(\boldsymbol{\beta}^\top \boldsymbol{X}_i)$ i mamy do czynienia z mieszanym rozkładem Poissona (badanym w Rozdz. 5).
+
+#### 4.2.4.2 Typowe Funkcje Łączące
+
+W zasadzie, każda monotoniczna, ciągła i różniczkowalna funkcja $g$ może być funkcją łączącą. Ale w praktyce jest kilka wygodnych i powszechnych wyborów dla standardowych GLM-ów. W GLM funkcja łącząca jest określana przez aktuarza, podczas gdy w modelu pojedynczego indeksu (SIM) jest ona estymowana na podstawie danych. SIM-y są również oparte na rozkładzie ED dla odpowiedzi i liniowej ocenie, ale funkcja łącząca jest estymowana na podstawie danych.
+
+Często średnia odpowiedź $\mu$ jest ograniczona (jest dodatnia lub zawarta w przedziale jednostkowym $[0, 1]$, na przykład). Ponieważ ocena liniowa nie jest ograniczona (może przyjmować dowolną wartość rzeczywistą, w zależności od znaku współczynników regresji $\beta_j$ i zakresu cech $x_{ij}$), funkcja łącząca może uwzględniać te warunki, tak że współczynniki regresji pozostają nieograniczone (co ułatwia maksymalizację wiarygodności w celu oszacowania $\boldsymbol{\beta}$). Zatem, jednym z celów funkcji łączącej jest odwzorowanie predyktora liniowego na zakres odpowiedzi.
+
+Oczywiście, nie chodzi o to, aby wybór funkcji łączącej był całkowicie determinowany przez zakres zmiennej odpowiedzi. Wybór funkcji łączącej musi być również oparty na danych. Podejście SIM pozwala aktuariuszowi oszacować $g$ na podstawie danych, bez wcześniejszego określania go. Ta nieparametryczna estymacja może służyć jako punkt odniesienia do wyboru odpowiedniej formy funkcjonalnej. Alternatywnie, niektóre wykresy diagnostyczne mogą być użyte do sprawdzenia adekwatności wybranej funkcji łączącej po dopasowaniu modelu. Oznacza to, że wybór $g$ nie jest czysto arbitralny i że w tym zakresie mogą pomóc niektóre procedury oparte na danych.
+
+Tabela 4.3 wymienia zwykłe funkcje łączące i ich odwrotności. Te funkcje łączące narzucają warunki na średnią $\mu_i$, a tym samym na zakres odpowiedzi $Y$. Na przykład, funkcje łączące kwadrat, pierwiastek kwadratowy i logarytm stosuje się tylko do wartości nieujemnych i dodatnich, odpowiednio. Ostatnie cztery funkcje łączące wymienione w Tabeli 4.3 są przeznaczone dla danych dwumianowych, gdzie $\mu_i$ reprezentuje prawdopodobieństwo sukcesu, a zatem należy do przedziału jednostkowego $[0, 1]$.
+
+W następnej sekcji omówimy teraz niektóre funkcje łączące, które są szczególnie przydatne dla aktuariuszy.
+
+---
+**Tabela 4.3** Typowe funkcje łączące i ich odwrotności. Tutaj $\mu_i$ to oczekiwana wartość odpowiedzi, $s_i$ to ocena, a $\Phi(\cdot)$ to dystrybuanta standardowego rozkładu normalnego $\mathcal{Nor}(0, 1)$.
+
+| Funkcja łącząca | $s_i = g(\mu_i)$ | $\mu_i = g^{-1}(s_i)$ |
+|----|----|----|
+| Tożsamościowa (Identity) | $\mu_i$ | $s_i$ |
+| Logarytmiczna (Log) | $\ln \mu_i$ | $\exp(s_i)$ |
+| Odwrotność (Inverse) | $\mu_i^{-1}$ | $s_i^{-1}$ |
+| Odwrotność kwadratu (Inverse-square) | $\mu_i^{-2}$ | $s_i^{-1/2}$ |
+| Pierwiastek kwadratowy (Square-root) | $\sqrt{\mu_i}$ | $s_i^2$ |
+| Logit | $\ln \frac{\mu_i}{1-\mu_i}$ | $\frac{\exp(s_i)}{1+\exp(s_i)}$ |
+| Probit | $\Phi^{-1}(\mu_i)$ | $\Phi(s_i)$ |
+| Log-log | $-\ln(-\ln \mu_i)$ | $\exp(-\exp(-s_i))$ |
+| Komplementarna log-log | $\ln(-\ln(1-\mu_i))$ | $1 - \exp(-\exp(s_i))$ |
+
+#### 4.2.4.3 Łącze Logarytmiczne
+
+Jak wyjaśniono wcześniej, obiecujący link usuwa ograniczenie na zakres oczekiwanej odpowiedzi. Na przykład, odpowiedź jest nieujemna w wielu zastosowaniach ubezpieczeniowych, gdzie reprezentuje częstotliwość szkód lub ciężkość szkody, tak że $\mu_i \ge 0$. Funkcja łącząca logarytmiczna usuwa wtedy to ograniczenie, ponieważ specyfikacja
+
+$$
+\ln \mu_i = \text{score}_i \iff \mu_i = \exp(\text{score}_i)
+$$
+
+zapewnia, że warunek ten jest zawsze spełniony. Funkcja łącząca logarytmiczna jest również często używana do budowy cenników, ponieważ zapewnia aktuariuszowi multiplikatywną strukturę taryfy:
+
+$$
+\exp(\text{score}_i) = \exp(\beta_0) \prod_{j=1}^p \exp(\beta_j x_{ij}).
+$$
+
+Wszystkie dopasowane wartości są wyrażone w odniesieniu do odpowiedzi referencyjnej ($\exp(\beta_0)$) odpowiadającej osobom z $x_{ij}=0$ dla wszystkich $j=1, \dots, p$. Czynniki $\exp(\beta_j x_{ij})$ wchodzące w skład iloczynu można następnie postrzegać jako korekty do $\exp(\beta_0)$, gdy $x_{ij} \ne 0$ dla niektórych $j.$
+
+Gdy wszystkie zmienne objaśniające są kategoryczne, każdy posiadacz polisy jest reprezentowany przez wektor $\boldsymbol{x}_i$ ze składnikami równymi 0 lub 1 (patrz Przykład 1.4.3). Jeśli $x_{ij} \in \{0, 1\}$ dla wszystkich $j=1, \dots, p$, to oczekiwana odpowiedź jest równa
+
+$$
+\exp(\boldsymbol{\beta}^\top \boldsymbol{x}_i) = \exp(\beta_0) \prod_{j|x_{ij}=1} \exp(\beta_j)
+$$
+
+gdzie
+
+$\exp(\beta_0)$ = oczekiwana odpowiedź odpowiadająca klasie referencyjnej, tj. $x_{ij} = 0$ dla wszystkich $j=1, 2, \dots, p$
+
+$\exp(\beta_j)$ = względny efekt $j$-tej cechy.
+
+Za każdym razem, gdy rozważany posiadacz polisy różni się od klasy referencyjnej, to jest, $x_{ij}=1$ dla niektórych $j$, $\exp(\beta_0)$ jest mnożone przez współczynnik korygujący postaci $\exp(\beta_j)$. Stąd znak $\beta_j$ ujawnia wpływ $j$-tej cechy na średnią odpowiedź: jeśli
+
+$$
+\beta_j > 0 \iff \exp(\beta_j) > 1
+$$
+
+wtedy $x_{ij}=1$ zwiększa oczekiwaną wartość w porównaniu do $x_{ij}=0$, podczas gdy jeśli
+
+$$
+\beta_j < 0 \iff \exp(\beta_j) < 1
+$$
+
+wtedy $x_{ij}=1$ zmniejsza oczekiwaną wartość w porównaniu do $x_{ij}=0$. Cechy ze związanym współczynnikiem $\beta_j>0$ wskazują zatem na profile wyższego ryzyka w porównaniu do tych referencyjnych, podczas gdy cechy z $\beta_j<0$ odpowiadają profilom niższego ryzyka.
+
+Czynniki $\exp(\beta_j)$, $j=1, \dots, p$, nazywane są względnościami, ponieważ odpowiadają stosunkom oczekiwanych odpowiedzi dla dwóch posiadaczy polis różniących się tylko $j$-tą cechą, przy czym stosunek ten jest równy 1 dla pierwszego (pojawiającego się w mianowniku) i 0 dla drugiego (pojawiającego się w liczniku). Formalnie, biorąc pod uwagę dwóch posiadaczy polis $i_1$ i $i_2$ takich, że
+
+$$
+x_{i_1 j} = 1, \quad x_{i_2 j} = 0, \quad x_{i_1 k} = x_{i_2 k} \text{ dla wszystkich } k \ne j,
+$$
+
+widzimy, że stosunek średnich odpowiedzi dla posiadaczy polis $i_1$ i $i_2$ zapisuje się jako
+
+$$
+\frac{\exp(\boldsymbol{x}_{i_1}^\top \boldsymbol{\beta})}{\exp(\boldsymbol{x}_{i_2}^\top \boldsymbol{\beta})} = \exp(\beta_j).
+$$
+
+Typowy wynik GLM z funkcją łączącą logarytmiczną jest następujący. Składka bazowa $\exp(\beta_0) = 100$ jest określana dla profilu referencyjnego w portfelu: powiedzmy, kierowca w średnim wieku, z dużym doświadczeniem, mieszkający w dużym mieście. Następnie, składki dla innych profili są uzyskiwane z
+
+$$\begin{align*}
+\text{składka bazowa } 100 &\times 0.9 \text{ dla kobiety-kierowcy} \\
+&\times 1.3 \text{ dla młodego, niedoświadczonego kierowcy} \\
+&\times 0.95 \text{ dla starszego kierowcy} \\
+&\times 0.9 \text{ dla kierowcy mieszkającego na przedmieściach} \\
+&\times 0.85 \text{ dla kierowcy mieszkającego na wsi} \\
+& \quad \text{ i tak dalej.}
+\end{align*}$$
+
+Czynniki 0.9, 1.3, 0.95, 0.9 i 0.85 wchodzące w skład ostatniego wzoru odpowiadają oszacowanym względnościom $\exp(\hat{\beta}_j)$. Wyrażony w ten sposób, wynik analizy GLM jest w pełni przejrzysty i łatwy do zakomunikowania wewnątrz firmy, pośrednikom, a także posiadaczom polis. Dlatego większość komercyjnych cenników ma strukturę multiplikatywną.
+
+#### 4.2.4.4 Łącza Logit, Probit i Log-Log
+
+Dla proporcji dwumianowych, średnia odpowiedź odpowiada prawdopodobieństwu sukcesu, tak że $\mu_i$ jest ograniczona do przedziału jednostkowego $[0, 1]$. Funkcje rozkładu są naturalnymi kandydatami do transformacji wyniku o wartościach rzeczywistych na średnią odpowiedź. Często stosowano rozkłady logistyczne i normalne, co dało początek tak zwanym funkcjom łączącym logit i probit. Komplementarna funkcja łącząca log-log jest dziedziczona z rozkładu Ekstremalnej Wartości.
+
+Funkcje łączące logit, probit i komplementarna log-log odwzorowują przedział jednostkowy $[0, 1]$ na całą oś rzeczywistą, usuwając ograniczenie na średnią odpowiedź. Łącze logit
+
+$$
+\ln \frac{\mu_i}{1-\mu_i} = \text{score}_i \iff \mu_i = \frac{\exp(\text{score}_i)}{1+\exp(\text{score}_i)} = \frac{1}{1+\exp(-\text{score}_i)}
+$$
+
+jest często stosowane dla prawdopodobieństw $\mu_i$ w zastosowaniach aktuarialnych. Typowym GLM do modelowania retencji i konwersji nowego biznesu jest GLM dwumianowy z funkcją łączącą logit (znany również jako regresja logistyczna). Jeśli prawdopodobieństwo sukcesu jest bliskie 0 (tak, że odpowiedź jest generalnie 0), to możliwe jest również użycie multiplikatywnego GLM Poissona jako aproksymacji, biorąc pod uwagę, że wynik multiplikatywnego GLM jest łatwiejszy do zakomunikowania nietechnicznej publiczności. Dzieje się tak, ponieważ masa prawdopodobieństwa jest prawie całkowicie skoncentrowana na $\{0, 1\}$, gdy średnia Poissona jest mała.
+
+Gdy $x_{ij} \in \{0, 1\}$ dla wszystkich $j=1, \dots, p$, widzimy, że
+
+$$
+\frac{\mu_i}{1-\mu_i} = \exp(\beta_0) \prod_{j|x_{ij}=1} \exp(\beta_j).
+$$
+
+Cechy $x_{ij}$ wchodzą zatem w tak zwany iloraz szans $\mu_i / (1-\mu_i)$ w sposób multiplikatywny. Jeśli $\mu_i$ jest małe, tak że $1-\mu_i \approx 1$, widzimy, że
+
+$$
+\mu_i \approx \exp(\beta_0) \prod_{j|x_{ij}=1} \exp(\beta_j)
+$$
+
+więc modele Poissona i regresji logistycznej dają podobne wyniki w tym przypadku. Model probit wykorzystuje dystrybuantę $\Phi$ rozkładu $\mathcal{Nor}(0, 1)$ do odwzorowania przedziału jednostkowego $[0, 1]$. Komplementarna funkcja łącząca log-log wykorzystuje rozkład Ekstremalnej (minimum) Wartości w tym celu. Ten link dokładnie łączy GLM-y Poissona i dwumianowe, jak pokazano dalej. Rozważmy $Y \sim \mathcal{Poi}(\mu)$ i zdefiniujmy obciętą odpowiedź $\tilde{Y} = \min\{1, Y\}$.
+
+Jeśli dla obciętej odpowiedzi $Y$ zastosowano funkcję łączącą logarytmiczną, tj. $\ln \mu = \text{score}$, to
+
+$$
+\begin{aligned}
+\mathrm{E}[\tilde{Y}] &= 1 - \mathrm{P}[\tilde{Y}=0] \\
+&= 1 - \exp(-\mu) \\
+&= 1 - \exp(-\exp(\text{score}))
+\end{aligned}
+$$
+
+gdzie rozpoznajemy komplementarną funkcję łączącą log-log. Stąd, komplementarna funkcja łącząca log-log łączy GLM-y Poissona i Bernoulliego. Ta konstrukcja pozwala również aktuariuszowi uwzględnić różne ekspozycje na ryzyko w modelu regresyjnym dla cech binarnych, poprzez określenie
+
+$$
+\mathrm{E}[\tilde{Y}] = 1 - \exp(-\exp(\ln e + \text{score}))
+$$
+
+gdzie ekspozycja na ryzyko $e$ staje się widoczna. Dokładniej, logarytm ekspozycji jest dodawany do oceny jako przesunięcie. Ten koncept odgrywa kluczową rolę w wielu zastosowaniach ubezpieczeniowych. Jest badany szczegółowo w Sekcji 4.3.7.
+
+#### 4.2.4.5 Łącza Kanoniczne
+
+Gdy funkcja łącząca sprawia, że ocena jest taka sama jak parametr kanoniczny, nazywa się to łączem kanonicznym. Formalnie, kanoniczna funkcja łącząca jest taka, że tożsamość
+
+$$
+\theta_i = \text{score}_i
+$$
+
+jest prawdziwa. Ponieważ $g(\mu_i) = \text{score}_i$ i $\mu_i = a'(\theta_i)$, łącze kanoniczne jest zdefiniowane jako
+
+$$
+\theta_i = \text{score}_i \iff g(a'(\theta_i)) = \theta_i \implies g^{-1} = a'.
+$$
+
+Zatem, funkcja kumulacyjna $a(\cdot)$ określa kanoniczną funkcję łączącą, tak że każdy rozkład ED posiada własne specyficzne łącze kanoniczne. Na przykład, w przypadku Poissona wiemy, że $a(\theta) = \exp(\theta)$. Stąd kanoniczna funkcja łącząca jest $a'(\theta) = \exp(\theta)$, co daje funkcję łączącą logarytmiczną. Tabela 4.4 podsumowuje kanoniczne funkcje łączące dla głównych rozkładów ED.
+
+Kanoniczny parametr znacznie upraszcza analizę opartą na GLM, ale inne funkcje łączące mogą być również używane. Jest to właśnie wielka siła podejścia GLM. Często w przeszłości aktuariusze przekształcali odpowiedź przed normalną analizą regresji liniowej (taką jak modelowanie logarytmiczno-normalne). Jednak ta sama transformacja musiała jednocześnie uczynić przekształconą odpowiedź w przybliżeniu normalnie rozłożoną i średnią przekształconej odpowiedzi liniową w zmiennych objaśniających, tj.
+
+$$
+\mathrm{E}[g(Y_i)] = \beta_0 + \sum_{j=1}^p \beta_j x_{ij}.
+$$
+
+W GLM modelowana jest przekształcona wartość oczekiwana odpowiedzi, tj.
+
+$$
+g(\mathrm{E}[Y_i]) = \beta_0 + \sum_{j=1}^p \beta_j x_{ij}
+$$
+
+tak że jedyną rolą $g$ jest uczynienie oczekiwanej odpowiedzi liniową w cechach $x_{ij}$ w tej konkretnej skali (zwanej skalą oceny), a nie renderowanie odpowiedzi $Y_i$ w przybliżeniu normalnie rozłożonej w zmodyfikowanej skali. W GLM rozkład odpowiedzi jest wybierany z rodziny ED zgodnie z charakterystyką obserwowanych danych. Nie ma a priori transformacji odpowiedzi, tak aby podlegała ona danemu rozkładowi. Gdy tylko funkcja łącząca $g$ nie jest liniowa, te dwa podejścia różnią się (choć są podobne w duchu).
+
+---
+**Tabela 4.4** Przykłady kanonicznych funkcji łączących. Zauważ, że kanoniczne łącze to $\mu^\xi$ dla rozkładów Gamma i Odwrotnego Gaussa, ale znak minus jest generalnie usuwany, a także dzielenie przez 2 w przypadku Odwrotnego Gaussa.
+
+| Funkcja łącząca | $g(\mu)$                | Kanoniczne łącze dla |
+|-----------------|-------------------------|----------------------|
+| Tożsamościowa   | $\mu$                   | Normalny             |
+| Logarytmiczna   | $\ln \mu$               | Poisson              |
+| Potęgowa        | $\mu^\xi$               | Gamma ($\xi = -1$)   |
+|                 |                         | Odwrotny Gauss ($\xi = -2$) |
+| Logit           | $\ln \frac{\mu}{1-\mu}$ | Dwumianowy           |
+---
+
+### 4.2.5 Interakcje
+
+Interakcja powstaje, gdy wpływ określonego czynnika ryzyka zależy od wartości innego. Przykładem w ubezpieczeniach komunikacyjnych jest zależność wieku kierowcy od płci: często młode kobiety-kierowcy powodują mniej roszczeń w porównaniu z młodymi mężczyznami, podczas gdy ta różnica płci zanika (a czasem nawet odwraca się) w starszym wieku. Stąd wpływ wieku zależy od płci. W przeciwieństwie do technik regresji rozważanych w kolejnych tomach, takich jak metody oparte na drzewach, GLM-y nie uwzględniają automatycznie interakcji, a takie efekty muszą być ręcznie wprowadzane do oceny.
+
+Aby właściwie zrozumieć interakcje, pomyśl o rozwinięciu Taylora średniej funkcji w skali oceny:
+
+$$
+g(\mathrm{E}[Y | \boldsymbol{X} = \boldsymbol{x}]) \approx \beta_0 + \sum_{j=1}^p \beta_j x_{ij}
+$$
+
+kiedy $\frac{\partial^2}{\partial x_j \partial x_k} g(\mathrm{E}[Y | \boldsymbol{X} = \boldsymbol{x}]) = 0$. W tym ustawieniu,
+
+$$
+\beta_0 = g(\mathrm{E}[Y | \boldsymbol{X} = \boldsymbol{0}])
+$$
+
+i
+
+$$
+\beta_j = \left. \frac{\partial}{\partial x_j} g(\mathrm{E}[Y | \boldsymbol{X} = \boldsymbol{x}]) \right|_{\boldsymbol{x}=\boldsymbol{0}}.
+$$
+
+Oznacza to, że ocena zawiera tylko główne efekty cech i jest zatem addytywna. Teraz, jeśli cechy oddziałują na siebie, drugie mieszane pochodne cząstkowe nie są już zerowe, a dokładniejsza aproksymacja prawdziwej funkcji regresji jest dana przez
+
+$$
+g(\mathrm{E}[Y | \boldsymbol{X} = \boldsymbol{x}]) \approx \beta_0 + \sum_{j=1}^p \beta_j x_{ij} + \sum_{j=1}^p \sum_{k \ge j+1} \gamma_{jk} x_{ij} x_{ik}
+$$
+
+gdzie
+
+$$
+\gamma_{jk} = \left. \frac{\partial^2}{\partial x_j \partial x_k} g(\mathrm{E}[Y | \boldsymbol{X} = \boldsymbol{x}]) \right|_{\boldsymbol{x}=\boldsymbol{0}}.
+$$
+
+Zauważ, że w tym podejściu, termin interakcji może istnieć tylko wtedy, gdy uwzględnione są również główne terminy. Dlatego generalnie zaleca się włączanie interakcji tylko wtedy, gdy w ocenie wchodzą również efekty główne.
+
+Rozważmy model z dwiema ciągłymi cechami i oceną postaci
+
+$$
+\text{score}_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_3 x_{i1} x_{i2}.
+$$
+
+Ocena liniowa obejmuje trzecią cechę $x_{i3} = x_{i1} x_{i2}$, zwaną terminem interakcji, zbudowaną z dwóch pierwszych. Włączenie iloczynu $x_{i1} x_{i2}$ do oceny indukuje interakcje, ponieważ wzrost o jednostkę $x_{i1}$ zwiększa ocenę liniową o $\beta_1 + \beta_3 x_{i2}$, a zatem wpływ pierwszej cechy zależy od drugiej. Podobnie, wpływ wzrostu o jednostkę $x_{i2}$ wynosi $\beta_2 + \beta_3 x_{i1}$, co zależy od $x_{i1}$. Te dwie cechy oddziałują na siebie. Zmienne $x_{i1}$ i $x_{i2}$ nazywane są efektami głównymi i odróżnia się je od terminu interakcji $x_{i3} = x_{i1} x_{i2}$.
+
+Iloczyn $x_{i1} x_{i2}$ wchodzący do oceny pochodzi z ograniczonego rozwinięcia Taylora bardziej ogólnej funkcji kombinacji $h(x_{i1}, x_{i2})$ w skali oceny. W tym sensie, GAM-y wprowadzone w Rozdz. 6 pozwalają aktuariuszowi na włączenie bardziej elastycznych interakcji do modelu poprzez estymację gładkich funkcji $h(\cdot, \cdot)$. Interakcje są również skutecznie przechwytywane za pomocą metod opartych na drzewach (prezentowanych w Trufin et al. 2019) i sieci neuronowych (prezentowanych w Hainaut et al. 2019).
+
+Interakcja zwykłej cechy ilościowej z cechą binarną jest również często przydatna w zastosowaniach ubezpieczeniowych. Załóżmy, że $x_{i1}$ jest ciągła, a $x_{i2}$ jest wskaźnikiem przyjmującym wartości 0 i 1. Wtedy ocena jest dana przez
+
+$$
+\begin{aligned}
+\text{score}_i &= \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_3 x_{i1} x_{i2} \\
+&= \begin{cases} \beta_0 + \beta_1 x_{i1} & \text{jeśli } x_{i2} = 0 \\ \beta_0 + \beta_2 + (\beta_1 + \beta_3) x_{i1} & \text{jeśli } x_{i2} = 1. \end{cases}
+\end{aligned}
+$$
+
+Wpływ $x_{i1}$ (to jest, wyraz wolny i nachylenie) zależy od grupy wskazanej przez $x_{i2}$.
+
+### 4.2.6 Podsumowanie Założeń dla Regresji z GLM-ami
+
+Podsumowując, podejście GLM do modelowania danych ubezpieczeniowych wychodzi z następujących założeń:
+
+- **Odpowiedź $Y_i$ podlegająca rozkładowi ED** z funkcją masy prawdopodobieństwa lub funkcją gęstości prawdopodobieństwa postaci
+    $$
+    f_{\theta_i}(y) = \exp\left(\frac{y\theta_i - a(\theta_i)}{\phi/v_i}\right) c(y, \phi/v_i)
+    $$
+
+    ze wspólnym parametrem dyspersji $\phi$ i określonymi wagami $v_i$.
+
+- **Ocena liniowa**
+    $$
+    \text{score}_i = \text{score}(\boldsymbol{x}_i) = \boldsymbol{x}_i^\top \boldsymbol{\beta} = \beta_0 + \sum_{j=1}^p \beta_j x_{ij}.
+    $$
+
+- **Modelowanie średniej:** oczekiwana odpowiedź $\mu_i = \mu(\boldsymbol{x}_i)$ postaci
+    $$
+    \begin{aligned}
+    a'(\theta_i) &= \mu_i \\
+    g(\mu_i) &= \text{score}_i \iff \mu_i = g^{-1}(\text{score}_i) \\
+    g &\in \{\text{ln, logit, \dots}\}.
+    \end{aligned}
+    $$
+
+- **Monotoniczna funkcja łącząca $g$** jest określana przez aktuariusza, a nie estymowana na podstawie danych.
+
+Zauważ, że wybór rozkładu ED sprowadza się do określenia funkcji kumulacyjnej $a(\cdot)$, więc jest to równoważne z wyborem funkcji wariancji $V(\cdot) = a''(\cdot)$ odzwierciedlającej zależność średnia-wariancja popartą rozważanymi danymi.
+
 ## 4.5 Dewiancja
 
 ### 4.5.3 Dewiancja
