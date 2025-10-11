@@ -2337,3 +2337,82 @@ N_i = \max\{k | T_{i0} + T_{i1} + \dots + T_{ik} \le e_i\}.
 $$
 
 Regresja gamma na okresach oczekiwania $W_{ik}$ jest zatem równoważna regresji Poissona na liczbie szkód.
+
+## 4.11 Quasi-Wiarygodność, M-Estymacja i Pseudo-Wiarygodność
+
+### 4.11.1 Estymacja Quasi-Wiarygodności
+
+Wiemy, że wybór rozkładu do przeprowadzenia analizy GLM jest równoznaczny z wyborem funkcji wariancji, która wiąże wariancję odpowiedzi ze średnią. Algorytm IRLS (iteracyjnie ważonych najmniejszych kwadratów) uwzględnia jedynie warunkową średnią i wariancję odpowiedzi $Y_i$, biorąc pod uwagę cechy $x_i$. Dokładniej, o ile możemy wyrazić transformowaną średnią odpowiedzi $Y_i$ jako funkcję liniową cech $x_i$ i zapisać funkcję wariancji dla $Y_i$ (wyrażając warunkową wariancję $Y_i$ jako funkcję jej średniej $\mu_i$ i parametru dyspersji $\phi$), możemy zastosować algorytm IRLS i uzyskać oszacowane współczynniki regresji. Możemy to zrobić nawet bez pełnego specyfikowania rozkładu dla $Y_i$.
+
+Podejście to jest określane jako estymacja quasi-wiarygodności i zachowuje wiele dobrych właściwości estymacji największej wiarygodności, pod warunkiem, że próba jest wystarczająco duża (co jest generalnie prawdą w zastosowaniach ubezpieczeniowych). Chociaż estymatory quasi-wiarygodności mogą nie być asymptotycznie nieobciążone, są one zgodne (consistent) i asymptotycznie normalne, z macierzą wariancji-kowariancji, którą można oszacować na podstawie danych. Quasi-wiarygodność jest analogiczna do estymacji metodą najmniejszych kwadratów z potencjalnie nienormalnymi odpowiedziami: o ile zależność między odpowiedzią a zmiennymi objaśniającymi jest liniowa, wariancja jest stała, a obserwacje są wzajemnie niezależne, estymacja metodą najmniejszych kwadratów ma zastosowanie. Wnioskowanie jest dość odporne na brak normalności, o ile próba jest duża. Biorąc pod uwagę ramy GLM, ważną częścią specyfikacji modelu jest funkcja łącząca i funkcje wariancji, podczas gdy wnioski analizy regresji są mniej wrażliwe na faktyczny rozkład odpowiedzi w dużych próbach.
+
+Istnieje zaleta stosowania podejścia quasi-wiarygodności dla modeli z funkcjami wariancji odpowiadającymi rozkładom dwumianowemu i Poissona. Zwykłe GLM dwumianowe i Poissona zakładają $\phi = 1$, podczas gdy odpowiadające im GLM quasi-dwumianowe i quasi-Poissona pozwalają, aby dyspersja $\phi$ była wolnym parametrem. Jest to szczególnie przydatne w modelowaniu naddyspersji (overdispersion), która jest powszechnie obecna w danych dotyczących liczby szkód ubezpieczeniowych, a także niedodyspersji (underdispersion) wynikającej z sumowania wskaźników Bernoulliego o różnych prawdopodobieństwach sukcesu.
+
+Naddyspersja odnosi się do sytuacji, w której warunkowa wariancja odpowiedzi jest większa niż wariancja implikowana przez rozkład ED (Exponential Dispersion) użyty do dopasowania modelu. Oznacza to, że $\text{Var}[Y|\boldsymbol{X}=\boldsymbol{x}] > \text{E}[Y|\boldsymbol{X}=\boldsymbol{x}]$ w przypadku Poissona. Istnieje kilka powodów, dla których w danych pojawia się naddyspersja, w tym:
+
+-   odpowiedzi $Y_{i1}$ i $Y_{i2}$ nie mają tego samego rozkładu, mimo że dzielą te same cechy $\boldsymbol{x}_{i1} = \boldsymbol{x}_{i2}$. Dzieje się tak, ponieważ brakuje pewnych informacji i istnieje pewna resztkowa, niemodelowana heterogeniczność.
+-   obserwacje mogą być skorelowane lub sklastrowane, podczas gdy określona struktura kowariancji błędnie zakłada dane niezależne.
+
+Model quasi-Poissona jest przykładem podejścia quasi-wiarygodności, estymującego średnią odpowiedź z wariancją równą $\phi\mu$ (rozszerzając model Poissona, dla którego $\phi=1$). Naddyspersyjny Poisson, czyli ODP (overdispersed Poisson), odnosi się do konkretnego przypadku, w którym $\phi>1$. W rezerwach szkodowych ODP jest często używany.
+
+### 4.11.2 M-Estymacja
+
+Estymacja największej wiarygodności, a także metoda sum marginalnych (MMT) i quasi-wiarygodność, mogą być postrzegane jako szczególne przypadki M-estymacji. M-estymacja oferuje metodę estymacji parametrów regresji, gdy istnieje $p+1$ funkcji estymujących $\psi_0, \dots, \psi_p$ takich, że układ
+
+$$
+\text{E}[\psi_j(Y, \boldsymbol{x}, \boldsymbol{\beta})] = 0 \quad \text{dla} \quad j = 0, 1, \dots, p,
+$$
+
+jednoznacznie wyznacza $\boldsymbol{\beta}$. Wtedy, przy pewnych warunkach regularności, $\boldsymbol{\beta}$ może być estymowane za pomocą M-estymatora $\hat{\boldsymbol{\beta}}$ zdefiniowanego niejawnie jako rozwiązanie
+
+$$
+\frac{1}{n}\sum_{i=1}^{n} \psi_j(y_i, \boldsymbol{x}_i, \boldsymbol{\beta}) = 0 \quad \text{dla} \quad j = 0, 1, \dots, p.
+$$
+
+W szczególności, $\psi_j$ może być pochodną cząstkową funkcji celu $\Psi$, to jest,
+
+$$
+\psi_j(y, \boldsymbol{x}, \boldsymbol{\beta}) = \frac{\partial}{\partial\boldsymbol{\beta}_j}\Psi(y, \boldsymbol{x}, \boldsymbol{\beta}) \quad \text{dla} \quad j = 0, 1, \dots, p.
+$$
+
+W takim przypadku M-estymatory maksymalizują (lub minimalizują) $\Psi$. W łagodnych warunkach technicznych estymator maksymalizujący
+
+$$
+\Psi_n = \frac{1}{n}\sum_{i=1}^{n} \Psi(y_i, \boldsymbol{x}_i, \boldsymbol{\beta})
+$$
+
+jest zgodny i ma rozkład asymptotyczny Normalny, jeśli funkcja graniczna $\Psi_{\infty} = \lim_{n\to\infty} \Psi_n$ istnieje i ma jednoznaczne maksimum przy prawdziwej wartości parametru. Macierz wariancji-kowariancji dla dużych prób można uzyskać za pomocą tak zwanych formuł sandwich, które są dostępne w R.
+
+Przykłady M-estymacji obejmują:
+(i) największą wiarygodność (gdzie $\Psi$ jest log-wiarygodnością),
+(ii) najmniejsze kwadraty (gdzie $\Psi$ jest sumą kwadratów reszt),
+(iii) quasi-wiarygodność przy założeniu, że $\text{E}[Y_i] = \mu_i(\boldsymbol{\beta})$ i $\text{Var}[Y_i] = \phi V(\mu_i(\boldsymbol{\beta}))$ oraz estymacji $\boldsymbol{\beta}$ jako rozwiązania
+
+$$
+\sum_{i=1}^{n} \frac{\partial\mu_i}{\partial\boldsymbol{\beta}} \frac{y_i - \mu_i}{V(\mu_i(\boldsymbol{\beta}))} = \boldsymbol{0}.
+$$
+
+To oznacza, że estymatory największej wiarygodności ED pozostają zgodne dla znacznie szerszej klasy rozkładów, o ile średnia i wariancja są poprawnie określone. Rozszerza się to również na wyniki wielowymiarowe, w którym to przypadku nazywa się to Uogólnionymi Równaniami Estymującymi (GEE, zob. Rozdz. 5).
+
+### 4.11.3 Pseudo-Największa Wiarygodność
+
+W podejściu pseudo-największej wiarygodności (lub PML), jedynym założeniem dotyczącym danych jest to, że średnia $Y_i$ należy do danej rodziny funkcji cech $x_i$. Dokładniej, istnieje funkcja $m$ taka, że
+
+$$
+\text{E}[Y_i|\boldsymbol{x}_i] = m(\boldsymbol{x}_i, \boldsymbol{\beta}).
+$$
+
+Często w zastosowaniach aktuarialnych funkcja $m$ jest określona jako $m(\boldsymbol{x}_i, \boldsymbol{\beta}) = \exp(\boldsymbol{\beta}^T\boldsymbol{x}_i)$. Następnie parametry są estymowane przez maksymalizację wiarygodności, która nie jest oparta na prawdziwym rozkładzie danych (stąd nazwa, pseudo-największa wiarygodność).
+Ideą jest znalezienie rodziny $f(y, m)$ funkcji gęstości prawdopodobieństwa indeksowanych przez ich średnią $m$ w taki sposób, że maksymalizacja funkcji pseudo-wiarygodności
+
+$$
+\prod_{i=1}^{n} f(y_i, m(\boldsymbol{x}_i, \boldsymbol{\beta}))
+$$
+
+dostarcza aktuariuszowi zgodnego i asymptotycznie Normalnego estymatora $\hat{\boldsymbol{\beta}}$ parametru $\boldsymbol{\beta}$. Zatem PML jest szczególnym przypadkiem M-estymacji, uzyskanym przez rozważenie jako funkcji celu funkcji pseudo-wiarygodności. Zgodność i asymptotyczna normalność zachodzą wtedy i tylko wtedy, gdy wybrana funkcja gęstości pseudo-wiarygodności ma postać
+
+$$
+f(y, m) = \exp(a(m) + b(y) + c(y)m)
+$$
+
+dla pewnych funkcji $a, b, c$, co wydaje się być bardzo podobne do specyfikacji ED (2.3). Dokładniej, rozkład normalny (ze znaną wariancją), rozkład Poissona i rozkład Gamma (ze znanym parametrem skali) mają funkcje gęstości tej postaci. Odpowiadające im funkcje pseudo-wiarygodności produkują zgodne i asymptotycznie Normalne estymatory, niezależnie od prawdziwego rozkładu bazowego.
