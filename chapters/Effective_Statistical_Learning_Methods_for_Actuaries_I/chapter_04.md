@@ -186,10 +186,10 @@ $$
 g(\mu_i) = \text{score}_i \iff \mu_i = g^{-1}(\text{score}_i).
 $$
 
-Ważne jest, aby zdać sobie sprawę, że tutaj nie przekształcamy odpowiedzi $Y_i$, ale raczej jej oczekiwaną wartość $\mu_i$. Z punktu widzenia statystycznego, model, w którym $g(Y_i)$ jest liniowy w $\boldsymbol{x}_i$, nie jest taki sam jak GLM, w którym $g(\mu_i)$ jest liniowy w $\boldsymbol{x}_i$. Aby to zrozumieć, załóżmy, że $\ln Y_i \sim \mathcal{Nororor}(\boldsymbol{x}_i^\top \boldsymbol{\beta}, \sigma^2)$. Chociaż model jest dopasowany w skali logarytmicznej, aktuariusz jest zainteresowany odpowiedziami w skali oryginalnej (w jednostkach monetarnych, dla kwot roszczeń). Jeśli estymowane wyniki $\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}}$ są potęgowane, aby wrócić do oryginalnej skali, $\exp(\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}})$ daje wartości dla mediany odpowiedzi, a nie dla średniej. Dla średniej, dopasowane wartości wynoszą
+Ważne jest, aby zdać sobie sprawę, że tutaj nie przekształcamy odpowiedzi $Y_i$, ale raczej jej oczekiwaną wartość $\mu_i$. Z punktu widzenia statystycznego, model, w którym $g(Y_i)$ jest liniowy w $\boldsymbol{x}_i$, nie jest taki sam jak GLM, w którym $g(\mu_i)$ jest liniowy w $\boldsymbol{x}_i$. Aby to zrozumieć, załóżmy, że $\ln Y_i \sim \mathcal{Norororor}(\boldsymbol{x}_i^\top \boldsymbol{\beta}, \boldsymbol{\sigma}^2)$. Chociaż model jest dopasowany w skali logarytmicznej, aktuariusz jest zainteresowany odpowiedziami w skali oryginalnej (w jednostkach monetarnych, dla kwot roszczeń). Jeśli estymowane wyniki $\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}}$ są potęgowane, aby wrócić do oryginalnej skali, $\exp(\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}})$ daje wartości dla mediany odpowiedzi, a nie dla średniej. Dla średniej, dopasowane wartości wynoszą
 
 $$
-\hat{\mu}_i = \exp\left(\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}} + \frac{\hat{\sigma}^2}{2}\right)
+\hat{\mu}_i = \exp\left(\boldsymbol{x}_i^\top \hat{\boldsymbol{\beta}} + \frac{\hat{\boldsymbol{\sigma}}^2}{2}\right)
 $$
 
 zgodnie ze wzorem na matematyczną wartość oczekiwaną związaną z rozkładem LogNormalnym.
@@ -215,7 +215,7 @@ Tabela 4.3 wymienia zwykłe funkcje łączące i ich odwrotności. Te funkcje ł
 W następnej sekcji omówimy teraz niektóre funkcje łączące, które są szczególnie przydatne dla aktuariuszy.
 
 ---
-**Tabela 4.3** Typowe funkcje łączące i ich odwrotności. Tutaj $\mu_i$ to oczekiwana wartość odpowiedzi, $s_i$ to ocena, a $\Phi(\cdot)$ to dystrybuanta standardowego rozkładu normalnego $\mathcal{Nororor}(0, 1)$.
+**Tabela 4.3** Typowe funkcje łączące i ich odwrotności. Tutaj $\mu_i$ to oczekiwana wartość odpowiedzi, $s_i$ to ocena, a $\Phi(\cdot)$ to dystrybuanta standardowego rozkładu normalnego $\mathcal{Norororor}(0, 1)$.
 
 | Funkcja łącząca | $s_i = g(\mu_i)$ | $\mu_i = g^{-1}(s_i)$ |
 |----|----|----|
@@ -320,7 +320,7 @@ $$
 \mu_i \approx \exp(\beta_0) \prod_{j|x_{ij}=1} \exp(\beta_j)
 $$
 
-więc modele Poissona i regresji logistycznej dają podobne wyniki w tym przypadku. Model probit wykorzystuje dystrybuantę $\Phi$ rozkładu $\mathcal{Nororor}(0, 1)$ do odwzorowania przedziału jednostkowego $[0, 1]$. Komplementarna funkcja łącząca log-log wykorzystuje rozkład Ekstremalnej (minimum) Wartości w tym celu. Ten link dokładnie łączy GLM-y Poissona i dwumianowe, jak pokazano dalej. Rozważmy $Y \sim \mathcal{Poi}(\mu)$ i zdefiniujmy obciętą odpowiedź $\tilde{Y} = \min\{1, Y\}$.
+więc modele Poissona i regresji logistycznej dają podobne wyniki w tym przypadku. Model probit wykorzystuje dystrybuantę $\Phi$ rozkładu $\mathcal{Norororor}(0, 1)$ do odwzorowania przedziału jednostkowego $[0, 1]$. Komplementarna funkcja łącząca log-log wykorzystuje rozkład Ekstremalnej (minimum) Wartości w tym celu. Ten link dokładnie łączy GLM-y Poissona i dwumianowe, jak pokazano dalej. Rozważmy $Y \sim \mathcal{Poi}(\mu)$ i zdefiniujmy obciętą odpowiedź $\tilde{Y} = \min\{1, Y\}$.
 
 Jeśli dla obciętej odpowiedzi $Y$ zastosowano funkcję łączącą logarytmiczną, tj. $\ln \mu = \text{score}$, to
 
@@ -794,7 +794,7 @@ gdzie $\text{offset}_i$ oznacza przesunięcie specyficzne dla $i$-tej osoby.
 W modelu regresji liniowej normalnej mamy
 
 $$
-Y_i = \text{offset}_i + \boldsymbol{x}_i^\top \boldsymbol{\beta} + Z_i \quad \text{gdzie } Z_i \sim \mathcal{Nororor}(0, \sigma^2).
+Y_i = \text{offset}_i + \boldsymbol{x}_i^\top \boldsymbol{\beta} + Z_i \quad \text{gdzie } Z_i \sim \mathcal{Norororor}(0, \boldsymbol{\sigma}^2).
 $$
 
 Ponieważ przesunięcie jest znaną wielkością, jest to równoważne odjęciu tej wielkości od odpowiedzi $Y_i$ przed uruchomieniem regresji na $Y_i - \text{offset}_i$. Ta ostatnia wielkość może być traktowana jako reszta, do wyjaśnienia przez $\boldsymbol{x}_i$. To dlatego przesunięcia nie są omawiane w normalnej regresji liniowej z łączem tożsamościowym. Czasami przesunięcie odpowiada dopasowanym wartościom $\hat{\mu}_i$ dla średniej $Y_i$ uzyskanej z poprzedniego modelu regresji. Wtedy, przesunięcie jest równoważne użyciu reszt z wstępnej regresji odpowiedzi (która stanowi podstawę boosting, jak zobaczymy w Rozdz. 6).
@@ -872,7 +872,7 @@ To podejście może być również użyte do wykazania, że w niektórych bardzo
 Nawet jeśli symetryczna zmienna losowa o rozkładzie normalnym ze stałą wariancją nie opisuje adekwatnie ani liczby szkód, ani kwot szkód, klasyczny model liniowej regresji normalnej pozostaje mimo wszystko bardzo użyteczny do dopasowywania GLM. Algorytm iteracyjny używany do estymacji współczynników regresji w GLM w rzeczywistości wykorzystuje model liniowej regresji normalnej na każdym kroku, stosując go do odpowiedzi roboczych (working responses) wyprowadzonych z rzeczywistych, co zostanie pokazane w następnej sekcji. Dlatego zaczniemy od przypomnienia estymacji współczynników regresji w modelu wielorakiej regresji liniowej
 
 $$
-Y_i \sim \mathcal{Noror} \left( \text{score}_i, \frac{\sigma^2}{v_i} \right), \quad i=1, 2, \dots, n, \text{ gdzie } \text{score}_i = \boldsymbol{x}_i^\top \boldsymbol{\beta}.
+Y_i \sim \mathcal{Nororor} \left( \text{score}_i, \frac{\boldsymbol{\sigma}^2}{v_i} \right), \quad i=1, 2, \dots, n, \text{ gdzie } \text{score}_i = \boldsymbol{x}_i^\top \boldsymbol{\beta}.
 $$
 
 To jest normalny GLM z funkcją łączącą tożsamościową. Zatem pracujemy z łączem kanonicznym, a równania wiarygodności zapisują się jako
@@ -1138,13 +1138,13 @@ Z Rozdziału 2 wiemy, że aktuariusz nie może pominąć ważnych informacji o r
 Rozważmy liczbę roszczeń $Y_i$ złożonych przez posiadacza polisy $i$ z ekspozycją $e_i$ i cechami $\boldsymbol{x}_i$. Załóżmy, że
 
 $$
-\mathrm{E}[Y_i] = e_i \exp\left( \beta_0 + \sum_{j=1}^p \beta_j x_{ij} + \beta^+ x_i^+ \right).
+\mathrm{E}[Y_i] = e_i \exp\left( \beta_0 + \sum_{j=1}^p \beta_j x_{ij} + \beta^+ \boldsymbol{x}_i^+ \right).
 $$
 
-Jeśli cecha $x_i^+$ jest pominięta i $x_i^+$ jest skorelowana z pozostałymi cechami $x_{i1}, \dots, x_{ip}$ w tym sensie, że przybliżenie
+Jeśli cecha $\boldsymbol{x}_i^+$ jest pominięta i $\boldsymbol{x}_i^+$ jest skorelowana z pozostałymi cechami $x_{i1}, \dots, x_{ip}$ w tym sensie, że przybliżenie
 
 $$
-x_i^+ \approx \beta_0^+ + \sum_{j=1}^p \beta_j^+ x_{ij}
+\boldsymbol{x}_i^+ \approx \beta_0^+ + \sum_{j=1}^p \beta_j^+ x_{ij}
 $$
 
 jest stosunkowo dokładne, to
@@ -1162,7 +1162,7 @@ $$
 może być oszacowany, mieszając
 
 - prawdziwy efekt $\beta_j$ z $x_{ij}$
-- z efektem $\beta^+\beta_j^+$ pominiętej cechy $x_i^+$.
+- z efektem $\beta^+\beta_j^+$ pominiętej cechy $\boldsymbol{x}_i^+$.
 
 W takim przypadku, możemy mieć nawet $\tilde{\beta}_j < 0$, podczas gdy $\beta_j > 0$.
 Zatem, każda pominięta cecha skorelowana z $x_{ij}$ obciąża oszacowanie $\beta_j$ uzyskane z algorytmu IRLS. Dlatego standardowe modele branżowe nie mogą być używane do ustanawiania związku przyczynowego, a jedynie do wykrywania korelacji.
@@ -1625,7 +1625,7 @@ Zdolność predykcyjna lub wydajność generalizacji (terminologia ze społeczno
 Rozważmy klasyczny model liniowej regresji normalnej dla odpowiedzi
 
 $$
-Y_i \sim \mathcal{Nor}(\mu_i, \sigma^2) \text{ z } \mu_i = \boldsymbol{\beta}^\top \boldsymbol{x}_i.
+Y_i \sim \mathcal{Noror}(\mu_i, \boldsymbol{\sigma}^2) \text{ z } \mu_i = \boldsymbol{\beta}^\top \boldsymbol{x}_i.
 $$
 
 Parametr $\boldsymbol{\beta}$ jest szacowany na podstawie dostępnych danych $(y_i, \boldsymbol{x}_i), i=1, \dots, n$, zwanych również próbą treningową, ponieważ służy do trenowania estymatora. Wydajność modelu można następnie ocenić za pomocą pozornego błędu podanego przez średnią sumę kwadratów reszt
@@ -1678,22 +1678,22 @@ $$
 \widehat{MSEP} = \widehat{MSRR} + \frac{2}{n} \sum_{i=1}^n \widehat{\text{Cov}}[Y_i, \hat{\mu}_i].
 $$
 
-Jeśli $Y_i \sim \mathcal{Nor}(\mu_i, \sigma^2)$, a dopasowane wartości $\hat{\mu}_i$ są liniowe, wiemy, że
+Jeśli $Y_i \sim \mathcal{Noror}(\mu_i, \boldsymbol{\sigma}^2)$, a dopasowane wartości $\hat{\mu}_i$ są liniowe, wiemy, że
 
 $$
 \hat{\boldsymbol{\mu}} = \boldsymbol{H}\boldsymbol{Y}
 $$
 
-gdzie $\boldsymbol{H}$ jest znaną macierzą (4.12) odwzorowującą obserwacje na dopasowane wartości. Macierz kowariancji między $\hat{\boldsymbol{\mu}}$ a $\boldsymbol{Y}$ jest wtedy $\sigma^2 \boldsymbol{H}$, dając
+gdzie $\boldsymbol{H}$ jest znaną macierzą (4.12) odwzorowującą obserwacje na dopasowane wartości. Macierz kowariancji między $\hat{\boldsymbol{\mu}}$ a $\boldsymbol{Y}$ jest wtedy $\boldsymbol{\sigma}^2 \boldsymbol{H}$, dając
 
 $$
-\text{Cov}[Y_i, \hat{\mu}_i] = \sigma^2 h_{ii}
+\text{Cov}[Y_i, \hat{\mu}_i] = \boldsymbol{\sigma}^2 h_{ii}
 $$
 
 gdzie $h_{ii}$ jest $i$-tym diagonalnym elementem $\boldsymbol{H}$ mierzącym lewarowanie. W przypadku normalnym, kara kowariancyjna pokrywa się z estymatą $C_p$ Mallowa błędu predykcji:
 
 $$
-\widehat{MSEP} = \frac{1}{n} \sum_{i=1}^n (y_i - \hat{\mu}_i)^2 + \frac{2\sigma^2}{n} \text{trace}(\boldsymbol{H}).
+\widehat{MSEP} = \frac{1}{n} \sum_{i=1}^n (y_i - \hat{\mu}_i)^2 + \frac{2\boldsymbol{\sigma}^2}{n} \text{trace}(\boldsymbol{H}).
 $$
 
 **Uwaga 4.5.1** Dla modelu regresji liniowej, można wywnioskować z (4.12), że
@@ -1789,6 +1789,233 @@ Dewiancja dostarcza alternatywnego estymatora dla $\phi$. Biorąc pod uwagę (4.
 $$
 \hat{\phi} = \frac{D}{n-p-1}.
 $$
+
+## 4.7 Rozkład z próby oszacowanych współczynników regresji
+
+### 4.7.1 Rozkład z próby
+
+Rozkład z próby parametrów modelu należy rozumieć w następujący sposób. Estymatory są wynikami losowego eksperymentu: zbierania danych i analizowania ich za pomocą GLM. Gdyby użyto innego zestawu danych, o tej samej wielkości i wszystkich tych samych podstawowych cechach, ale z innymi wynikami, wynikowe oszacowane współczynniki byłyby inne. Zakres tych różnic zależy od zmienności obserwowanego zjawiska. Rozkład z próby opisuje zachowanie oszacowań uzyskanych z różnych próbek obserwacji, w warunkach powtarzanego próbkowania.
+
+Rozkład z próby można w przybliżeniu wyznaczyć metodą bootstrap (parametryczną lub nieparametryczną), jak wyjaśniono w Rozdziale 3. Niemniej jednak metoda ta jest obliczeniowo intensywna. W przypadku GLM istnieje alternatywne podejście oparte na asymptotycznych właściwościach estymatorów największej wiarygodności. Rzeczywiście, z Rozdziału 3 wiemy, że estymatory uzyskane metodą największej wiarygodności są w przybliżeniu normalnie rozłożone, gdy wielkość próby jest duża. Ta właściwość jest nadal ważna dla wektora $\beta$ oszacowanych współczynników regresji. Biorąc pod uwagę, że w dopasowaniu GLM zaangażowanych jest kilka parametrów $\beta_0, \beta_1, \ldots, \beta_p$, musimy przywołać definicję wielowymiarowego rozszerzenia rozkładu normalnego.
+
+### 4.7.2 Powrót do modelu regresji normalnej liniowej
+
+Przypomnijmy sobie definicję wielowymiarowej wersji rozkładu normalnego. Niech $\boldsymbol{\Sigma}$ będzie macierzą $n \times n$ dodatnio określoną, a $\boldsymbol{\mu}$ wektorem rzeczywistym. Wówczas wektor losowy $\boldsymbol{Z} = (Z_1, Z_2, \ldots, Z_n)^T$ podlega wielowymiarowemu rozkładowi normalnemu o parametrach $(\boldsymbol{\mu}, \boldsymbol{\Sigma})$, co odtąd oznaczamy jako $\boldsymbol{Z} \sim \mathcal{Nor}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$, jeśli jego funkcja gęstości prawdopodobieństwa ma postać
+
+$f_Z(z) = \frac{1}{\sqrt{(2\pi)^n |\boldsymbol{\Sigma}|}} \exp \left( -\frac{1}{2} (z - \boldsymbol{\mu})^T \boldsymbol{\Sigma}^{-1} (z - \boldsymbol{\mu}) \right), \quad z \in (-\infty, \infty)^n, \quad (4.20)$
+
+gdzie $|\boldsymbol{\Sigma}|$ oznacza wyznacznik macierzy $\boldsymbol{\Sigma}$. Tutaj $\boldsymbol{\mu}$ i $\boldsymbol{\Sigma}$ są średnią wektorową i macierzą kowariancji wielowymiarowego rozkładu normalnego $\mathcal{Nor}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$.
+Z Rozdziału 2 wiemy, że suma $n$ niezależnych, kwadratowych zmiennych losowych o rozkładzie $\mathcal{Nor}(0, 1)$ podlega rozkładowi chi-kwadrat $\chi_n^2$. Wynik ten rozszerza się na niezależne sumy, w których $\boldsymbol{Z} \sim \mathcal{Nor}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$, gdzie $\boldsymbol{\Sigma}$ ma odwrotność $\boldsymbol{\Sigma}^{-1}$
+
+$$(\boldsymbol{Z} - \boldsymbol{\mu})^T \boldsymbol{\Sigma}^{-1} (\boldsymbol{Z} - \boldsymbol{\mu}) \sim \chi_n^2.$$
+
+Dogodna charakteryzacja wielowymiarowego rozkładu normalnego jest następująca:
+$\boldsymbol{Z} \sim \mathcal{Nor}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$, wtedy i tylko wtedy, gdy każda zmienna losowa postaci $\sum_{i=1}^n \alpha_i Z_i$ dla stałych rzeczywistych $\alpha_1, \ldots, \alpha_n$ podlega jednowymiarowemu rozkładowi normalnemu. Mówiąc bardziej ogólnie, wielowymiarowy rozkład normalny ma również następującą użyteczną właściwość stabilności: Niech $\boldsymbol{C}$ będzie daną macierzą $n \times n$ o rzeczywistych wpisach, a $\boldsymbol{b}$ niech będzie $n$-wymiarowym wektorem rzeczywistym. Wtedy,
+
+$\boldsymbol{Z} \sim \mathcal{Nor}(\boldsymbol{\mu}, \boldsymbol{\Sigma}) \Rightarrow \boldsymbol{CZ} + \boldsymbol{b} \sim \mathcal{Nor}(\boldsymbol{C}\boldsymbol{\mu} + \boldsymbol{b}, \boldsymbol{C}\boldsymbol{\Sigma} \boldsymbol{C}^T)$.
+
+Stosując tę właściwość do $\boldsymbol{\hat{\beta}}$ podanego w (4.11), z
+
+$$\boldsymbol{C} = (\boldsymbol{X}^T \boldsymbol{W} \boldsymbol{X})^{-1} \boldsymbol{X}^T \boldsymbol{W}$$
+$$\boldsymbol{b} = \boldsymbol{0}$$
+$$\boldsymbol{Z}^T = (Y_1, Y_2, \ldots, Y_n)$$
+$$\boldsymbol{\mu} = \boldsymbol{X}\boldsymbol{\beta}$$
+$$\boldsymbol{\Sigma} = \sigma^2 \boldsymbol{W}^{-1}$$
+
+otrzymujemy
+
+$$\boldsymbol{C}\boldsymbol{\mu} + \boldsymbol{b} = \boldsymbol{\beta} \text{ oraz } \boldsymbol{C}\boldsymbol{\Sigma} \boldsymbol{C}^T = \sigma^2 (\boldsymbol{X}^T \boldsymbol{W} \boldsymbol{X})^{-1}$$
+
+tak, że
+
+$$\boldsymbol{\hat{\beta}} \sim \mathcal{Nor}(\boldsymbol{\beta}, \sigma^2 (\boldsymbol{X}^T \boldsymbol{W} \boldsymbol{X})^{-1}).$$
+
+To daje dokładny rozkład z próby $\boldsymbol{\hat{\beta}}$ w modelu regresji normalnej liniowej.
+
+### 4.7.3 Rozkład z próby w GLM
+
+Rozważmy teraz inne GLM. Ponieważ $\boldsymbol{\hat{\beta}}$ zostało uzyskane metodą największej wiarygodności, jest ono w przybliżeniu normalnie rozłożone, pod warunkiem, że $n$ jest wystarczająco duże. Dokładniej, błąd estymacji spełnia
+
+$$\boldsymbol{\hat{\beta}} - \boldsymbol{\beta} \approx \mathcal{Nor}(0, \hat{\boldsymbol{\Sigma}}(\boldsymbol{\hat{\beta}})).$$
+
+Ponieważ algorytm IRLS używany do dopasowywania GLM (jak wyjaśniono w sekcji 4.4) wielokrotnie dopasowuje normalny model regresji do odpowiedzi roboczych, z różnymi wagami, macierz wariancji-kowariancji wynikającego $\hat{\beta}$ można uzyskać z ostatniego kroku tej procedury, używając wzorów ważnych w przypadku normalnym. Dokładniej, oszacowana macierz wariancji-kowariancji $\boldsymbol{\hat{\beta}}$ dla dużej próby jest dana przez
+
+$$\hat{\boldsymbol{\Sigma}}(\boldsymbol{\hat{\beta}}) = \hat{\phi} (X^T \tilde{W}^{(r_{\text{stop}})} X)^{-1}$$
+
+gdzie $\tilde{W}^{(r_{\text{stop}})}$ jest pobierane z ostatniego kroku algorytmu IRLS produkującego $\boldsymbol{\hat{\beta}}$ (tak, że nie obejmuje parametru dyspersji, a czynnik $\phi$ musi być określony zgodnie z wzorem (4.3)). Błędy standardowe oszacowań parametrów są pierwiastkami kwadratowymi z elementów diagonalnych macierzy wariancji-kowariancji.
+
+### 4.7.4 Przedziały ufności Walda
+
+Podejście Walda opiera się na normalnej aproksymacji rozkładu $\boldsymbol{\hat{\beta}}$. Błąd standardowy jest pierwiastkiem kwadratowym z oszacowanej wariancji $\text{Var}[\hat{\beta}_j]$. Tę wielkość należy rozumieć w następujący sposób. Gdyby pobrano nowe próbki, odchylenie standardowe wynikowych oszacowań $\hat{\beta}_j$ byłoby w przybliżeniu oszacowanym błędem standardowym. Dlatego mały błąd standardowy wskazuje, że $\hat{\beta}_j$ powinien być bliski prawdziwemu $\beta_j$, podczas gdy duży błąd standardowy sugeruje, że szeroki zakres oszacowań można by osiągnąć przez losowość.
+
+Przedział ufności można uznać za rozsądny zakres oszacowań dla współczynnika interesującego. Przedziały ufności Walda opierają się na rozkładzie $\hat{\beta}_j$ dla dużej próby, to jest,
+
+$$\hat{\beta}_j - \beta_j \approx \mathcal{Nor}(0, \hat{\sigma}_{jj}^2)$$
+
+gdzie $\hat{\sigma}_{jj}$ jest elementem $(j, j)$ macierzy $\hat{\boldsymbol{\Sigma}}(\boldsymbol{\hat{\beta}})$, to jest oszacowaną wariancją $\hat{\beta}_j$. Przybliżony przedział ufności na poziomie $1 - \alpha$ jest następnie uzyskiwany w następujący sposób:
+
+$$\begin{align*}
+1 - \alpha &\approx \text{P} \left[ -z_{\alpha/2} \sqrt{\hat{\sigma}_{jj}} \leq \hat{\beta}_j - \beta_j \leq z_{\alpha/2} \sqrt{\hat{\sigma}_{jj}} \right] \\
+&= \text{P} \left[ \hat{\beta}_j - z_{\alpha/2} \sqrt{\hat{\sigma}_{jj}} \leq \beta_j \leq \hat{\beta}_j + z_{\alpha/2} \sqrt{\hat{\sigma}_{jj}} \right]
+\end{align*}$$
+
+tak, że przedział
+
+$$\text{IC}_{1-\alpha}(\beta_j) = \left[ \hat{\beta}_j \pm z_{\alpha/2} \sqrt{\hat{\sigma}_{jj}} \right]$$
+
+oczekuje się, że będzie zawierał prawdziwą wartość parametru z prawdopodobieństwem w przybliżeniu równym $1-\alpha$. Tutaj, prawdopodobieństwo $1-\alpha$ jest (przybliżonym) poziomem ufności, lub pokryciem prawdopodobieństwa odpowiadającego przedziału ufności.
+
+Ponieważ $\boldsymbol{\hat{\beta}}$ jest w przybliżeniu normalny, oszacowana ocena $\hat{s}_i = \boldsymbol{x}_i^T \boldsymbol{\hat{\beta}}$ również jest. Obciążenie jest w przybliżeniu równe 0, a wariancja oszacowanej oceny $\hat{s}_i$ jest dana przez
+
+$$\text{Var}[\hat{s}_i] = \boldsymbol{x}_i^T \hat{\boldsymbol{\Sigma}}(\boldsymbol{\hat{\beta}}) \boldsymbol{x}_i.$$
+
+Przedział ufności na przybliżonym poziomie ufności $1-\alpha$ dla prawdziwej oceny $s_i$ jest następnie dany przez
+
+$$\left[\boldsymbol{x}_i^T \boldsymbol{\hat{\beta}} \pm z_{\alpha/2} \sqrt{\boldsymbol{x}_i^T \hat{\boldsymbol{\Sigma}}(\boldsymbol{\hat{\beta}}) \boldsymbol{x}_i}\right].$$
+
+### 4.7.5 Współczynnik inflacji wariancji
+
+Współliniowość odnosi się do sytuacji, w której dwie lub więcej cech jest silnie predykcyjnych względem trzeciej. Jednak ta ostatnia może nie być silnie skorelowana z żadną z poprzednich, więc zjawisko to nie pojawia się w macierzy korelacji lub macierzy V Craméra w przypadku cech o różnych formatach. Dzieje się tak, ponieważ taka macierz uwzględnia tylko pary cech, a nie większe podzbiory dostępnych cech. W konsekwencji współliniowość jest znacznie trudniejsza do wykrycia.
+
+Gdy istnieją silne zależności liniowe między cechami w analizie regresji, dokładność estymacji dla $\beta_j$ maleje w porównaniu z przypadkiem, w którym cechy są niezależne. Głównym powodem jest to, że macierz $\boldsymbol{X}^T \boldsymbol{W} \boldsymbol{X}$ zaangażowana w każdy krok algorytmu IRLS jest źle uwarunkowana, a zatem prawie nieodwracalna.
+Użyteczną statystyką do wykrywania współliniowości jest współczynnik inflacji wariancji (VIF). VIF dla dowolnej cechy mierzy wzrost kwadratu błędu standardowego dla współczynnika regresji z powodu obecności współliniowości w danych. Niech $\rho_j$ oznacza współczynnik determinacji z regresji $j$-tej cechy na pozostałych $p-1$ cechach. Jest on określany przez uruchomienie modelu liniowego dla każdej z pozostałych cech przy użyciu wszystkich innych cech jako danych wejściowych i pomiar jego dokładności predykcyjnej. Oznacza to, że dla każdej cechy $x_{ij}$ z kolei próbujemy zidentyfikować zależność liniową
+
+$$\gamma_0^{(j)} + \sum\limits_{k \neq j} \gamma_k^{(j)} x_{ik}$$
+
+która najlepiej przewiduje $x_{ij}$ z $x_{ik}$, $k \neq j$. Zatem,
+
+$$\hat{\gamma}_0^{(j)} + \sum_{k \neq j} \hat{\gamma}_k^{(j)} x_{ik}$$
+
+może zastąpić $x_{ij}$ w wyniku liniowym. W modelu regresji normalnej liniowej można wykazać, że
+
+$$\text{Var}[\hat{\beta}_j] = \frac{\sigma^2}{(1 - \rho_j^2) \sum_{i=1}^n (x_{ij} - \bar{x}_j)^2}.$$
+
+To daje
+
+$$\widehat{\text{Var}}[\hat{\beta}_j] = \frac{\hat{\sigma}^2}{(n-1) s_j^2} \times \frac{1}{1 - \hat{\rho}_j^2},$$
+
+gdzie $\hat{\sigma}^2$ jest estymowaną wariancją $\sigma^2$, $s_j^2$ jest wariancją próby $x_{1j}, x_{2j}, \ldots, x_{nj}$ oraz $\frac{1}{1 - \hat{\rho}_j^2}$ jest współczynnikiem inflacji wariancji dla estymatora $\hat{\beta}_j$. Ta formuła pokazuje, które składniki wpływają na dokładność estymacji dla współczynników regresji:
+
+- im mniejszy model wariancji, tym mniejsza wariancja $\hat{\beta}_j$, a tym samym dokładniejsza estymacja.
+- im mniejsza zależność liniowa między $j$-tą cechą a pozostałymi $p-1$ (mierzona przez $\rho_j^2$), tym mniejsza wariancja $\hat{\beta}_j$.
+
+Wariancja $\hat{\beta}_j$ jest zminimalizowana dla $\rho_j^2 = 0$, to znaczy, gdy cechy są nieskorelowane. Gdy niektóre cechy są silnie skorelowane, estymatory stają się bardzo niedokładne. W skrajnej sytuacji, gdy $\rho_j^2 \rightarrow 1$, wariancja $\hat{\beta}_j$ eksploduje w kierunku nieskończoności (odzwierciedlając doskonałą współliniowość).
+- im większa zmienność $j$-tej cechy wokół jej średniej, tym mniejsza wariancja $\hat{\beta}_j$.
+
+Współczynnik inflacji wariancji zdefiniowany jako
+
+$$\text{VIF} = \frac{1}{1 - \hat{\rho}_j^2}$$
+
+określa ilościowo wzrost wariancji $\hat{\beta}_j$ z powodu zależności liniowej $j$-tej cechy od pozostałych $p-1$. VIF jest najprostszym i najbardziej bezpośrednim wskaźnikiem szkód wyrządzonych przez współliniowość. W szczególności pierwiastek kwadratowy z VIF wskazuje, o ile większy jest przedział ufności dla $\hat{\beta}_j$ w porównaniu z podobnymi nieskorelowanymi danymi (takie dane mogą być czysto koncepcyjne). Silne zależności liniowe odpowiadają cechom o dużym VIF. Jako punkt odniesienia, poważny problem współliniowości istnieje, gdy VIF jest większy niż 10. VIF nie stosuje się do zestawów współczynników regresji (odpowiadających różnym poziomom cech kategorialnych, na przykład), ale w tym przypadku dostępne są uogólnione VIF, lub GVIF.
+
+Pomimo ich oczywistego znaczenia w badaniach GLM, obliczanie miar VIF wydaje się być intensywne obliczeniowo w wielu analizach obejmujących wiele cech, biorąc pod uwagę obecną moc obliczeniową. To nieco ogranicza praktyczne zastosowanie tej koncepcji.
+
+### 4.7.6 Testowanie hipotez dotyczących parametrów
+
+#### 4.7.6.1 Hipotezy dotyczące pojedynczego współczynnika regresji
+
+Aby przetestować, czy założenie $\beta_j = b$ jest rozsądne, dla pewnej stałej $b$, możemy obliczyć statystykę Walda
+
+$$z = \frac{\hat{\beta}_j - b}{\sqrt{\widehat{\text{Var}}[\hat{\beta}_j]}}.$$
+
+Możemy następnie porównać $z$ ze standardowymi kwantylami normalnymi, aby zdecydować, czy założenie $\beta_j = b$ jest odrzucone, czy nie. Dokładniej, założenie $\beta_j = b$ jest odrzucane, gdy $\hat{\beta}_j$ jest zbyt daleko od przyjętej wartości $b$, to jest, gdy $|z|$ jest duże. Pracując na poziomie ufności $\alpha$, oznacza to, że $\beta_j = b$ jest odrzucane, jeśli $|z|$ przekracza kwantyl $\Phi^{-1}(1-\alpha/2)$ rozkładu $\mathcal{Nor}(0, 1)$ na poziomie prawdopodobieństwa $\alpha$.
+
+Przyjęcie tej procedury oznacza, że wybrany $\alpha$ kwantyfikuje ryzyko odrzucenia założenia $\beta_j = b$, podczas gdy w rzeczywistości jest ono prawdziwe (nazywane błędem typu 1 w statystyce). Zgodnie z tym założeniem, statystyka testowa $z$ jest w przybliżeniu rozłożona $\mathcal{Nor}(0, 1)$, tak że istnieje prawdopodobieństwo $\alpha$, że $|z|$ przekroczy $\Phi^{-1}(1-\alpha/2)$, prowadząc do odrzucenia. Takie przypadki odpowiadają sytuacjom, w których założenie nie powinno być odrzucane. Stąd $\alpha$ reprezentuje poziom bezpieczeństwa wybrany przez aktuariusza przy odrzucaniu rozważanego założenia. Poziom $\alpha=5\%$ jest rutynowo stosowany w praktyce. Prowadzi to do 1 błędnego wniosku na 20 testów prowadzących do odrzucenia, średnio (pod warunkiem, że testy są przeprowadzane niezależnie). W zależności od wagi wniosku wyciągniętego z analizy, aktuariusz może zmniejszyć ryzyko błędu (do 1%, na przykład), lub być mniej konserwatywny (zwiększając $\alpha$ do 10%, powiedzmy).
+
+Oprogramowanie statystyczne, w tym R, generalnie zgłasza wyniki procedur testowych w postaci p-wartości, aby uniknąć proszenia użytkowników o podanie poziomu ufności $\alpha$, który ma być zastosowany. Na podstawie obliczonej p-wartości, aktuariusz następnie odrzuca założenie, gdy spada ono poniżej wybranego $\alpha$, i zachowuje je jako założenie robocze w przeciwnym razie. Formalnie jednak aktuariusz nigdy nie może zaakceptować założenia (stąd subtelna różnica między akceptacją a nieodrzuceniem). Dzieje się tak dlatego, że inne źródło błędu, zwane błędem typu 2 w statystyce, polegające na akceptowaniu założenia, gdy w rzeczywistości jest ono fałszywe, na ogół nie jest kontrolowane przez procedurę testową.
+
+Zauważ, że standardowe testy dla hipotezy zerowej $H_0: \beta_j = 0$ są automatycznie dostarczane przez oprogramowanie statystyczne. Gdy cechy kategorialne są zaangażowane, $\beta_j = 0$ oznacza, że odpowiedni poziom jest identyczny z poziomem bazowym lub referencyjnym dla tej cechy (która jest uwzględniona w wyrazie wolnym $\beta_0$). Nieodrzucenie $H_0$ sugeruje, że poziom powinien zostać połączony z poziomem bazowym. Ale inne grupowania mogą być sensowne i mogą być wykryte przez testowanie hipotez postaci
+
+$$H_0: \beta_j = \beta_k \Leftrightarrow \hat{\beta}_j - \boldsymbol{\hat{\beta}}_k = 0.$$
+
+Odpowiednie statystyki testowe są uzyskiwane przez standaryzację $\hat{\beta}_j - \boldsymbol{\hat{\beta}}_k,$ odpowiednio, z rozkładem $\mathcal{Nor}(0, 1)$ pod hipotezą zerową $H_0$.
+
+Gdy w ocenie uwzględniony jest wyraz wolny, procedura analizy GLM przetwarza zmienne ryzyka w odniesieniu do poziomu odniesienia (którego efekt odpowiada wyrazowi wolnemu). Przełączanie z jednego poziomu odniesienia na inny nie modyfikuje przewidywań modelu (pomimo różnych oszacowanych współczynników regresji uzyskanych, ponieważ poziomy są teraz w odniesieniu do innego poziomu bazowego). Jednak p-wartości się zmieniają, ponieważ kwestionują różnicę danego poziomu w porównaniu z poziomem bazowym: zmiana poziomu bazowego modyfikuje testowaną hipotezę. Dlatego ważne jest, aby sprawdzić, czy poziom bazowy ma znaczną ekspozycję i nie przyjmować domyślnego poziomu bazowego przypisanego przez oprogramowanie. To jest właśnie wybór dokonany we wszystkich przykładach w tej książce.
+
+**Uwaga 4.7.1** Znaczenie każdej zmiennej jest wyrażone przez wielkość jej wkładu w ocenę. W GLM jest to zasadniczo odzwierciedlone przez wielkość powiązanego $\beta_j$ (zakładając, że wszystkie predyktory zostały znormalizowane). Istotność $j$-tej cechy można następnie przetestować za pomocą hipotezy zerowej $H_0: \beta_j=0$.
+Innym sposobem postępowania, który rozszerza się na bardziej wyszukane podejścia do uczenia statystycznego, jest wybranie losowej frakcji $\pi$ oryginalnych danych i wykorzystanie ich do dopasowania GLM. Aktuariusz następnie używa dopasowanego modelu do przewidywania odpowiedzi w pozostałej $1-\pi$ części bazy danych i oblicza dokładność tej predykcji. Wartości $j$-tej cechy są następnie losowo permutowane, a odpowiedź jest ponownie przewidywana na tej podstawie. Chodzi o to, aby porównać dokładność predykcji z i bez permutacji: im ważniejsza cecha, tym większa różnica w tych dwóch miarach, permutacja $j$-tej cechy powodująca duży spadek dokładności predykcji.
+
+#### 4.7.6.2 Hipotezy dotyczące kilku współczynników regresji
+
+Oprócz prostych hipotez dotyczących pojedynczego parametru, można również rozważyć bardziej rozbudowane. Rozważmy model bazowy
+
+$$\mathcal{M}_0: \boldsymbol{\beta} = \boldsymbol{\beta}_0 = (\beta_1, \beta_2, \ldots, \beta_q)^T$$
+
+i model alternatywny
+
+$$\mathcal{M}_1: \boldsymbol{\beta} = \boldsymbol{\beta}_1 = (\beta_1, \beta_2, \ldots, \beta_q, \beta_{q+1}, \ldots, \beta_p)^T$$
+
+zawierający dodatkowe zmienne objaśniające. W ramach $\mathcal{M}_0$ cechy $x_{i, q+1}, \ldots, x_{i,p}$ nie mają wpływu na oczekiwane odpowiedzi. Oznacza to, że $\mathcal{M}_0$ odpowiada hipotezie zerowej
+
+$$H_0: \beta_{q+1} = \ldots = \beta_p = 0$$
+
+podczas gdy hipoteza alternatywna jest taka, że co najmniej jeden współczynnik regresji wśród $\beta_{q+1}, \ldots, \beta_p$ jest niezerowy.
+Gdy GLM używa podzbioru cech większego modelu, mniejszy model mówi się, że jest zagnieżdżony w większym. W przypadku $\mathcal{M}_0$ zagnieżdżonego w $\mathcal{M}_1$. Dla GLM bez parametru dyspersji (tj. $\phi = 1$ jak w przypadkach dwumianowym i Poissona), statystyka testu ilorazu wiarygodności jest po prostu różnicą w dewiancjach dla zagnieżdżonych modeli $\mathcal{M}_0$ i $\mathcal{M}_1$. Oznaczając $D_0$ i $D_1$ odpowiednie dewiancje związane z $\mathcal{M}_0$ i $\mathcal{M}_1$, statystyka testowa jest
+
+$$\Delta = D_0 - D_1 = 2(L(\boldsymbol{\hat{\beta}}_1) - L(\boldsymbol{\hat{\beta}}_0))$$
+
+gdzie $\boldsymbol{\hat{\beta}}_0$ i $\boldsymbol{\hat{\beta}}_1$ są estymatorami największej wiarygodności dla $\boldsymbol{\beta}$ w ramach odpowiednio $\mathcal{M}_0$ i $\mathcal{M}_1$. Jeśli ograniczenia nałożone na model $\mathcal{M}_1$ reprezentowane przez $\mathcal{M}_0$ są prawdziwe, to jest, jeśli $H_0$ jest prawdziwe, to statystyka testowa $\Delta$ jest w przybliżeniu rozłożona chi-kwadrat, to jest, $\Delta \approx \chi_{p-q}^2$ pod warunkiem, że wielkość próby jest wystarczająco duża.
+Musimy jednak pamiętać, że dodanie cech do modelu zawsze zmniejsza dewiancję (nawet jeśli dodana cecha nie jest związana z odpowiedzią), po prostu dlatego, że w większym modelu zaangażowanych jest więcej parametrów, który może tylko lepiej dopasować dane. Sensownym pytaniem jest zatem, czy dodatkowe cechy znacznie zmniejszają dewiancję, tj. czy nie były one związane z odpowiedzią. Przybliżony rozkład chi-kwadrat $\chi_{p-q}^2$ rządzący $D_0 - D_1$ definiuje próg, powyżej którego różnica w obserwowanych dewiancjach jest wystarczająco duża, aby uzasadnić włączenie dodatkowych cech. Formalnie, jeśli model $\mathcal{M}_1$ jest prawdziwym modelem, to będzie miał tendencję do posiadania znacznie wyższej wiarygodności w porównaniu z modelem $\mathcal{M}_0$, tak że różnica w log-wiarygodnościach będzie zbyt duża. Zatem $H_0$ jest odrzucane, jeśli $\Delta_{obs}$ przekracza statystykę testową $\Delta$ jest "za duża". W dużych próbach $H_0$ jest odrzucane na poziomie prawdopodobieństwa $1-\alpha$, gdzie $\chi_{p-q; 1-\alpha}^2$ oznacza kwantyl rozkładu $\chi_{p-q}^2$.
+
+Dla GLM, w których występuje parametr dyspersji do oszacowania (jak w przypadkach normalnym, gamma i odwrotnym gaussowskim), możemy porównać zagnieżdżone modele za pomocą testu F, opartego na statystyce testowej
+
+$$F = \frac{\frac{D_0-D_1}{p-q}}{\hat{\phi}}$$
+
+obejmując odpowiednie przeskalowane dewiancje $\frac{D_0}{\hat{\phi}}$ i $\frac{D_1}{\hat{\phi}}$. Tutaj, oszacowany parametr dyspersji $\hat{\phi}$ jest pobierany z największego dopasowanego modelu do danych (który niekoniecznie jest modelem $\mathcal{M}_1$). Jeśli największy model ma $k+1$ współczynników regresji, to przy założeniu, że ograniczenia nałożone na model $\mathcal{M}_1$ przez model $\mathcal{M}_0$ są poprawne, $F$ w przybliżeniu podlega rozkładowi Fishera z $p-q$ i $n-k-1$ stopniami swobody.
+
+### 4.7.7 Ilustracje numeryczne
+
+#### 4.7.7.1 Graduacja rocznych prawdopodobieństw zgonu
+
+Wróćmy do problemu graduacji rocznych prawdopodobieństw zgonu przy użyciu formuły (4.15). Przypomnijmy, że odpowiedzią jest liczba zgonów $D_x$ zarejestrowanych wśród $l_x$ osób w wieku $x$ w dniu 1 stycznia. Parametrem zainteresowania jest roczne prawdopodobieństwo zgonu $q_x$. Stosowany jest dwumianowy GLM z kanonicznym łączem, z oceną obejmującą wiek $x$ i jego kwadrat, to jest,
+
+$$\text{logit}(q_x) = \beta_0 + \beta_1 x + \beta_2 x^2.$$
+
+**Tabela 4.8** Wynik funkcji `glm` z R dla dopasowania kwadratowej formuły Perks do danych o śmiertelności wyświetlonych na Rys. 4.1. Liczba iteracji Fisher Scoring: 3
+
+| Współczynnik | Oszacowanie | Bł. stand. | Wartość $z$ | $Pr(>\mid z \mid )$ | |
+| --- | --- | --- | --- | --- | --- |
+| Wyraz wolny | -3.340 | $4.808 \times 10^{-1}$ | -6.947 | $3.73 \times 10^{-12}$ | \*\*\* |
+| Wiek x | -0.1038 | $1.213 \times 10^{-2}$ | -8.558 | $<2 \times 10^{-16}$ | \*\*\* |
+| Wiek do kwadratu x² | $1.384 \times 10^{-3}$ | $7.597 \times 10^{-5}$ | 18.214 | $<2 \times 10^{-16}$ | \*\*\* |
+
+Alternatywnie, model można dopasować do obserwowanych surowych prawdopodobieństw zgonu $\tilde{q}_x = D_x / l_x$, pod warunkiem, że wagi $l_x / \text{Var}[\tilde{q}_x]$ są używane jako waga. Oszacowania punktowe $\boldsymbol{\hat{\beta}}$ uzyskane za pomocą algorytmu IRLS zostały już podane wcześniej w tym rozdziale. Teraz możemy uzupełnić szczegółowe wyniki funkcji `glm` o oszacowania i p-wartości dla hipotez zerowych $H_0: \beta_j=0$. Wyniki są podsumowane w Tabeli 4.8.
+
+Widzimy w drugiej kolumnie Tabeli 4.8 (zatytułowanej "Oszacowanie") oszacowania punktowe uzyskane za pomocą algorytmu IRLS. Odpowiednie błędy standardowe, oparte na właściwościach estymacji największej wiarygodności dla dużych prób, są podane w następnej kolumnie. Wartość $z$ jest statystyką Walda do testowania $\beta_j = 0$, otrzymaną jako stosunek wartości pojawiających się w dwóch poprzednich kolumnach. Odpowiednie p-wartości są wyświetlane dalej. Ostatnia kolumna w Tabeli 4.8 ilustruje wnioski wyciągnięte z testu statystycznego za pomocą prostego kodowania. Przypomnijmy, że im mniejsza p-wartość, tym większa statystyka testowa, a tym bardziej wątpliwe jest założenie $\beta_j = 0$. Wtedy prawdopodobne jest, że odpowiednia cecha powinna być zachowana w modelu (ponieważ jej wkład w ocenę GLM jest niezerowy). Jest to reprezentowane przez gwiazdki: trzy gwiazdki (\*\*\*) dla p-wartości mniejszych niż 0.1%, dwie gwiazdki (\*\*) dla p-wartości między 0.1 a 1%, i jedna gwiazdka (\*) dla p-wartości między 1 a 5%. Kropka jest używana dla p-wartości w szarej strefie 5-10%, gdzie aktuariusz jest niepewny co do istotności odpowiedniej cechy. Nic nie pojawia się w ostatniej kolumnie dla p-wartości większych niż 10%, które prawidłowo prowadzą do nieodrzucenia.
+
+Dla właściwej interpretacji ważne jest, aby zdać sobie sprawę, że te gwiazdki odnoszą się do statystycznej istotności, a nie do faktycznego wpływu cechy na oczekiwaną odpowiedź. Możemy mieć większy $\hat{\beta}_j$ związany z większą p-wartością (pomimo pozostałych istotnych). $j$-ta cecha następnie indukuje bardziej premium różnice, nawet jeśli jest mniej istotna w R. Zatem ranking cech oparty na p-wartościach nie jest zatem sensowny bez uwzględnienia oszacowań.
+Widzimy w Tabeli 4.8, że wszystkie p-wartości dla testu hipotezy zerowej $H_0: \beta_j = 0$ są mniejsze niż $10^{-6}$, więc istnieją silne dowody przeciwko $H_0: \beta_j=0$ dla każdego parametru (co jest reprezentowane przez trzy gwiazdki w ostatniej kolumnie, jak wyjaśniono powyżej). Dewiancja zerowa wynosi 32.760.878 na 35 stopniach swobody, podczas gdy dewiancja resztowa wynosi 42.942 na 33 stopniach swobody. Odpowiednie AIC wynosi 354.33.
+
+Graficznie, dopasowanie uzyskane za pomocą kwadratowej formuły Perks było wyraźnie lepsze od tego uzyskanego z liniowym odpowiednikiem. Jest to już widoczne z małej p-wartości uzyskanej dla współczynnika regresji związanego ze składnikiem wieku do kwadratu raportowanym w Tabeli 4.8. Formalny test można przeprowadzić przy użyciu funkcji anova, która zwraca analizę tabeli dewiancji. Różnica w odpowiednich dewiancjach modelu liniowego i kwadratowego Perks wynosi 325.62 z 1 stopniem swobody. Wynikowa p-wartość jest mniejsza niż $10^{-6}$, więc hipoteza zerowa, że specyfikacja liniowa oceny jest równoważna kwadratowej, jest wyraźnie odrzucona. Widzimy zatem, że kwadratowa formuła (4.15) znacznie przewyższa swój liniowy odpowiednik (uzyskany przez umieszczenie $\beta_2=0$).
+
+Macierz wariancji-kowariancji $3 \times 3$ $\boldsymbol{\hat{\Sigma}}_{\boldsymbol{\hat{\beta}}}$ z $\boldsymbol{\hat{\beta}}$ można uzyskać za pomocą funkcji R `vcov` dając
+
+$$\hat{\Sigma}_{\boldsymbol{\hat{\beta}}} = \begin{pmatrix} 2.311966 \times 10^{-1} & -5.823715 \times 10^{-3} & 3.631568 \times 10^{-5} \\ -5.823715 \times 10^{-3} & 1.471464 \times 10^{-4} & -9.202314 \times 10^{-7} \\ 3.631568 \times 10^{-5} & -9.202314 \times 10^{-7} & 5.771165 \times 10^{-9} \end{pmatrix}.$$
+
+Ocena $\hat{\beta}_0 + \hat{\beta}_1 x + \hat{\beta}_2 x^2$ jest normalnie rozłożona, ze średnią
+
+$$E[\hat{\beta}_0 + \hat{\beta}_1 x + \hat{\beta}_2 x^2] = \beta_0 + \beta_1 x + \beta_2 x^2$$
+
+i wariancją
+
+$$\text{Var}[\hat{\beta}_0 + \hat{\beta}_1 x + \hat{\beta}_2 x^2] = \text{Var}[(1, x, x^2)\boldsymbol{\hat{\beta}}] = (1, x, x^2) \boldsymbol{\hat{\Sigma}_{\hat{\beta}}} (1, x, x^2)^T.$$
+
+Pozwala to nam uzyskać przedziały ufności dla oceny, a stąd dla prawdopodobieństw zgonu $q_x$.
+
+#### 4.7.7.2 Rezerwacja strat
+
+Przejdźmy teraz do modelowania średnich płatności zgodnie z rokiem wypadku AY i rokiem rozwoju DY, rozważanych wcześniej w tym rozdziale. Współczynniki regresji wyświetlone na Rys. 4.6 sugerują ustrukturyzowanie efektów AY i DY w celu zmniejszenia liczby parametrów i zwiększenia stabilności modelu. Biorąc pod uwagę współczynniki regresji związane z DY, widzimy, że wydają się być wyraźnie liniowe do DY = 7, a następnie łamią, wykazując liniowy trend poza nim. Sugeruje to, aby przedstawić efekt roku rozwoju dwiema cechami DY i I[DY > 7] wchodzącymi w ocenę w sposób liniowy. Biorąc pod uwagę tę specyfikację, różnica w dewiancji wynosi 0.030928 z 8 stopniami swobody. Odpowiednia wartość F wynosi 0.8603, dając p-wartość 55.63%. Nie ma zatem istotnej różnicy między modelami z i bez ustrukturyzowanych efektów DY.
+Oszacowane parametry regresji $\hat{\beta}_j$ związane z AY pozostają w dużej mierze niezmienione przez efekty DY. Jest to widoczne, gdy kontynuujemy strukturyzację współczynników regresji $\beta_j$ związanych z 11 latami wypadków. Widzimy, że do AY = 6, są prawie stałe, podczas gdy wykazują liniowy trend poza nim. Sugeruje to zastąpienie nieustrukturyzowanego efektu roku wypadkowego nową cechą AY $\times$ I[AY > 6] wchodzącą w ocenę w sposób liniowy, pozwalając na wyraz wolny. To dalsze uproszczenie nie pogarsza znacząco dopasowania. Dokładniej, w porównaniu z modelem początkowym, różnica w dewiancjach jest równa 0.068996 z 17 stopniami swobody. Wartość F wynosi 0.9032, a odpowiadająca jej p-wartość wynosi 57.85%, więc nie wykryto istotnej różnicy. Porównując z poprzednim modelem, otrzymujemy różnicę w dewiancjach 0.038068, 9 stopni swobody, wartość F 0.8155 i p-wartość 60.43%, co potwierdza poprzednie wyniki. Ponieważ model ustrukturyzowany testowany w stosunku do modelu początkowego przy użyciu analizy tabeli dewiancji i w stosunku do modelu pośredniego nie wykazuje istotnej różnicy (wykrytej testem F), preferowany jest prosty model ustrukturyzowany.
+Dopasowanie modelu jest podsumowane w Tabeli 4.9. Ostateczny model obejmuje przekształcone cechy AY $\times$ I[AY > 6], DY i I[DY > 7] wynikające ze strukturyzacji efektów uzyskanych przez traktowanie AY i DY jako cech kategorialnych. Parametr dyspersji dla rodziny odwrotnej-gaussowskiej jest oszacowany na $\hat{\phi} = 0.0051574$. Dewiancja zerowa wynosi 5.48273 na 65 stopniach swobody, podczas gdy dewiancja resztowa jest równa 0.25771 na 62 stopniach swobody. Odpowiednie AIC wynosi 712,569.
+
+**Tabela 4.9** Wynik funkcji `glm` z R dla dopasowania danych rezerwacji strat wyświetlonych w Tabeli 4.6 z ustrukturyzowanymi efektami AY i DY. Liczba iteracji Fisher scoring: 7
+
+| Współczynnik | Oszacowanie | Bł. stand. | Wartość z | $Pr(>\mid z\mid )$ | |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Wyraz wolny | 6.622377 | 0.030958 | 213.912 | $<2 \times 10^{-16}$ | \*\*\* |
+| AYI[AY > 6] | 0.035638 | 0.002832 | 12.586 | $<2 \times 10^{-16}$ | \*\*\* |
+| DY | 0.427926 | 0.020153 | 21.234 | $<2 \times 10^{-16}$ | \*\*\* |
+| I[DY > 7] | -1.126561 | 0.648119 | -1.738 | 0.0871 | . |
 
 ## 4.9 Surowe, standaryzowane i "studendyzowane" reszty
 
