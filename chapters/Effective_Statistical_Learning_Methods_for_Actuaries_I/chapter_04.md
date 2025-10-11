@@ -2416,3 +2416,21 @@ f(y, m) = \exp(a(m) + b(y) + c(y)m)
 $$
 
 dla pewnych funkcji $a, b, c$, co wydaje się być bardzo podobne do specyfikacji ED (2.3). Dokładniej, rozkład normalny (ze znaną wariancją), rozkład Poissona i rozkład Gamma (ze znanym parametrem skali) mają funkcje gęstości tej postaci. Odpowiadające im funkcje pseudo-wiarygodności produkują zgodne i asymptotycznie Normalne estymatory, niezależnie od prawdziwego rozkładu bazowego.
+
+## 4.12 Podsumowanie na temat GLM
+
+Podejście GLM do modelowania danych posiada wiele dogodnych właściwości, które czynią je szczególnie atrakcyjnym do prowadzenia badań ubezpieczeniowych. Wymieńmy kilka z tych właściwości, które zostały omówione w tym rozdziale:
+
+*   dyskretna lub skośna natura odpowiedzi jest uwzględniana bez konieczności wcześniejszej transformacji danych szkodowych;
+*   liniowy scoring jest łatwo interpretowalny i komunikowalny, co czyni go idealnym dla komercyjnych taryf składek (przejrzystość, ograniczenia marketingowe itp.);
+*   GLM są łatwo dopasowywane do danych ubezpieczeniowych za pomocą metody największej wiarygodności, z pomocą algorytmu IRLS, który wydaje się być ogólnie skuteczny z numerycznego punktu widzenia;
+*   GLM rozszerzają metodę MMT (metodę sum brzegowych) zapoczątkowaną przez amerykańskich aktuariuszy w latach 60., co ułatwiło jej przyjęcie przez społeczność aktuarialną w latach 90., dostarczając analitykom odpowiednich interpretacji dla równań wiarygodności przy kanonicznej funkcji łączącej.
+
+Oprócz tych zalet, GLM mają również kilka poważnych ograniczeń:
+
+*   liniowa struktura scoringu jest zbyt prymitywna dla technicznej taryfy składek, gdzie nieliniowe, przestrzenne lub wielopoziomowe czynniki ryzyka muszą być odpowiednio zintegrowane w skali scoringu;
+*   GLM nie uwzględniają automatycznie interakcji;
+*   współliniowość jest problemem;
+*   jak również przypadki „dużego $p$”, co sprawia, że ręczna procedura selekcji zmiennych zilustrowana w tym rozdziale jest nieosiągalna.
+
+Należy również pamiętać, że cała historia dotyczy korelacji i że nie można wyciągać stanowczych wniosków na temat możliwego związku przyczynowo-skutkowego między cechami a odpowiedzią.
