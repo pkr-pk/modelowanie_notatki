@@ -2017,52 +2017,60 @@ Dopasowanie modelu jest podsumowane w Tabeli 4.9. Ostateczny model obejmuje prze
 | DY | 0.427926 | 0.020153 | 21.234 | $<2 \times 10^{-16}$ | \*\*\* |
 | I[DY > 7] | -1.126561 | 0.648119 | -1.738 | 0.0871 | . |
 
-## 4.9 Surowe, standaryzowane i "studendyzowane" reszty
+## 4.8 Miary Wpływu
 
-### 4.9.2 Reszty w GLM
+### 4.8.1 Definicja Ogólna
 
-W nienormalnych GLM (Uogólnionych Modelach Liniowych) można zdefiniować kilka typów reszt w analogii do normalnego modelu regresji liniowej. Często odnoszą się one do normalnego modelu regresji liniowej używanego w ostatnim kroku algorytmu IRLS (Iteratively Re-weighted Least Squares). Reszta surowa $r_i$ to po prostu różnica $y_i - \hat{\mu}_i$ między obserwowaną odpowiedzią a oszacowaną średnią $\hat{\mu}_i = g^{-1}(x_i^T \hat{\beta})$. Są one nazywane **resztami odpowiedzi** dla GLM.
+Obserwacja wpływowa to taka, która, jeśli zostanie nieznacznie zmieniona lub pominięta, w istotny sposób zmodyfikuje estymowane parametry modelu. Miary wpływu mają na celu ocenę wpływu konkretnej obserwacji na estymowane parametry lub dopasowane wartości. Dźwignia jest jedną z oznak tego, jak duży wpływ ma obserwacja. Ogólną definicją dźwigni $j$-tej obserwacji jest wielkość pochodnej $i$-tej dopasowanej wartości względem $j$-tej wartości odpowiedzi.
 
-Aktuariusze często dopuszczają większe odchylenia między obserwacjami $y_i$ a wartościami dopasowanymi $\hat{\mu}_i$ wraz ze wzrostem średniej, ponieważ wariancja jest zazwyczaj rosnącą funkcją średniej. To sprawia, że wykres reszt surowych jest mniej informatywny. Aby obejść ten problem, reszty surowe są normalizowane przez pierwiastek kwadratowy z wariancji odpowiedzi. Prowadzi to do **reszt Pearsona**, zdefiniowanych jako:
+### 4.8.2 Miary diagnostyczne oparte na macierzy kapeluszowej (hat matrix)
 
-$$r_{i}^P = \frac{y_i - \hat{\mu}_i}{\sqrt{V(\hat{\mu}_i)/\nu_i}}$$
+W przypadku rozkładu normalnego wiemy z (4.11) do (4.12), że dopasowane wartości uzyskuje się poprzez pomnożenie obserwowanych odpowiedzi przez macierz kapeluszową $\boldsymbol{H}$. Zatem element diagonalny $h_{ii}$ macierzy $\boldsymbol{H}$ mierzy wpływ $Y_i$ na $\hat{Y}_i$
 
-Reprezentują one pierwiastek kwadratowy z wkładu każdej obserwacji do statystyki $X^2$ Pearsona, jako że 
+$$
+\hat{Y_i} = \sum_{j=1}^{n} h_{ij}Y_j = h_{ii}Y_i + \sum_{j \ne i}^{n} h_{ij}Y_j, \quad i=1, 2, \dots, n.
+$$
 
-$$\sum_{i=1}^{n} (r_{i}^P)^2 = X^2.$$
+Jest to zgodne z ogólną definicją dźwigni przytoczoną wcześniej. Ponadto, $h_{ii}$ mierzy wpływ $Y_i$ na każdą dopasowaną wartość $\hat{Y}_j$, ponieważ
 
-To wyjaśnia, dlaczego te reszty nazywane są resztami Pearsona.
+$$
+h_{ii} = \sum_{j=1}^{n} h_{ij}^2, \quad \text{i} \quad h_{ij} = h_{ji}.
+$$
 
-Reszty Pearsona pochodzą z modeli liniowych i nie uwzględniają kształtu rozkładu. Ponieważ obliczanie dewiancji koryguje skośność odpowiedzi, zaproponowano inną resztę do stosowania w GLM. **Reszty dewiancyjne** $r_{i}^D$ są definiowane jako pierwiastek kwadratowy ze znakiem z wkładu i-tej obserwacji do dewiancji. Pomaga to wykryć obserwacje, które w dużym stopniu zwiększają dewiancję, a tym samym unieważniają model. W szczególności, rozłóżmy dewiancję na:
+Jeśli $h_{ii} = 1$, to $\hat{Y}_i$ jest wyznaczane wyłącznie przez $Y_i$. W zastosowaniach dotyczących rezerw szkodowych jest to zazwyczaj przypadek dla ostatniej komórki w pierwszym wierszu trójkąta run-off, a także dla ostatniej komórki w pierwszej kolumnie, dla modelu traktującego AY i DY jako cechy kategoryczne, który zapewnia idealne dopasowanie. Jeśli $h_{ii} = 0$, to $y_i$ nie ma wpływu na $\hat{y}_i$.
 
-$$D(\mathbf{y}, \hat{\boldsymbol{\mu}}) = 2 \sum_{i=1}^{n} v_i \left(y_i(\tilde{\theta}_i - \hat{\theta}_i) - a(\tilde{\theta}_i) + a(\hat{\theta}_i)\right) = \sum_{i=1}^{n} d_i$$
+Biorąc pod uwagę ślad macierzy kapeluszowej $\boldsymbol{H}$ podany w (4.18), średnia wartość $h_{ii}$ jest równa $\bar{h} = (p + 1)/n$. Obserwacje wpływowe często mają $h_{ii} > 2\bar{h}$; w małych próbkach, często używa się większego progu $3\bar{h}$. W uogólnionych modelach liniowych (GLM), dźwignia jest kwantyfikowana przez macierz kapeluszową $\boldsymbol{H}$ pochodzącą z ostatniej iteracji algorytmu iteracyjnie ważonych najmniejszych kwadratów (IRLS). Ilość
 
-gdzie $d_i = d(y_i, \hat{\theta}_i)$ zostało wprowadzone w równaniu (4.19). Reszty dewiancyjne są wtedy zdefiniowane jako:
+$$
+h_{ii} = \mathbf{x}_i^T(\mathbf{X}^T\mathbf{W}\mathbf{X})^{-1}\mathbf{x}_i, \quad i=1, 2, \dots, n.
+$$
 
-$$r_{i}^D = \text{sign}(y_i - \hat{\mu}_i)\sqrt{d_i}$$
+nazywana jest dźwignią lub wartością kapeluszową. W liniowych modelach regresji normalnej jest ona nielosowa (tj. zależy tylko od położeń $\boldsymbol{x}_1, \dots, \boldsymbol{x}_n$), ograniczona do przedziału $[0, 1]$, w zależności od położenia $\boldsymbol{x}_i$ w stosunku do pozostałych $\boldsymbol{x}_k$. Duża wartość $h_{ii}$ odpowiada obserwacji z nietypowym $\boldsymbol{x}_i$, podczas gdy mała $h_{ii}$ odpowiada obserwacji bliskiej centrum danych. W GLM, odpowiedzi wchodzą w obliczenia $h_{ii}$ (poprzez wagi robocze), co czyni ich interpretację bardziej uciążliwą poza wpływem na obliczenie $i$-tej dopasowanej wartości.
 
-Tutaj notacja „sign” oznacza znak wyrażenia w nawiasach:
+### 4.8.3 Estymatory typu "Leave-One-Out" i Odległość Cooka
 
-$$\text{sign}(y_i - \hat{\mu}_i) = \begin{cases} 1 & \text{jeżeli } y_i > \hat{\mu}_i \\ -1 & \text{w p.p.} \end{cases}$$
+Innym podejściem do pomiaru wpływu jest zbadanie oszacowanych współczynników regresji uzyskanych poprzez pominięcie każdej obserwacji po kolei. Indeks dolny "$(-i)$" jest używany do wskazania, że odpowiednia wielkość została obliczona na zredukowanym zestawie danych uzyskanym przez usunięcie obserwacji $(y_i, \boldsymbol{x}_i)$ ze zbioru uczącego. Tak więc, $\boldsymbol{\hat{\beta}}_{(-i)}$ daje oszacowane współczynniki regresji na podstawie $(y_1, \boldsymbol{x}_1), \dots, (y_{i-1}, \boldsymbol{x}_{i-1}), (y_{i+1}, \boldsymbol{x}_{i+1}), \dots, (y_n, \boldsymbol{x}_n)$. Nazywa się to estymatorem typu "leave-one-out". 
 
-Oczywiście, suma kwadratów reszt dewiancyjnych daje dewiancję, to znaczy 
+W przypadku rozkładu normalnego, estymator parametru $\boldsymbol{\hat{\beta}}_{(-i)}$ uzyskany poprzez pominięcie $i$-tej obserwacji jest łatwo uzyskiwany z
 
-$$\sum_{i=1}^{n} (r_{i}^D)^2 = D.$$
+$$
+\boldsymbol{\hat{\beta}}_{(-i)} = \boldsymbol{\hat{\beta}} - (\mathbf{X}^T\mathbf{W}\mathbf{X})^{-1}\mathbf{x}_i \frac{y_i - \hat{y}_i}{1-h_{ii}}.
+$$
 
-Reszty dewiancyjne są bardziej odpowiednie w kontekście GLM i często są preferowaną formą reszt. W przypadku normalnym reszty Pearsona i reszty dewiancyjne są identyczne. Należy jednak zauważyć, że analityk nie szuka normalności w resztach dewiancyjnych, ponieważ ich rozkład z próby pozostaje nieznany. Chodzi o brak dopasowania i szukanie wzorców widocznych w resztach: jeśli aktuariusz wykryje jakiś wzorzec w resztach wykreślonych względem:
+W związku z tym nie ma potrzeby estymowania $\boldsymbol{\beta}$ ze zredukowanego zbioru danych, ponieważ $\boldsymbol{\hat{\beta}}_{(-i)}$ jest bezpośrednio uzyskiwane z $\boldsymbol{\hat{\beta}}$ za pomocą tej tożsamości. Podobnie dla oszacowanej wariancji,
 
-* wartości dopasowanych,
-* cech zawartych w scoringu lub
-* cech nieujętych w modelu
+$$
+(n-p-2)\hat{\sigma}_{(-i)}^2 = (n-p-1)\hat{\sigma}^2 - \frac{(y_i - \hat{y}_i)^2}{1-h_{ii}}.
+$$
 
-to coś jest nie tak i należy podjąć działania. Na przykład, jeśli aktuariusz wykryje jakąś strukturę w resztach wykreślonych względem pominiętej cechy, cecha ta powinna zostać włączona do scoringu. Jeśli na wykresie pokazującym reszty względem każdej cechy zawartej w scoringu widoczne są wzorce, oznacza to, że odpowiednia cecha nie jest właściwie zintegrowana ze scoringiem (powinna zostać przekształcona lub aktuariusz powinien zrezygnować z GLM na rzecz modelu addytywnego). Czasami interesujące jest również wykreślenie reszt względem czasu lub współrzędnych przestrzennych. Wzorce w rozproszeniu (wykryte przez wykreślenie reszt względem wartości dopasowanych) mogą wskazywać na naddyspersję lub, bardziej ogólnie, na użycie niewłaściwej relacji średnia-wariancja.
+Zmienne losowe $Y_i$ i $\hat{Y}_{(-i)}$ są nieskorelowane, więc
 
-Reszty standaryzowane uwzględniają różne dźwignie (leverages). Rozważmy macierz kapeluszową (hat matrix) (4.12) pochodzącą z ostatniej iteracji algorytmu IRLS. Wartości kapeluszowe $h_{ii}$ mierzą dźwignię, czyli potencjał obserwacji do wpływania na wartości dopasowane. Duża wartość dźwigni $h_{ii}$ wskazuje, że dopasowanie jest wrażliwe na odpowiedź $y_i$. Duże dźwignie zazwyczaj oznaczają, że odpowiadające im cechy są w jakiś sposób nietypowe. Reszty standaryzowane, nazywane również resztami skalowanymi, są następnie podawane przez:
+$$
+\text{Var}[Y_i - \hat{Y}_{(-i)}] = \text{Var}[Y_i] + \text{Var}[\hat{Y}_{(-i)}] = \sigma^2(1 + \mathbf{x}_i^T(\mathbf{X}_{(-i)}^T\mathbf{X}_{(-i)})^{-1}\mathbf{x}_i).
+$$
 
-$$t_i^P = \frac{r_i^P}{\sqrt{\hat{\phi}(1-h_{ii})}} \quad oraz \quad t_i^D = \frac{r_i^D}{\sqrt{\hat{\phi}(1-h_{ii})}}.$$
+To pokazuje, że w przypadku rozkładu normalnego, estymacja typu "leave-one-out" nie wymaga ponownego dopasowywania modelu $n$ razy, bez $i$-tej obserwacji. Niestety, nie jest to już prawdą w przypadku innych GLM, ale opracowano aproksymacje w celu skrócenia czasu obliczeń dla nienormalnych GLM.
 
-Reszty studentyzowane (nazywane również resztami jackknife lub resztami z usunięciem) odpowiadają resztom standaryzowanym wynikającym z pomijania każdej obserwacji po kolei. Ponieważ w przypadku GLM zazwyczaj nie istnieją proste zależności między $\hat{\beta}$ a $\hat{\beta}_{(-i)}$, dokładne ich obliczenie wymagałoby ponownego dopasowania modelu n razy, co jest niewykonalne dla dużych rozmiarów prób. Przybliżenie podają reszty likelihoodowe, zdefiniowane jako ważona średnia reszt standaryzowanych dewiancyjnych i Pearsona, więc przyjmujemy:
+Odległość Cooka mierzy odległość między $\boldsymbol{\hat{\beta}}$ a $\boldsymbol{\hat{\beta}}_{(-i)}$, przy czym duże wartości wskazują na obserwacje, które mają wpływ na oszacowane współczynniki regresji. Odległość Cooka służy do badania, w jaki sposób każda obserwacja wpływa na cały wektor $\boldsymbol{\hat{\beta}}$ oszacowań parametrów. Mierzy ona różnicę $\boldsymbol{\hat{\beta}} - \boldsymbol{\hat{\beta}}_{(-i)}$ we wszystkich $p + 1$ współczynnikach regresji. Inna miara wpływu opiera się na różnicy dopasowanych wartości $\hat{\mu}_i$ przy użyciu wszystkich danych i $\hat{\mu}_{(-i)}$ z pominięciem obserwacji $i$.
 
-$$t_i^* = \text{sign}(y_i - \hat{\mu}_i)\sqrt{(1-h_{ii})(t_i^D)^2 + h_{ii}(t_i^P)^2}.$$
-
-W przeciwieństwie do normalnego modelu regresji liniowej, gdzie standaryzowane reszty mają znany rozkład, rozkład reszt w GLM jest zazwyczaj nieznany. Dlatego zakres reszt jest trudny do oszacowania, ale można je badać pod kątem struktury i dyspersji, wykreślając je względem wartości dopasowanych lub niektórych cech. Dźwignia (Leverage) mierzy jedynie potencjał wpływu na dopasowanie, podczas gdy miary wpływu bardziej bezpośrednio oceniają wpływ każdej obserwacji na dopasowanie. Zazwyczaj odbywa się to poprzez badanie zmiany w dopasowaniu po pominięciu tej obserwacji. W GLM można to zrobić, patrząc na zmiany we współczynnikach regresji. Statystyka Cooka mierzy odległość między $\hat{\beta}$ a $\hat{\beta}_{(-i)}$ uzyskaną przez pominięcie i-tego punktu danych $(y_i, x_i)$ ze zbioru uczącego.
+Gdy $n$ jest duże (co jest ogólnie prawdą w zastosowaniach ubezpieczeniowych), pominięcie pojedynczej obserwacji $i$ nie ma tak naprawdę wpływu na oszacowane współczynniki regresji, co czyni podejście "leave-one-out" nieatrakcyjnym. Jednakże, gdy jest ono stosowane na danych zgrupowanych lub na problemach o małej skali (takich jak trójkąty run-off w rezerwach szkodowych), podejście to jest mimo wszystko pouczające.
