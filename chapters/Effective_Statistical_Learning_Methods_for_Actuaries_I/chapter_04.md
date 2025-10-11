@@ -2210,3 +2210,130 @@ Ostatni panel Rys. 4.8 łączy reszty, wartości kapeluszowe i odległości Cook
 Rysunek 4.9 przedstawia reszty dla średnich kwot płatności względem wartości dopasowanych i zmiennych objaśniających. Poza tym, że więcej obserwacji jest dostępnych dla mniejszych wartości AY i DY oraz dla większych wartości CY, z czterech wykresów reszt na Rys. 4.9 nie wyłania się żadna struktura.
 
 Rysunek 4.10 łączy reszty, wartości kapeluszowe i odległości Cooka. Można go interpretować jak ostatni panel Rys. 4.8. Dokładniej, Rys. 4.10 pokazuje, że żaden punkt danych nie wpada w regiony krytyczne odpowiadające górnej i dolnej prawej ćwiartce wykresu. Niemniej jednak niektóre komórki trójkąta wydają się mieć duże odległości Cooka, związane z niską lub umiarkowaną dźwignią.
+
+## 4.10 Klasyfikacja Ryzyka w Ubezpieczeniach Komunikacyjnych
+
+Aby podsumować wszystkie dotychczas przedstawione pojęcia, przeanalizujmy teraz większy zbiór danych związany z ubezpieczeniami komunikacyjnymi. Odpowiedzią jest tutaj liczba szkód zgłoszonych przez ubezpieczonego kierowcę w ramach ubezpieczenia od odpowiedzialności cywilnej.
+
+### 4.10.1 Opis Zbioru Danych
+
+#### 4.10.1.1 Dostępne Cechy i Odpowiedzi
+
+Przedstawmy pokrótce dane użyte do zilustrowania technik opisanych w tym rozdziale. Zbiór danych odnosi się do portfela belgijskich ubezpieczeń komunikacyjnych OC obserwowanego pod koniec lat 90. Obejmuje on 14 504 umowy z łączną ekspozycją wynoszącą 11 183,68 poliso-lat. Są to pojazdo-lata, ponieważ każda polisa obejmuje pojedynczy pojazd, ale niektóre umowy obowiązują tylko przez część roku.
+
+Zmienne zawarte w pliku są następujące:
+
+*   **AgePh**: Wiek ubezpieczającego w ostatnie urodziny (na 1 stycznia), w 5 grupach od G1 do G5 o rosnącym starszeństwie.
+*   **Gender**: Płeć ubezpieczającego, mężczyzna lub kobieta.
+*   **PowerCat**: Moc samochodu, w czterech kategoriach od C1 do C4 o rosnącej mocy.
+*   **Expor**: Liczba dni obowiązywania polisy w okresie obserwacji.
+*   **CitySize**: Wielkość miasta, w którym mieszka ubezpieczający, z trzema kategoriami: duże, średnie lub małe.
+
+Oprócz tych cech, zarejestrowano liczbę szkód **Nclaim** zgłoszonych przez każdego ubezpieczającego w okresie obserwacji. Jest to odpowiedź badana w tej sekcji.
+
+#### 4.10.1.2 Skład Portfela w Odniesieniu do Cech
+
+Górny lewy panel na Rys. 4.11 przedstawia rozkład ekspozycji na ryzyko w portfelu. Około 60% polis było obserwowanych przez cały rok. Biorąc pod uwagę rozkład ekspozycji na ryzyko, widzimy, że wznowienia i wygaśnięcia polis są rozłożone w ciągu roku. Należy zauważyć, że firmy ubezpieczeniowe często tworzą nowy rekord za każdym razem, gdy następuje zmiana cech (na przykład ubezpieczający kupuje nowy samochód lub przeprowadza się w inne miejsce). To wyjaśnia stosunkowo dużą liczbę umów z ekspozycją znacznie mniejszą niż jeden. Struktura wiekowa portfela jest również opisana na Rys. 4.11 (tamże górny prawy panel), podobnie jak skład zbioru danych pod względem płci, wielkości miasta, w którym mieszka ubezpieczający, oraz mocy samochodu. Widzimy, że większość ubezpieczonych kierowców należy do grupy wiekowej G2, około dwie trzecie umów obejmuje kierowcę płci męskiej, rozkład mocy wykazuje kształt litery U, a umowy są równomiernie rozłożone na trzy typy miast.
+
+Dolny prawy panel na Rys. 4.11 przedstawia histogram zaobserwowanych liczby szkód na polisę. Widzimy, że większość polis (dokładnie 12 458) nie wygenerowała żadnej szkody. Około 10% portfela wygenerowało jedną szkodę (1 820 umów). Następnie, 206 umów wygenerowało 2 szkody, 17 umów wygenerowało 3 szkody, 2 umowy 4 szkody i była jedna polisa z 5 szkodami. Daje to globalną częstość szkód równą 20,53% na poziomie portfela (co jest dość wysokie w porównaniu z dzisiejszymi częstościami szkód na poziomie 6-7% na rynku belgijskim).
+
+#### 4.10.1.3 Związek Między Cechami
+
+Użyjmy współczynnika V Craméra do wykrycia cech, które są ze sobą powiązane. Rysunek 4.12 przedstawia wartości V Craméra między cechami, a także między odpowiedzią a cechami. Widzimy, że powiązania są raczej słabe, z wyjątkiem związku między Mocą a Płcią. Ale pozostaje on stosunkowo umiarkowany w każdym przypadku. Ponadto, odpowiedź wydaje się być słabo powiązana z poszczególnymi cechami. Jest to typowe dla danych dotyczących liczby szkód w ubezpieczeniach ze względu na heterogeniczność obecną w danych i dyskretność odpowiedzi.
+
+### 4.10.2 Marginalny Wpływ Cech na Liczbę Szkód
+
+Badania ubezpieczeniowe generalnie zaczynają się od analiz jednoczynnikowych, czyli marginalnych, podsumowujących dane odpowiedzi dla każdej wartości cechy, ale bez uwzględniania wpływu innych cech. Efekty marginalne czterech ciągłych cech na roczne częstości szkód są przedstawione na Rys. 4.13. Widzimy, że oszacowana częstość szkód dla każdego poziomu cech kategorycznych. Najlepsze oszacowania (odpowiadające okręgom) są otoczone przedziałami ufności. Wyniki te można uzyskać za pomocą analizy GLM Poissona obejmującej pojedynczą cechę, dzięki czemu przedziały ufności są łatwo wyprowadzane z rozkładu próby oszacowanych współczynników regresji.
+
+Pomimo stosunkowo niskich wartości V Craméra, widzimy, że częstości szkód wydają się zależeć od cech w zwykły sposób, malejąc wraz z wiekiem ubezpieczającego, większe dla kierowców płci męskiej, rosnące wraz z wielkością miasta, podczas gdy wpływ mocy jest na tym etapie trudniejszy do zinterpretowania. Oczywiście, są to tylko efekty marginalne, które mogą być zniekształcone przez korelację istniejącą między cechami, dlatego potrzebujemy analizy GLM uwzględniającej wszystkie cechy, aby prawidłowo ocenić wpływ każdej cechy na oczekiwaną liczbę szkód.
+
+### 4.10.3 Analiza GLM Poissona dla Liczby Szkód
+
+Rozkład Poissona jest naturalnym kandydatem do modelowania liczby szkód zgłaszanych przez ubezpieczających. Typowym założeniem w tych okolicznościach jest to, że warunkowa średnia częstość szkód może być zapisana jako funkcja wykładnicza wyniku liniowego ze współczynnikami do oszacowania na podstawie danych.
+
+Zaczynamy od modelu uwzględniającego wszystkie cechy. Poziomy odniesienia dla cech binarnych to te najliczniej występujące, zgodnie z wyjaśnionymi powyżej wytycznymi. Używamy
+
+$$
+\text{offset}_i = \ln(\text{ExpoR}_i / 365).
+$$
+
+Wyniki uzyskane za pomocą funkcji `glm` oprogramowania R są wyświetlone w Tabeli 4.10.
+
+**Tabela 4.10** Wynik funkcji `glm` w R dla dopasowania modelu do danych TPL. Liczba iteracji scoringu Fishera: 6
+
+| Współczynnik    | Oszacowanie | Błąd stand. | wartość z | Pr(>\|z\|)           |   |
+|:----------------|:------------|:------------|:----------|:---------------------|:--|
+| Intercept       | -1.46605    | 0.05625     | -26.063   | < 2 x 10<sup>-16</sup> | *** |
+| Female          | -0.12532    | 0.05567     | -2.209    | 0.02714              | * |
+| Age G2          | 0.25232     | 0.08865     | 2.846     | 0.00442              | ** |
+| Age G3          | -0.30633    | 0.05999     | -5.106    | 3.29 x 10<sup>-7</sup> | *** |
+| Age G4          | -0.32670    | 0.05854     | -5.581    | 2.40 x 10<sup>-8</sup> | *** |
+| Age G5          | -0.46584    | 0.06215     | -7.495    | 6.62 x 10<sup>-14</sup>| *** |
+| Power C2        | 0.08483     | 0.05430     | 1.562     | 0.11819              |   |
+| Power C3        | 0.07052     | 0.06211     | 1.135     | 0.25622              |   |
+| Power C4        | 0.07930     | 0.06082     | 1.304     | 0.19230              |   |
+| CitySize Large  | 0.24548     | 0.04955     | 4.954     | 7.25 x 10<sup>-7</sup> | *** |
+| CitySize Small  | -0.09414    | 0.05340     | -1.763    | 0.07790              |  |
+
+Widzimy, że wpływ wieku, płci i wielkości miasta jest zgodny z wstępną analizą marginalną. Moc nie wydaje się istotnie wpływać na oczekiwaną częstość szkód. Jednak wyniki przedstawione w Tabeli 4.10 nie są wystarczające, aby stwierdzić, że moc nie jest potrzebna w GLM. Powodem jest to, że ta cecha kategoryczna została zakodowana za pomocą trzech zmiennych zero-jedynkowych, więc w Tabeli 4.10 przeprowadzane są trzy testy, po jednym dla każdego poziomu różnego od kategorii odniesienia C1. Ponieważ nie kontrolujemy całkowitego błędu związanego z wykorzystaniem wniosków z tych trzech testów jednocześnie, wartości p-wartości wyświetlane w Tabeli 4.10 nie dają aktuariuszowi odpowiedniego narzędzia do podjęcia decyzji, czy moc można usunąć ze scoringu.
+
+Dewiacja zerowa wynosi 9,508.6 na 14,503 stopniach swobody, a dewiacja resztkowa 9,363.5 na 14,493 stopniach swobody. To pokazuje, że model regresji Poissona wyjaśnia tylko niewielką część dewiacji. AIC wynosi 13,625. Jak omówiono wcześniej, Tabela 4.10 sugeruje, że moc nie wydaje się być czynnikiem ryzyka. Aby formalnie sprawdzić, czy moc można wykluczyć z modelu GLM, porównujemy modele z i bez tej cechy za pomocą tabeli analizy dewiacji. Różnica w dewiacjach modeli z i bez mocy wynosi 3.0654 z 3 stopniami swobody. Odpowiadająca p-wartość wynosi 38.17%, co potwierdza, że moc nie jest istotna dla wyjaśnienia liczby szkód.
+
+Co więcej, wydaje się, że dwa ostatnie poziomy CitySize można połączyć. Sprawdzamy, czy to uproszczenie modelu znacząco pogarsza dopasowanie za pomocą tabeli analizy dewiacji. Różnica w dewiacjach między początkowym modelem uwzględniającym wszystkie cechy a modelem bez Mocy i z dwoma ostatnimi poziomami CitySize połączonymi wynosi 6.2137 z 4 stopniami swobody. Odpowiadająca p-wartość 18.37% wskazuje, że grupowanie nie pogarsza znacząco dopasowania. Po ponownym dopasowaniu modelu odkrywamy, że oszacowane współczynniki regresji dla kategorii wiekowych G3 i G4 są odpowiednio równe -0.30054 i -0.31933, przy błędach standardowych odpowiednio równych 0.05984 i 0.05801. To sugeruje, że poziomy G3 i G4 Wieku można połączyć. Potwierdzono to za pomocą tabeli analizy dewiacji, ponieważ różnica w dewiacjach wynosi 6.2867 z 5 stopniami swobody dla modelu początkowego w porównaniu z uproszczonym.
+
+**Tabela 4.11** Wynik funkcji `glm` w R dla ostatecznego modelu regresji Poissona dla danych TPL. Liczba iteracji scoringu Fishera: 6
+
+| Współczynnik   | Oszacowanie | Błąd stand. | wartość z | Pr(>\|z\|)            |   |
+|:---------------|:------------|:------------|:----------|:----------------------|:--|
+| Intercept      | -1.76608    | 0.04183     | -42.216   | < 2 x 10<sup>-16</sup>  | *** |
+| Female         | -0.11779    | 0.04435     | -2.656    | 0.00791               | ** |
+| Age G1         | 0.54798     | 0.08933     | 6.134     | 8.55 x 10<sup>-10</sup> | *** |
+| Age G2         | 0.31040     | 0.04756     | 6.527     | 6.71 x 10<sup>-11</sup> | *** |
+| Age G5         | -0.14506    | 0.06276     | -2.311    | 0.02081               | * |
+| CitySize Large | 0.29026     | 0.04300     | 6.751     | 1.47 x 10<sup>-11</sup> | *** |
+
+P-wartość 27.93% pokazuje, że dalsze grupowanie jest zgodne z danymi. Ponieważ ekspozycja jest teraz w połączonej grupie wiekowej G3-G4, ta ostatnia staje się nowym poziomem odniesienia.
+
+Po tych krokach mamy teraz ostateczny model podsumowany w Tabeli 4.11. Dewiacja zerowa 9,508.6 na 14,503 stopniach swobody jest teraz porównywana z dewiacją resztkową 9,369.8 na 14,498 stopniach swobody. Ta ostatnia jest wyższa niż odpowiadająca wartość dla początkowego modelu obejmującego wszystkie cechy. Uproszczony model mimo to oferuje lepsze dopasowanie, co wskazuje wartość AIC, która zmniejszyła się z 13,625 do 13,621.
+
+Widzimy, że reszty oparte na obserwacjach indywidualnych dziedziczą strukturę odpowiedzi, z dolną krzywą odpowiadającą polisom bez szkód, następną dla polis, które zgłosiły 1 szkodę, 2 szkody itd. Reszty obliczone na podstawie danych zgrupowanych pozwalają uniknąć tej pułapki. Dokładniej, dane indywidualne są grupowane zgodnie z cechami wchodzącymi do ostatecznego modelu (płeć, wiek z 4 poziomami i wielkość miasta) i dodawane są ekspozycje. To tworzy podsumowany zbiór danych z 16 grupami. Oszacowane współczynniki regresji pozostają niezmienione przez grupowanie, ale reszty można teraz ponownie obliczyć (zauważ, że reszty dewiacyjne nie są addytywne). Wynikowe zgrupowane reszty są wyświetlane na dolnym panelu Rys. 4.14. Po wykreśleniu względem wartości kapeluszowych i uzupełnieniu odległościami Cooka na Rys. 4.15, uzyskane reszty wydają się wspierać dopasowanie modelu, ponieważ żadna klasa ryzyka nie wykazuje jednocześnie dużych odległości Cooka i dźwigni. Widzimy na Rys. 4.16, że prognozy modelu są w dużej mierze zgodne z doświadczeniem portfela: klasy ryzyka plasują się bardzo blisko linii 45 stopni, zwłaszcza te najliczniej występujące.
+
+### 4.10.4 Modelowanie Alternatywne
+
+Zamiast rejestrować liczbę $N_i$ szkód w okresie obserwacji $e_i$ (ekspozycja na ryzyko), aktuariusz mógłby równoważnie oprzeć analizę częstości szkód na czasach $T_{i1}, \dots, T_{i, N_i}$, w których wystąpiło tych $N_i$ szkód. Okresy oczekiwania $W_{ik}$ między dwiema kolejnymi szkodami zgłoszonymi przez ubezpieczającego $i$ są zdefiniowane jako
+
+$$
+W_{ik} = T_{ik} - T_{i, k-1}, \quad k=1, 2, \dots
+$$
+
+gdzie $T_{i0} = 0$, z umowy. Załóżmy, że czasy oczekiwania $W_{ik}$ są niezależne i podążają za rozkładem $\mathcal{E}xp(\lambda_i)$. Jeśli ubezpieczający $i$ nie zgłosi żadnej szkody ($N_i = 0$), to $T_{i1} = W_{i1} > e_i$, a wkład do funkcji wiarygodności wynosi
+
+$$
+\text{P}[W_{i1} > e_i] = \exp(-e_i \lambda_i).
+$$
+
+Jeśli ubezpieczający $i$ zgłosi pojedynczą szkodę ($N_i = 1$) w czasie $t_1$, to ekspozycję na ryzyko można podzielić na czas $t_1$ do momentu szkody i czas $e_i - t_1$ od $t_1$ do końca okresu obserwacji. Wkład do funkcji wiarygodności jest wtedy dany przez
+
+$$
+\lambda_i \exp(-\lambda_i t_1) \text{P}[W_{i2} > e_i - t_1] = \lambda_i \exp(-(t_1 + e_i - t_1)\lambda_i) = \lambda_i \exp(-e_i \lambda_i).
+$$
+
+Jeśli ubezpieczający $i$ zgłosi dwie szkody w czasach $t_1$ i $t_2$, to wkład do funkcji wiarygodności wynosi
+
+$$
+\lambda_i \exp(-\lambda_i t_1) \lambda_i \exp(-\lambda_i (t_2 - t_1)) \exp(-\lambda_i (e_i - t_2)) = \lambda_i^2 \exp(-e_i \lambda_i).
+$$
+
+Ogólnie, funkcja wiarygodności związana z czasami wystąpienia $N_i$ szkód ma postać
+
+$$
+\mathcal{L} = \prod_{i=1}^n (\lambda_i^{N_i} \exp(-\lambda_i e_i))
+$$
+
+gdzie
+
+$$
+N_i = \max\{k | T_{i0} + T_{i1} + \dots + T_{ik} \le e_i\}.
+$$
+
+Regresja gamma na okresach oczekiwania $W_{ik}$ jest zatem równoważna regresji Poissona na liczbie szkód.
