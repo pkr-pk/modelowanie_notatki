@@ -2042,7 +2042,7 @@ Jeśli $h_{ii} = 1$, to $\hat{Y}_i$ jest wyznaczane wyłącznie przez $Y_i$. W z
 Biorąc pod uwagę ślad macierzy kapeluszowej $\boldsymbol{H}$ podany w (4.18), średnia wartość $h_{ii}$ jest równa $\bar{h} = (p + 1)/n$. Obserwacje wpływowe często mają $h_{ii} > 2\bar{h}$; w małych próbkach, często używa się większego progu $3\bar{h}$. W uogólnionych modelach liniowych (GLM), dźwignia jest kwantyfikowana przez macierz kapeluszową $\boldsymbol{H}$ pochodzącą z ostatniej iteracji algorytmu iteracyjnie ważonych najmniejszych kwadratów (IRLS). Ilość
 
 $$
-h_{ii} = \mathbf{x}_i^T(\mathbf{X}^T\mathbf{W}\mathbf{X})^{-1}\mathbf{x}_i, \quad i=1, 2, \dots, n.
+h_{ii} = \boldsymbol{x}_i^T(\boldsymbol{X}^T\boldsymbol{W}\boldsymbol{X})^{-1}\boldsymbol{x}_i, \quad i=1, 2, \dots, n.
 $$
 
 nazywana jest dźwignią lub wartością kapeluszową. W liniowych modelach regresji normalnej jest ona nielosowa (tj. zależy tylko od położeń $\boldsymbol{x}_1, \dots, \boldsymbol{x}_n$), ograniczona do przedziału $[0, 1]$, w zależności od położenia $\boldsymbol{x}_i$ w stosunku do pozostałych $\boldsymbol{x}_k$. Duża wartość $h_{ii}$ odpowiada obserwacji z nietypowym $\boldsymbol{x}_i$, podczas gdy mała $h_{ii}$ odpowiada obserwacji bliskiej centrum danych. W GLM, odpowiedzi wchodzą w obliczenia $h_{ii}$ (poprzez wagi robocze), co czyni ich interpretację bardziej uciążliwą poza wpływem na obliczenie $i$-tej dopasowanej wartości.
@@ -2054,7 +2054,7 @@ Innym podejściem do pomiaru wpływu jest zbadanie oszacowanych współczynnikó
 W przypadku rozkładu normalnego, estymator parametru $\boldsymbol{\hat{\beta}}_{(-i)}$ uzyskany poprzez pominięcie $i$-tej obserwacji jest łatwo uzyskiwany z
 
 $$
-\boldsymbol{\hat{\beta}}_{(-i)} = \boldsymbol{\hat{\beta}} - (\mathbf{X}^T\mathbf{W}\mathbf{X})^{-1}\mathbf{x}_i \frac{y_i - \hat{y}_i}{1-h_{ii}}.
+\boldsymbol{\hat{\beta}}_{(-i)} = \boldsymbol{\hat{\beta}} - (\boldsymbol{X}^T\boldsymbol{W}\boldsymbol{X})^{-1}\boldsymbol{x}_i \frac{y_i - \hat{y}_i}{1-h_{ii}}.
 $$
 
 W związku z tym nie ma potrzeby estymowania $\boldsymbol{\beta}$ ze zredukowanego zbioru danych, ponieważ $\boldsymbol{\hat{\beta}}_{(-i)}$ jest bezpośrednio uzyskiwane z $\boldsymbol{\hat{\beta}}$ za pomocą tej tożsamości. Podobnie dla oszacowanej wariancji,
@@ -2066,7 +2066,7 @@ $$
 Zmienne losowe $Y_i$ i $\hat{Y}_{(-i)}$ są nieskorelowane, więc
 
 $$
-\text{Var}[Y_i - \hat{Y}_{(-i)}] = \text{Var}[Y_i] + \text{Var}[\hat{Y}_{(-i)}] = \sigma^2(1 + \mathbf{x}_i^T(\mathbf{X}_{(-i)}^T\mathbf{X}_{(-i)})^{-1}\mathbf{x}_i).
+\text{Var}[Y_i - \hat{Y}_{(-i)}] = \text{Var}[Y_i] + \text{Var}[\hat{Y}_{(-i)}] = \sigma^2(1 + \boldsymbol{x}_i^T(\boldsymbol{X}_{(-i)}^T\boldsymbol{X}_{(-i)})^{-1}\boldsymbol{x}_i).
 $$
 
 To pokazuje, że w przypadku rozkładu normalnego, estymacja typu "leave-one-out" nie wymaga ponownego dopasowywania modelu $n$ razy, bez $i$-tej obserwacji. Niestety, nie jest to już prawdą w przypadku innych GLM, ale opracowano aproksymacje w celu skrócenia czasu obliczeń dla nienormalnych GLM.
@@ -2074,3 +2074,139 @@ To pokazuje, że w przypadku rozkładu normalnego, estymacja typu "leave-one-out
 Odległość Cooka mierzy odległość między $\boldsymbol{\hat{\beta}}$ a $\boldsymbol{\hat{\beta}}_{(-i)}$, przy czym duże wartości wskazują na obserwacje, które mają wpływ na oszacowane współczynniki regresji. Odległość Cooka służy do badania, w jaki sposób każda obserwacja wpływa na cały wektor $\boldsymbol{\hat{\beta}}$ oszacowań parametrów. Mierzy ona różnicę $\boldsymbol{\hat{\beta}} - \boldsymbol{\hat{\beta}}_{(-i)}$ we wszystkich $p + 1$ współczynnikach regresji. Inna miara wpływu opiera się na różnicy dopasowanych wartości $\hat{\mu}_i$ przy użyciu wszystkich danych i $\hat{\mu}_{(-i)}$ z pominięciem obserwacji $i$.
 
 Gdy $n$ jest duże (co jest ogólnie prawdą w zastosowaniach ubezpieczeniowych), pominięcie pojedynczej obserwacji $i$ nie ma tak naprawdę wpływu na oszacowane współczynniki regresji, co czyni podejście "leave-one-out" nieatrakcyjnym. Jednakże, gdy jest ono stosowane na danych zgrupowanych lub na problemach o małej skali (takich jak trójkąty run-off w rezerwach szkodowych), podejście to jest mimo wszystko pouczające.
+
+## 4.9 Reszty Surowe, Standaryzowane i Studentyzowane
+
+W tej sekcji omówiono różne rodzaje reszt, które służą do identyfikacji niedoskonałości modelu. Ilustracje numeryczne różnych pojęć zebrano w Sekcji 4.9.4.
+
+### 4.9.1 Powrót do Normalnego Liniowego Modelu Regresji
+
+Reszty reprezentują różnicę między danymi a wartościami dopasowanymi, wytworzonymi przez rozważany model. Są one zatem ważne do sprawdzania adekwatności założenia GLM. W normalnym liniowym modelu regresji reszty surowe $R_i$ są zdefiniowane jako różnica między odpowiedzią $Y_i$ a wartościami dopasowanymi $\boldsymbol{x}_i^\top \boldsymbol{\hat{\beta}}$, tj.
+
+$$
+R_i = Y_i - \boldsymbol{x}_i^\top \boldsymbol{\hat{\beta}}.
+$$
+
+Mamy wówczas
+
+$$
+\text{E}[R_i] = 0, \quad \text{Var}[R_i] = \sigma^2(1 - h_{ii}) \quad \text{i} \quad \text{Cov}[R_i, R_j] = -\sigma^2 h_{ij}
+$$
+
+gdzie $h_{ij}$ jest $(i, j)$-tym elementem macierzy kapeluszowej $\boldsymbol{H}$ zdefiniowanej w (4.12). Elementy diagonalne $h_{ii}$ są takie, że nierówności $1/n \le h_{ii} \le 1$ zachodzą dla wszystkich $i$ oraz $\sum_{i=1}^n h_{ii} = p + 1$, jak podano w (4.18). Widzimy, że w przeciwieństwie do obserwacji, reszty surowe są skorelowane. Korelacja ta jest łatwo zrozumiała, ponieważ uzyskuje się je przez odjęcie wartości dopasowanych od obserwacji, a wartości dopasowane zostały wyprodukowane przy użyciu całego zbioru danych. Wariancja reszt jest mniejsza, gdy $h_{ii}$ jest duże; może nawet wynosić zero, jeśli $h_{ii} = 1$. Ale $\boldsymbol{\hat{Y}}$ i $\boldsymbol{R}$ pozostają nieskorelowane. 
+
+Reszty surowe dla obserwacji o dużej dźwigni (tj. dużym $h_{ii}$) mają mniejsze wariancje. Aby skorygować niestałą wariancję, możemy podzielić $R_i$ przez estymację jej odchylenia standardowego. Reszty standaryzowane definiuje się jako
+
+$$
+T_i = \frac{y_i - \hat{y}_i}{\hat{\sigma}\sqrt{1 - h_{ii}}} = \frac{R_i}{\hat{\sigma}\sqrt{1 - h_{ii}}}.
+$$
+
+Reszty standaryzowane mierzą, o ile odchyleń standardowych obserwacja jest oddalona od dopasowanego modelu. Jednakże, licznik i mianownik w $T_i$ nie są niezależne, co uniemożliwia mu podążanie za rozkładem t-Studenta. Mają one wariancję jednostkową, ale ich rozkład jest nieznany, ponieważ licznik i mianownik są skorelowane ($i$-ta obserwacja wchodzi w skład obu). Z tego powodu zamiast nich często używa się reszt studentyzowanych.
+
+Aby obejść problem zależności, uciekamy się do estymatorów typu "leave-one-out" $\hat{\beta}_{(-i)}$ i $\hat{\sigma}_{(-i)}$, które są oparte na wszystkich obserwacjach z wyjątkiem $i$-tej. Reszty studentyzowane są wówczas dane wzorem
+
+$$
+T_i^* = \frac{R_i}{\hat{\sigma}_{(-i)}\sqrt{1 - h_{ii}}}, \quad i = 1, 2, \dots, n.
+$$
+
+Można pokazać, że
+
+$$
+T_i^* = T_i \sqrt{\frac{n-p-1}{n-p-T_i^2}}
+$$
+
+tak więc $T_i^*$ jest łatwo uzyskiwane z $T_i$, co pozwala uniknąć ponownego dopasowywania modelu $n$ razy w normalnym GLM z kanoniczną funkcją łączącą. Reszty studentyzowane $T_i^*$ podążają za rozkładem t-Studenta z $n - p - 2$ stopniami swobody. Często $T_i^*$ jest preferowane nad $T_i$, ponieważ efektywniej identyfikuje obserwacje problematyczne. Dzieje się tak, ponieważ $Y_i$ nie wchodzi do $\hat{\sigma}_{(-i)}$, co czyni tę obserwację bardziej wrażliwą w odniesieniu do $i$-tej obserwacji. Dla dużego $n$ zwykle przyjmuje się, że
+
+$$
+T_i \approx T_i^* \approx \frac{R_i}{\sigma} \approx \mathcal{Nor}(0, 1).
+$$
+
+Jednak dla mniejszych prób, te przybliżenia niekoniecznie muszą być prawdziwe, a wybór reszt staje się ważny. W zastosowaniach dotyczących rezerw szkodowych opartych na trójkątach, ze względu na stosunkowo małą liczbę obserwacji, aktuariusz musi być ostrożny przy wyborze odpowiednich reszt.
+
+Wykresy reszt mogą ujawnić problemy z dopasowaniem modelu. Istnieje wiele sposobów wyświetlania reszt i powiązanych wielkości. Wykresy reszt względem dopasowanych wartości i każdej cechy zawartej w wyniku należą do najbardziej klasycznych wykresów diagnostycznych. Każda systematyczna zmienność lub wyizolowany punkt odkryty na wykresie na ogół wskazuje na naruszenie jednego lub więcej założeń leżących u podstaw rozważanego modelu.
+
+### 4.9.2 Reszty w GLM
+
+W nienormalnych GLM można zdefiniować kilka typów reszt w analogii do normalnego liniowego modelu regresji. Często odwołują się one do normalnego liniowego modelu regresji używanego w ostatnim kroku algorytmu IRLS. Surowa reszta $r_i$ jest po prostu różnicą $y_i - \hat{\mu}_i$ między obserwowaną odpowiedzią a oszacowaną średnią $\hat{\mu}_i = g^{-1}(\boldsymbol{x}_i^\top \boldsymbol{\hat{\beta}})$. Nazywa się je resztami odpowiedzi dla GLM.
+
+Często aktuariusze dopuszczają większe odchylenia między obserwacjami $y_i$ a dopasowanymi wartościami $\hat{\mu}_i$, gdy średnia wzrasta, ponieważ wariancja jest na ogół rosnącą funkcją średniej. To sprawia, że wykres surowych reszt jest mniej informatywny. Aby obejść ten problem, reszty surowe są normalizowane przez pierwiastek kwadratowy wariancji odpowiedzi. Prowadzi to do reszt Pearsona zdefiniowanych jako
+
+$$
+r_i^P = \frac{y_i - \hat{\mu}_i}{\sqrt{V(\hat{\mu}_i)/v_i}}.
+$$
+
+Reprezentują one pierwiastek kwadratowy wkładu każdej obserwacji do statystyki $X^2$ Pearsona
+
+$$
+\sum_{i=1}^n (r_i^P)^2 = X^2.
+$$
+
+To wyjaśnia, dlaczego nazywa się je resztami Pearsona.
+
+Reszty Pearsona są dziedziczone z modeli liniowych i nie uwzględniają kształtu rozkładu. Ponieważ dewiacja koryguje skośność odpowiedzi, w GLM zaproponowano do użycia inny resztę. Reszty dewiacyjne $r_i^D$ są zdefiniowane jako pierwiastek kwadratowy ze znakiem wkładu $i$-tej obserwacji do dewiacji. Pomaga to wykryć obserwacje, które w dużym stopniu zwiększają dewiację, a tym samym unieważniają model. W szczególności, rozłóżmy dewiację na
+
+$$
+D(\boldsymbol{y}, \hat{\boldsymbol{\mu}}) = 2 \sum_{i=1}^n (y_i(\tilde{\theta}_i - \hat{\theta}_i) - a(\tilde{\theta}_i) + a(\hat{\theta}_i)) = \sum_{i=1}^n d_i
+$$
+
+gdzie $d_i = d(y_i, \hat{\theta}_i)$ zostało wprowadzone w (4.19). Reszty dewiacyjne są wtedy zdefiniowane jako
+
+$$
+r_i^D = \text{sign}(y_i - \hat{\mu}_i)\sqrt{d_i}.
+$$
+
+Tutaj notacja "sign" oznacza znak wielkości w nawiasach:
+
+$$
+\text{sign}(y_i - \hat{\mu}_i) = \begin{cases} 1 & \text{if } y_i > \hat{\mu}_i \\ -1 & \text{w przeciwnym razie}. \end{cases}
+$$
+
+Oczywiście, suma kwadratów reszt dewiacyjnych daje dewiację, to znaczy
+
+$$
+\sum_{i=1}^n (r_i^D)^2 = D.
+$$
+
+Reszty dewiacyjne są bardziej odpowiednie w otoczeniu GLM i często są preferowaną formą reszt. W przypadku rozkładu normalnego reszty Pearsona i dewiacyjne są identyczne. Należy jednak zauważyć, że analityk nie szuka normalności w resztach dewiacyjnych, ponieważ ich rozkład próbkowy pozostaje nieznany. Chodzi o brak dopasowania i szukanie wzorców widocznych na resztach: jeśli aktuariusz wykryje jakiś wzorzec na resztach wykreślonych względem
+
+- dopasowanych wartości,
+- cech zawartych w scoringu lub
+- cech nieujętych w modelu
+
+wtedy coś jest nie tak i należy podjąć jakieś działania. Na przykład, jeśli aktuariusz wykryje pewną strukturę w resztach wykreślonych względem nieujętej cechy, wówczas cecha ta powinna zostać zintegrowana ze scoringiem. Jeśli istnieją wzorce w resztach względem każdej cechy zawartej w scoringu, wówczas odpowiednia cecha nie jest prawidłowo zintegrowana ze scoringiem (powinna zostać przekształcona, lub aktuariusz powinien porzucić GLM na rzecz modelu addytywnego). Czasami interesujące jest również wykreślenie reszt względem współrzędnych przestrzennych lub czasowych, dla których mogą istnieć wzorce. Wzorce w rozrzucie (wykryte przez wykreślenie reszt względem dopasowanych wartości) mogą wskazywać na naddyspersję lub, bardziej ogólnie, na użycie niewłaściwej relacji średnia-wariancja.
+
+Reszty standaryzowane uwzględniają różne dźwignie. Rozważmy macierz kapeluszową (4.12) pochodzącą z ostatniej iteracji algorytmu IRLS. Wartości dźwigni $h_{ii}$ mierzą dźwignię, czyli potencjał obserwacji do wpływania na dopasowane wartości. Duża wartość $h_{ii}$ wskazuje, że $i$-ta obserwacja jest wrażliwa na odpowiedź $y_i$. Duże dźwignie zazwyczaj oznaczają, że odpowiednie cechy są w jakiś sposób nietypowe. Standaryzowane reszty, zwane również resztami odpowiadającymi, są wtedy dane przez
+
+$$
+t_i^P = \frac{r_i^P}{\sqrt{\phi(1 - h_{ii})}} \quad \text{i} \quad t_i^D = \frac{r_i^D}{\sqrt{\phi(1 - h_{ii})}}.
+$$
+
+Reszty studentyzowane (zwane również resztami scyzorykowymi lub resztami z usuwania) odpowiadają resztom wynikającym z pominięcia każdej obserwacji po kolei. Ponieważ generalnie nie istnieje prosta zależność między $\boldsymbol{\hat{\beta}}$ a $\boldsymbol{\hat{\beta}}_{(-i)}$ dla GLM, ich obliczenie wymagałoby ponownego dopasowania modelu $n$ razy, co jest poza zasięgiem dla dużych prób. Przybliżenie jest podane przez prawdopodobieństwo reszt zdefiniowane jako ważona średnia standaryzowanych reszt dewiacyjnych i Pearsona, tak że przyjmujemy
+
+$$
+t_i^* = \text{sign}(y_i - \hat{\mu}_i)\sqrt{(1-h_{ii})(t_i^D)^2 + h_{ii}(t_i^P)^2}.
+$$
+
+W przeciwieństwie do normalnego liniowego modelu regresji, gdzie standaryzowane reszty mają rozkład normalny, rozkład reszt w GLM jest ogólnie nieznany. Dlatego zakres reszt jest trudny do oceny, ale można je badać pod kątem struktury i dyspersji, wykreślając je względem dopasowanych wartości lub niektórych cech. Dźwignia mierzy tylko potencjał wpływu na dopasowanie, podczas gdy miary wpływu bardziej bezpośrednio mierzą efekt każdej obserwacji na dopasowanie. Odbywa się to zazwyczaj poprzez badanie zmiany w dopasowaniu po pominięciu tej obserwacji. W GLM można to zrobić, patrząc na zmiany w oszacowaniach współczynników regresji. Statystyka Cooka mierzy odległość między $\boldsymbol{\hat{\beta}}$ a $\boldsymbol{\hat{\beta}}_{(-i)}$ uzyskaną przez pominięcie $i$-tego punktu danych $(y_i, \boldsymbol{x}_i)$ ze zbioru uczącego.
+
+### 4.9.3 Reszty Indywidualne lub Grupowe
+
+Obliczenie wkładu każdej obserwacji do dewiacji może dostosować się do kształtu, ale nie do dyskrecji obserwacji. Często reszty indywidualne dla odpowiedzi dyskretnych są trudne do zinterpretowania, ponieważ dziedziczą strukturę wartości odpowiedzi. Na przykład, dla odpowiedzi binarnych reszty często skupiają się wokół dwóch krzywych, jednej dla obserwacji "0" i drugiej dla obserwacji "1". Dla zliczeń, reszty indywidualne koncentrują się wokół obserwacji "0", obserwacji "1", obserwacji "2" itd. 
+
+Poprzez agregację reszt indywidualnych na duże grupy podobnych ryzyk, aktuariusz unika pozornej struktury wytworzonej przez całkowitoliczbową naturę odpowiedzi. Dzieje się tak, ponieważ wiemy z Rozdz. 2, że odpowiedzi podążające za rozkładem Poissona z dużą średnią lub rozkładem dwumianowym z dużą liczebnością są w przybliżeniu normalne. Reszty dewiacyjne obliczone na danych zagregowanych dają znacznie lepsze wskazania co do adekwatności modelu dla odpowiedzi.
+
+Przypomnijmy również, że GLM służą do obliczania czystych premii. Stąd analityk jest zainteresowany estymacją wartości oczekiwanych, a nie przewidywaniem konkretnego wyniku. Dlatego dane można grupować przed oceną wyników modelu.
+
+### 4.9.4 Ilustracje Numeryczne
+
+#### 4.9.4.1 Wyrównywanie
+
+Rysunek 4.8 przedstawia reszty dla formuły kwadratowej (4.15). Widzimy, że model jest mniej dokładny dla ostatnich lat życia, co jest w pewnym stopniu oczekiwane, ponieważ ekspozycje są ograniczone w starszych wiekach. Co ważniejsze, reszty nie wykazują żadnej widocznej struktury, gdy są wykreślane względem dopasowanych wartości lub cech wchodzących w skład scoringu (wiek i jego kwadrat).
+
+Ostatni panel Rys. 4.8 łączy reszty, wartości kapeluszowe i odległości Cooka. Dokładniej, pola kół są proporcjonalne do odległości Cooka dla obserwacji. Linie poziome są narysowane na poziomie -2, 0 i 2 na skali reszt studentyzowanych, a linie pionowe na dwu- i trzykrotności średniej wartości kapeluszowej. Obszar krytyczny odpowiada górnej i dolnej prawej części wykresu (łącząc dużą wartość kapeluszową i dużą bezwzględną wartość reszty studentyzowanej), gdzie w obecnym przypadku nie przypada żaden punkt danych. Duże odległości Cooka występują w starszych wiekach (dolna lewa część wykresu), zgodnie z oczekiwaniami ze względu na ograniczoną ekspozycję pod koniec tablicy trwania życia.
+
+#### 4.9.4.2 Rezerwacja Szkodowa
+
+Rysunek 4.9 przedstawia reszty dla średnich kwot płatności względem wartości dopasowanych i zmiennych objaśniających. Poza tym, że więcej obserwacji jest dostępnych dla mniejszych wartości AY i DY oraz dla większych wartości CY, z czterech wykresów reszt na Rys. 4.9 nie wyłania się żadna struktura.
+
+Rysunek 4.10 łączy reszty, wartości kapeluszowe i odległości Cooka. Można go interpretować jak ostatni panel Rys. 4.8. Dokładniej, Rys. 4.10 pokazuje, że żaden punkt danych nie wpada w regiony krytyczne odpowiadające górnej i dolnej prawej ćwiartce wykresu. Niemniej jednak niektóre komórki trójkąta wydają się mieć duże odległości Cooka, związane z niską lub umiarkowaną dźwignią.
