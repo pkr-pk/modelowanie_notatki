@@ -1,124 +1,121 @@
-# Rozdział 6: Uogólnione modele addytywne (GAMs)
+# Rozdział 6 Uogólnione Modele Addytywne (GAM)
 
 ## 6.1 Wprowadzenie
 
-Widzieliśmy w Rozdziale 4, że modele GLM oferują skuteczne rozwiązanie wielu problemów w naukach aktuarialnych. Jednak założenie liniowości dotyczące scoringu jest czasami wątpliwe: nieliniowe efekty cech ciągłych, takich jak wiek posiadacza polisy, mogą wymagać uwzględnienia w skali scoringu, aby odzwierciedlić rzeczywiste doświadczenie. Cechy ciągłe mogą skutecznie wchodzić do modeli GLM tylko wtedy, gdy są odpowiednio przekształcone, aby odzwierciedlić ich prawdziwy wpływ na skalę scoringu. Niestety, nie zawsze jest jasne, jak zmienne powinny być przekształcone przed ich włączeniem. W firmach ubezpieczeniowych stało się powszechną praktyką modelowanie potencjalnie nieliniowych efektów za pomocą wielomianów. Jednak wielomiany niskiego stopnia często nie są wystarczająco elastyczne, aby uchwycić strukturę obecną w danych, podczas gdy zwiększanie ich stopnia prowadzi do niestabilnych oszacowań, zwłaszcza dla skrajnych wartości cech.
+Widzieliśmy w rozdziale 4, że GLM oferują skuteczne rozwiązanie wielu problemów w naukach aktuarialnych. Jednakże założenie o liniowości dotyczące scoringu jest czasami wątpliwe: nieliniowe efekty ciągłych cech, takich jak wiek ubezpieczającego, mogą wymagać uwzględnienia w scoringu, aby odzwierciedlić rzeczywiste doświadczenie. Cechy ciągłe mogą efektywnie wchodzić do GLM tylko wtedy, gdy są odpowiednio przekształcone, aby odzwierciedlić ich prawdziwy wpływ na scoring. Niestety, rzadko jest jasne, jak zmienne powinny być przekształcone przed włączeniem ich do scoringu. Powszechną praktyką w firmach ubezpieczeniowych jest modelowanie nieliniowych efektów za pomocą wielomianów. Jednak wielomiany niskiego stopnia często nie są wystarczająco elastyczne, aby uchwycić strukturę obecną w danych, podczas gdy zwiększanie ich stopnia powoduje niestabilne oszacowania, zwłaszcza dla ekstremalnych wartości cech.
 
-Innym podejściem powszechnie stosowanym w praktyce jest zastąpienie cechy ciągłej cechą kategorialną, uzyskaną przez podzielenie jej dziedziny na umiarkowaną liczbę podprzedziałów i założenie, że cecha ma stały wpływ na scoring w każdym przedziale. Oznacza to, że funkcja dająca efekt cechy ciągłej na skali scoringu jest zakładana jako odcinkowo stała. Takie grupowanie oczywiście skutkuje utratą informacji. Co więcej, nie ma ogólnej zasady określającej optymalny wybór punktów cięcia, więc grupowanie może obciążać ocenę ryzyka.
+Inne podejście powszechnie stosowane w praktyce polega na zastąpieniu cechy ciągłej cechą kategorialną, uzyskaną przez podzielenie jej dziedziny na umiarkowaną liczbę podprzedziałów i założenie, że cecha ma stały wpływ na scoring w każdym przedziale. Oznacza to, że funkcja dająca efekt cechy ciągłej na scoring jest zakładana jako odcinkowo stała. Takie grupowanie oczywiście skutkuje utratą informacji. Ponadto nie ma ogólnej zasady określającej optymalne punkty odcięcia, więc grupowanie może obciążać ocenę ryzyka.
 
-Uogólnione modele addytywne (GAM) weszły do zestawu narzędzi aktuariusza, aby radzić sobie z cechami ciągłymi w elastyczny sposób. W tym ujęciu cechy ciągłe wchodzą do modelu w postaci półparametrycznego predyktora addytywnego. W ubezpieczeniach majątkowych i osobowych (Property and Casualty), wpływ wieku posiadacza polisy, mocy pojazdu lub sumy ubezpieczenia może być modelowany za pomocą modeli GAM. GAM pozwalają również aktuariuszowi analizować wariacje ryzyka według obszaru geograficznego, uwzględniając możliwą interakcję między cechami ciągłymi (szerokość i długość geograficzna podające lokalizację przestrzenną, w tym przypadku). Inne interakcje, ogólnie obecne w danych, obejmują wiek i moc w ubezpieczeniach komunikacyjnych. One również mogą być uchwycone przez modele GAM.
+Uogólnione Modele Addytywne (GAM) weszły do zestawu narzędzi aktuariusza, aby radzić sobie z cechami ciągłymi w sposób elastyczny. W tym ujęciu cechy ciągłe wchodzą do modelu w semi-parametrycznym predyktorze addytywnym. W ubezpieczeniach majątkowych i osobowych, wpływ wieku ubezpieczającego, mocy pojazdu lub sumy ubezpieczonej można modelować za pomocą GAM. GAM pozwalają również aktuariuszowi analizować zmiany ryzyka według obszaru geograficznego, uwzględniając możliwą interakcję między cechami ciągłymi (szerokość i długość geograficzna dające położenie przestrzenne, w tym przypadku). Inne interakcje ogólnie obecne w danych obejmują wiek i moc, a także płeć i wiek w ubezpieczeniach komunikacyjnych. Mogą one być również uchwycone przez GAM.
 
-W ubezpieczeniach na życie statystyki śmiertelności są często agregowane dla grup ubezpieczonych o tych samych cechach (takich jak wiek, płeć czy rodzaj produktu) w celu przeprowadzenia analizy GLM. Liczba zgonów wynikająca z danych ekspozycji może być następnie badana przy użyciu technik regresji Poissona. Kluczowym argumentem teoretycznym legitymizującym Poissona GLM jest to, że przy łagodnych założeniach, prawdopodobieństwo Poissona wydaje się być proporcjonalne do prawdziwego prawdopodobieństwa. Dlatego wnioskowanie statystyczne oparte na prawdopodobieństwie Poissona nie jest restrykcyjne. Jest to szczególnie interesujące z praktycznego punktu widzenia, ponieważ pozwala aktuariuszom korzystać z dostępnego oprogramowania statystycznego wykonującego regresję Poissona do budowy tablic trwania życia.
+W ubezpieczeniach na życie statystyki śmiertelności są często agregowane dla grup ubezpieczonych o tych samych cechach (takich jak wiek, płeć czy rodzaj produktu), aby przeprowadzić analizę GLM przy użyciu regresji Poissona. Liczby zgonów pochodzące z danych ekspozycji mogą być następnie modelowane przy użyciu regresji Poissona. Kluczowym argumentem teoretycznym legitymizującym regresję Poissona dla GLM jest to, że przy łagodnych założeniach prawdopodobieństwo Poissona wydaje się być proporcjonalne do prawdziwego prawdopodobieństwa. Dlatego wnioskowanie statystyczne oparte na prawdopodobieństwie Poissona nie jest restrykcyjne. Jest to szczególnie interesujące z praktycznego punktu widzenia, ponieważ pozwala aktuariuszom uciekać się do dostępnego oprogramowania statystycznego wykonującego regresję Poissona do budowy tablic trwania życia.
 
-Gdy w analizie przeżycia uwzględnione są cechy ciągłe, takie jak suma ubezpieczenia, agregacja przed analizą GLM Poissona wymaga wstępnego, subiektywnego grupowania. Sprytne wykorzystanie modeli GAM pozwala uniknąć tego problematycznego kroku i umożliwia aktuariuszowi analizę indywidualnych danych o śmiertelności za pomocą regresji Poissona. Niezbędna baza danych zawiera jeden rekord na polisę i na rok (ten sam format jak na przykład w ubezpieczeniach komunikacyjnych) ze zmienną binarną wskazującą zgon i numerem referencyjnym łączącym wszystkie rekordy związane z tą samą polisą. Czasami wymaga to powiększenia bazy danych poprzez podzielenie każdej indywidualnej obserwacji na zbiór niezależnych realizacji Poissona, które dzielą te same niezmienne w czasie zmienne objaśniające, lub pozwalając tym cechom ewoluować w czasie, tak jak są one dynamiczne (na przykład osiągnięty wiek). To sprawia, że podejście GAM jest równie skuteczne w badaniach ubezpieczeń na życie i majątkowych.
+Gdy cechy ciągłe są uwzględniane w analizie przeżycia, takie jak suma ubezpieczona dla ubezpieczonych, agregacja według grup wymaga wstępnego, subiektywnego grupowania. Sprytniejsze wykorzystanie GAM pozwala uniknąć tego problematycznego kroku i pozwala aktuariuszowi analizować indywidualne dane o śmiertelności za pomocą regresji Poissona. Niezbędna baza danych zawiera jeden rekord na polisę i rok (ten sam format co w ubezpieczeniach komunikacyjnych, na przykład) z binarną zmienną wskazującą zgon i numerem referencyjnym łączącym wszystkie rekordy związane z tą samą polisą. Czasami wymaga to rozszerzenia bazy danych poprzez podzielenie każdej indywidualnej obserwacji na zestaw niezależnych realizacji zliczeń Poissona o tych samych niezmiennych w czasie zmiennych objaśniających, lub pozwolenie, aby ewoluowały one w czasie, gdy są dynamiczne (takie jak osiągnięty wiek, na przykład). To sprawia, że podejście GAM jest równie skuteczne w badaniach ubezpieczeń na życie i majątkowych.
 
-## 6.3 Inference in GAMs
+## 6.2 Struktura GAM
 
-### 6.3.2 Splines
+### 6.2.1 Rozkład odpowiedzi
 
-#### 6.3.2.2 Splajny Sześcienne
+Podobnie jak w przypadku GLM, rozważamy odpowiedzi $Y_1, Y_2, \ldots, Y_n$ mierzone na $n$ osobach. Dla każdej odpowiedzi aktuariusz ma wektor $\boldsymbol{x}_i = (1, x_{i1}, \ldots, x_{ip})^{\text{T}}$ o wymiarze $p+1$ zawierający odpowiednie cechy (uzupełnione o 1 z przodu, gdy w scoringu uwzględniony jest wyraz wolny). Cechy są teraz podzielone na $p_{\text{cat}}$ zmiennych kategorialnych $x_{i1}, \ldots, x_{ip_{\text{cat}}}$ i $p_{\text{cont}} = p - p_{\text{cat}}$ zmiennych ciągłych $x_{i, p_{\text{cat}}+1}, \ldots, x_{ip}$.
+Biorąc pod uwagę warunkową informację zawartą w $x_i$, zakładamy, że odpowiedzi $Y_i$ są niezależne z rozkładem warunkowym w rodzinie ED gruntownie przestudiowanej w rozdziale 2. W szczególności, $Y_i$ podlega rozkładowi (2.3) z kanonicznym parametrem $\theta_i$ i tym samym parametrem dyspersji $\phi$. Sposób, w jaki $\theta_i$ jest powiązany z informacją zawartą w $\boldsymbol{x}_i$, zostanie wyjaśniony w następnej kolejności.
 
-Ograniczone rozwinięcie Taylora wyjaśnia zatem użycie splajnów: splajny to wielomiany odcinkowe połączone w celu utworzenia jednej gładkiej krzywej. Główną ideą splajnów sześciennych jest zastąpienie ciągłej cechy $x$ nowymi cechami, które są transformacjami $x$, postaci $x$, $x^2$, $x^3$ oraz $(x − c_j)^3_+$, w oparciu o rozwinięcie Taylora. Mechanizm GLM stosuje się następnie do tego nowego zestawu cech.
+### 6.2.2 Addytywne scoringi
 
-Gdy są dopasowywane do danych, wielomiany mają tendencję do błędnego zachowania w pobliżu granic, a ekstrapolacja może być pozbawiona sensu. To nieprzyjemne zachowanie jest zaostrzane przez splajny. Dlatego naturalne splajny sześcienne dodają dalsze ograniczenia, tak aby funkcja była liniowa poza węzłami granicznymi. Rozważmy model regresji normalnej
+W praktyce wiele cech jest kategorialnych i efektywnie wchodzi do GLM po zakodowaniu za pomocą zmiennych binarnych. Jednak niektóre ważne zmienne scoringowe są ciągłe: w taryfikacji ubezpieczeń komunikacyjnych, wiek lub moc samochodu są tego przykładem. W ubezpieczeniach na życie i zdrowie, wiek i suma ubezpieczona są cechami ciągłymi. W ogólności, ciągłość odnosi się tutaj do cechy ilościowej z wieloma odrębnymi, uporządkowanymi wartościami. Na przykład wiek jest generalnie rejestrowany jako wiek w ostatnie urodziny, więc przyjmuje tylko wartości całkowite (18, 19, 20, ... w ubezpieczeniach komunikacyjnych, na przykład). Niemniej jednak jest uważany za cechę ciągłą, ponieważ oczekujemy płynnego postępu ryzyka wraz z wiekiem, bez nagłych skoków.
 
-$$Y_i \sim Nor(b(x_i), \sigma^2), \quad i = 1, 2,...,n,$$
+Wyjaśnijmy teraz ograniczenia analizy GLM, jeśli chodzi o rozpoznanie, że ciągła cecha $x^*$ ma nieliniowy wpływ na scoring. Wprowadzenie $x^*$ bezpośrednio do scoringu GLM sprowadza się do założenia liniowego wpływu $x^*$ na skali scoringu: z funkcją log-link, oznacza to, że średnia odpowiedź jest ograniczona do wykładniczego wzrostu wraz z $x^*$. Jednak takie monotoniczne zachowanie wykładnicze może nie być poparte danymi, jak pokazano w następnym przykładzie.
 
-dla pewnej nieznanej funkcji $b(\cdot)$. Naturalne splajny sześcienne z węzłami w każdej obserwacji $x_i$, to jest z $p_\zeta = n$ i $\zeta_j* = x_j$, są rozwiązaniami następującego problemu optymalizacyjnego: spośród wszystkich funkcji $b$ z ciągłymi drugimi pochodnymi, znajdź tę, która minimalizuje penalizowaną resztkową sumę kwadratów
-
-$$
-\sum_{i=1}^{n} (y_i - b(x_i))^2 + \lambda \int (b''(x))^2 dx
-$$
-
-gdzie $\lambda \ge 0$ jest parametrem wygładzającym, a wartości cechy ciągłej $x$ są założone jako uporządkowane rosnąco, tj. $x_1 < x_2 < ... < x_n$. Ta penalizowana wersja kryterium najmniejszych kwadratów równoważy dobroć dopasowania i gładkość oszacowania $b$; pierwszy składnik wymusza zgodność z danymi, podczas gdy drugi penalizuje krzywiznę (zauważ, że $b'' = 0$, jeśli $b$ jest liniowe). Tutaj $\lambda$ jest parametrem wygładzającym kontrolującym kompromis między dwoma składnikami: dobrocią dopasowania a karą za chropowatość. Dwa skrajne przypadki są następujące:
-
-$\lambda = 0$ nie nakłada żadnych ograniczeń, a wynikowe oszacowanie interpoluje dane (w rzeczywistości jest to dowolna funkcja interpolująca dane).
-
-$\lambda \to \infty$ sprawia, że krzywizna jest niemożliwa, więc wracamy do modelu regresji liniowej $b(x) = \beta_0 + \beta_1x$, który spełnia $b'' = 0$.
-
-Zatem duże $\lambda$ odpowiada gładkiej funkcji $b$.
-
-Co ciekawe, minimalizator jest funkcją skończenie wymiarową, chociaż cel jest minimum z nieskończenie wymiarowej przestrzeni funkcyjnej. Dokładniej, unikalny minimalizator $\hat{b}_\lambda$ jest naturalnym splajnem sześciennym z węzłami zlokalizowanymi w wartościach $x_i$, to jest funkcją z (6.7) z $p_\zeta = n$ i $\zeta_j = x_j$. Oznacza to, że $\hat{b}_\lambda$ jest wielomianem sześciennym na każdym przedziale $[x_i, x_{i+1})$, takim że $\hat{b}_\lambda$, $\hat{b}'_\lambda$ i $\hat{b}''_\lambda$ są ciągłe wszędzie, a $b''_\lambda(x_1) = \hat{b}''_\lambda(x_n) = 0$. Wiedząc, że rozwiązanie jest naturalnym splajnem sześciennym, można je oszacować za pomocą reprezentacji
+**Przykład 6.2.1** Rozważmy na przykład wiek w taryfikacji ubezpieczeń komunikacyjnych. Wprowadzenie wieku bezpośrednio do scoringu GLM oznacza liniowy wpływ wieku na skalę scoringu. Rozważmy na przykład liczbę szkód $Y_i$ zgłoszonych przez ubezpieczającego $i$ i model Poissona GLM
 
 $$
-\hat{b}_{\lambda}(x) = \sum_{j=1}^{n} \beta_j B_j(x)
+Y_i \sim \mathcal{Poi} \left( e_i \exp \left( \beta_0 + \sum_{j=1}^{p} \beta_j x_{ij} + \beta_{\text{age}} \text{age}_i \right) \right),
 $$
 
-gdzie funkcje $B_j(\cdot)$ tworzą bazę dla takich splajnów. Problem sprowadza się do dopasowania zwykłego modelu regresji liniowej z przekształconymi cechami $B_j(x)$. Oznaczając jako $\mathbf{B}$ macierz projektu z kolumnami $(B_j(x_1), ..., B_j(x_n))$ i definiując macierz $\mathbf{\Omega}$ z elementem $(j, k)$ danym przez
+gdzie $e_i$ to ekspozycja na ryzyko, a $x_i$ podsumowuje wszystkie dostępne informacje o ubezpieczającym $i$, oprócz osiągniętego wieku. Widzimy, że oczekiwana liczba szkód
 
 $$
-\Omega_{jk} = \int B''_j(z) B''_k(z) dz,
+\mu_i = e_i \exp \left( \beta_0 + \sum_{j=1}^{p} \beta_j x_{ij} + \beta_{\text{age}} \text{age}_i \right)
 $$
 
-rozwiązanie $\hat{\beta}$ minimalizuje $||\mathbf{Y} - \mathbf{B}\beta||^2 + \lambda\beta^T\mathbf{\Omega}\beta$, tak że
+albo rośnie (jeśli $\beta_{\text{age}} > 0$) albo maleje (jeśli $\beta_{\text{age}} < 0$) wraz z wiekiem w sposób wykładniczy. Jednak wpływ wieku na oczekiwaną liczbę szkód w ubezpieczeniach komunikacyjnych ma zazwyczaj kształt litery U (co może być zniekształcone, ponieważ dzieci pożyczają samochód rodziców i powodują wypadki), co jest sprzeczne z wykładniczym zachowaniem implicite zakładanym przez GLM.
+
+Wprowadzenie ciągłej cechy $x^*$ w sposób liniowy na skali scoringu może prowadzić do błędnej oceny ryzyka, podczas gdy traktowanie jej jako cechy kategorialnej z wieloma poziomami może
+- wprowadzić dużą liczbę dodatkowych parametrów regresji;
+- nie rozpoznać oczekiwanej płynnej zmiany średniej odpowiedzi w $x^*$ (ponieważ parametry regresji odpowiadające każdemu poziomowi nie są ze sobą powiązane po zakodowaniu za pomocą zmiennych binarnych).
+
+Ogólnie rzecz biorąc, powoduje to dużą zmienność w oszacowanych współczynnikach regresji związanych z różnymi poziomami cechy ciągłej $x^*$, gdy jest ona traktowana jako cecha kategorialna.
+Zanim GAM weszły do zestawu narzędzi aktuariusza, klasyczne podejście do radzenia sobie z cechami ciągłymi było czysto parametryczne: każda cecha ciągła $x^*$ była przekształcana przed włączeniem do scoringu. Ogólnie rzecz biorąc, funkcja dająca wpływ $x^*$ na scoring jest znana, liniowa, wielomianowa lub odcinkowo stała. Tak więc funkcja jest znana z dokładnością do skończonej liczby parametrów do oszacowania na podstawie danych i wracamy do przypadku GLM. Jednakże, bez względu na to, jaką formę parametryczną określimy, zawsze wykluczamy wiele możliwych funkcji.
+Aktuariusze często oczekują płynnej zmiany średniej odpowiedzi wraz z $x^*$. Oczekuje się, że oczekiwana liczba szkód w ubezpieczeniach komunikacyjnych lub wskaźnik śmiertelności w ubezpieczeniach na życie będzie się zmieniać bardzo płynnie wraz z wiekiem, bez nagłych skoków z jednego wieku do drugiego. W tym rozdziale wyjaśniamy, jak dopasować model z addytywnym scoringiem pozwalającym na nieliniowe efekty ciągłych cech na skali scoringu, które są wyuczone z dostępnych danych. Poniższy przykład w ubezpieczeniach komunikacyjnych wyjaśnia wartość dodaną GAM w tym zakresie.
+
+**Przykład 6.2.2** Kontynuujmy z przykładem 6.2.1. Rozważmy dane $(Y_i, e_i, x_i)$. Możemy zobaczyć ekspozycje na ryzyko $e_i$ (w polisach-latach), a także wynik uzyskany przez traktowanie wieku liniowo na skali scoringu (linia prosta) lub jako cechy kategorialnej, z określonym współczynnikiem regresji dla każdego wieku (okręgi). Widzimy, że żadne z tych podejść nie jest zadowalające: efekt liniowy pomija efekt wieku w kształcie litery U, podczas gdy współczynniki regresji specyficzne dla wieku nie są wystarczająco gładkie.
+To jest powód, dla którego przechodzimy na
 
 $$
-\hat{\beta} = (\mathbf{B}^T \mathbf{B} + \lambda \mathbf{\Omega})^{-1} \mathbf{B}^T \mathbf{Y}.
+\beta_0 + \sum_{j=1}^{p} \beta_j x_{ij} + b(\text{age}_i)
 $$
 
-W porównaniu ze wzorem (4.11), widzimy, że $\lambda\mathbf{\Omega}$ jest dodane do $\mathbf{B}^T\mathbf{B}$ w wyrażeniu na $\hat{\beta}$. Jest to ściśle związane z regresją grzbietową (omówioną w Rozdz. 5). Macierz $\lambda\mathbf{\Omega}$ służy jako macierz grzbietowa lub kurcząca (shrinkage matrix), tak że oszacowania $\hat{\beta}$ są kurczone w kierunku zera. Wynika to z faktu, że dla dużego $\lambda$, wyrażenie $(\mathbf{B}^T\mathbf{B} + \lambda\mathbf{\Omega})^{-1}$ staje się małe. Ponadto, suma kwadratów reszt może być zastąpiona logarytmem prawdopodobieństwa dowolnego rozkładu ED, gdy rozważane są odpowiedzi nienormalne.
-
-Ponieważ dopasowane wartości $\hat{y}_i = \hat{b}_{\lambda}(x_i)$ można uzyskać z
+dla pewnej nieznanej funkcji $b(\cdot)$. Nie zakłada się niczego o $b(\cdot)$ poza tym, że jest to gładka funkcja wieku. W istocie, $x \mapsto \hat{b}(x)$ jest wygładzoną wersją współczynników regresji $x \mapsto \hat{\beta}_x$ uzyskanych przez traktowanie wieku $x$ jako cechy kategorialnej (tak, że wiek jest zakodowany przez zestaw zmiennych binarnych, po jednej dla każdego obserwowanego wieku w bazie danych z wyjątkiem referencyjnego). W naszym przykładzie $\hat{\beta}_x$ są okręgami widocznymi w prawym górnym panelu Rys. 6.1. W szczególności wyjaśniamy, jak dopasować model
 
 $$
-\hat{\mathbf{Y}} = \mathbf{S}_{\lambda} \mathbf{Y} \quad \text{z} \quad \mathbf{S}_{\lambda} = \mathbf{B}(\mathbf{B}^T \mathbf{B} + \lambda \mathbf{\Omega})^{-1} \mathbf{B}^T
+Y_i \sim \mathcal{Poi} \left( e_i \exp \left( \beta_0 + \sum_{j=1}^{p} \beta_j x_{ij} + b(\text{age}_i) \right) \right).
 $$
 
-złożoność oszacowanej funkcji splajnu można wywnioskować z równoważnych stopni swobody $\text{edf} = \text{Tr}(\mathbf{S}_{\lambda})$. Intuicyjnie rzecz biorąc, splajn wygładzający z $\text{edf} = 5$ jest tak samo złożony jak globalny wielomian stopnia 4 (który ma 5 parametrów, wliczając wyraz wolny).
+Wynik jest wyświetlony w prawym dolnym panelu Rys. 6.1. Widzimy, że $\hat{b}(\cdot)$ ładnie wygładza $\hat{\beta}_x$ z wyjątkiem starszych grup wiekowych, gdzie występuje duża zmienność (z powodu małych ekspozycji dla każdego wieku, jak widać na lewym górnym panelu Rys. 6.1).
 
-## 6.4 Risk Classification in Motor Insurance
+Kryterium używane do wyboru stopnia gładkości na podstawie danych wyświetlonych w lewym dolnym panelu, zwane LCV od Likelihood Cross Validation, zostanie wyjaśnione w następnej sekcji.
 
-### 6.4.2 Modeling Claim Counts
+Ta sama sytuacja występuje w ubezpieczeniach na życie. Biorąc pod uwagę Rys. 4.2, widzimy, że prawdopodobieństwa zgonu nie zależą liniowo od wieku w całym zakresie wiekowym. Prawdopodobieństwa zgonu są raczej wysokie dla noworodków, następnie gwałtownie spadają do niższego poziomu śmiertelności dla dzieci i nastolatków. Dla wieku 20-25 lat obserwuje się tak zwany "wzgórek wypadkowy", który jest szczególnie wyraźny u mężczyzn. Od 30 roku życia prawdopodobieństwa zgonu rosną niemal liniowo wraz z wiekiem (na skali scoringu). W starszym wieku roczne prawdopodobieństwa zgonu pozostają rosnące, ale o innym kształcie. Surowe $\hat{q}_x = D_x/l_x$ wyświetlone na Rys. 4.2 można postrzegać jako wynik Binomialnego GLM, gdzie wiek $x$ jest traktowany jako cecha kategorialna. Wynikowe oszacowane prawdopodobieństwa zgonu nie są połączone, więc wyraźnie widoczne są tam nieregularne zmiany.
 
-#### 6.4.2.2 Model Regresji GAM dla Liczby Roszczeń
+Tradycyjnie wiek jest uwzględniany w modelu za pomocą wielomianu. Zostało to zrobione w rozdziale 4 przy użyciu kwadratowej formuły Perksa. Aby odtworzyć funkcjonalną formę wieku dla wskaźników śmiertelności, zwykle wymagany jest wielomian rzędu szóstego lub wyższego, jeśli brany jest pod uwagę cały okres życia. Jednak wielomiany wyższego rzędu mają tendencję do pokazywania dzikich fluktuacji w regionach ogonowych (to jest dla bardzo młodych i bardzo starych grup wiekowych), a pojedyncze obserwacje w regionach ogonowych mogą silnie wpływać na krzywą.
 
-Rozkład Poissona jest naturalnym kandydatem do modelowania liczby roszczeń zgłaszanych przez ubezpieczających. Typowym założeniem w tych okolicznościach jest to, że warunkowa średnia częstość roszczeń może być zapisana jako funkcja wykładnicza addytywnego scoringu, który ma być oszacowany na podstawie danych.
+Inne podejście polega na oszacowaniu funkcjonalnej formy wieku w sposób nieparametryczny. W przeciwieństwie do podejścia parametrycznego, aktuariusz nie określa z góry określonej funkcji, ale pozwala danym określić optymalną formę. Metody estymacji nieparametrycznej obejmują wygładzanie splajnami lub lokalne metody GLM, jak wyjaśniono w następnych sekcjach.
 
-Zaczynamy od modelu uwzględniającego wszystkie dostępne informacje, pozwalającego na możliwą interakcję między wiekiem a płcią ubezpieczającego. Poziomy odniesienia dla cech kategorycznych są następujące: Benzyna dla Paliwa, Mężczyzna dla Płci, C2 dla Mocy, OC.Tylko dla Zakresu, Rocznie dla Podziału i Prywatne dla Użytkowania. Jest to zgodne z najliczniej reprezentowanymi kategoriami widocznymi na Rys. 6.8 i 6.9. Domyślnie R porządkuje poziomy alfabetycznie, ale można to zmienić za pomocą polecenia C, określając poziom bazowy, czyli odniesienia.
+### 6.2.3 Funkcja łącząca
 
-Dopasowanie wykonuje się za pomocą algorytmu **backfitting**. Procedura ta zbiegła się szybko: potrzebne były tylko trzy iteracje, z kryterium zatrzymania w postaci względnej różnicy w log-prawdopodobieństwach mniejszej niż $10^{-5}$. Rysunek 6.15 porównuje wartości parametrów uzyskane w różnych iteracjach tego algorytmu dla cech kategorycznych. Rysunek 6.16 przedstawia oszacowane efekty dla cech ciągłych. Widzimy, że początkowe oszacowania są już bardzo bliskie ostatecznym. Rysunek 6.17 przedstawia różnicę między krokiem początkowym a ostatecznymi szacunkami dla belgijskich dystryktów. Ponownie widzimy, że zróżnicowanie między początkowymi a końcowymi oszacowaniami jest raczej niewielkie.
+Jesteśmy teraz gotowi, aby podać definicję GAM. Podobnie jak w przypadku GLM, odpowiedź $Y_i$ ma rozkład z rodziny ED. Cechy kategorialne $x_{i1}, \ldots, x_{i,p_{\text{cat}}}$ są łączone z cechami ciągłymi $X_i, p_{\text{cat}}+1, \ldots, x_{ip}$, tworząc addytywny scoring
 
-Małe do umiarkowanych różnice między poszczególnymi krokami algorytmu backfitting legitymizują procedurę krok po kroku, preferowaną przez wielu praktyków, którzy często zatrzymują się po pierwszym cyklu algorytmu backfitting i po prostu włączają efekty w sposób progresywny, zamrażając poprzednie oszacowania w offsecie.
+$$
+\text{score}_i = \beta_0 + \sum_{j=1}^{p_{\text{cat}}} \beta_j x_{ij} + \sum_{j=p_{\text{cat}}+1}^{p} b_j(x_{ij}).
+$$
 
-Skomentujmy krótko wynikowe dopasowanie. Zaczynamy od wpływu cech kategorycznych na scoring. Widzimy, że wykupienie większej liczby gwarancji niż tylko obowiązkowe OC ma tendencję do zmniejszania oczekiwanej liczby roszczeń (co widać po ujemnych oszacowanych współczynnikach regresji). Ponadto, jazda pojazdem na benzynę wydaje się bezpieczniejsza. Analizując nieliniową część scoringu (patrz Rys. 6.16), odkrywamy, że interakcja wiek-płeć jest istotna. Młodzi mężczyźni (poniżej 35 lat) mają tendencję do zgłaszania większej liczby wypadków niż młode kobiety, a także starsi mężczyźni (powyżej 80 lat). Pomiędzy tymi wiekami mężczyźni wydają się mniej niebezpieczni. Można to przypisać faktowi, że z powodu wysokich składek nakładanych na młodych ubezpieczonych, w Belgii powszechną praktyką było w tamtym czasie proszenie starszych krewnych (najczęściej matki) o zakup polisy. Szczyt efektu wieku około 45 lat jest generalnie przypisywany wypadkom spowodowanym przez dzieci za kierownicą. Nowe samochody wydają się bardziej niebezpieczne niż starsze po 4 latach. Pamiętajmy, że w Belgii samochód nie musi przechodzić corocznego przeglądu technicznego organizowanego przez państwo przez pierwsze trzy lata. Zatem kierowcy z wysokim rocznym przebiegiem często trzymają swój samochód tylko przez trzy lata, a następnie kupują nowy. Efekt geograficzny przedstawiony na Rys. 6.18 jest zgodny z naszymi oczekiwaniami, wskazując, że duże miasta są bardziej niebezpieczne pod względem częstości roszczeń.
+Niech $g$ będzie funkcją łączącą. Średnia $\mu_i$ z $Y_i$ jest powiązana z nieliniowym scoringiem przez zależność
 
-Przeprowadźmy teraz analizę za pomocą funkcji `gam` zawartej w pakiecie R `mgcv`. Zaimplementowano tam penalizowane prawdopodobieństwo, a optymalna wartość parametrów wygładzania jest wybierana przy użyciu kryterium uogólnionej walidacji krzyżowej (GCV) (danego przez $nD/(n - \text{edf})^2$, gdzie $D$ to dewiancja, a edf to równoważna liczba stopni swobody) lub przeskalowanego AIC.
+$$
+g(\mu_i) = \beta_0 + \sum_{j=1}^{p_{\text{cat}}} \beta_j x_{ij} + \sum_{j=p_{\text{cat}}+1}^{p} b_j(x_{ij}).
+$$
 
-Oszacowania liniowej części scoringu, obejmującej cechy kategoryczne, są przedstawione w Tabeli 6.1. Widzimy, że sposób użytkowania pojazdu nie wpływa znacząco na oczekiwaną liczbę roszczeń. Dlatego wykluczamy tę cechę z modelu i ponownie dopasowujemy Poissona GAM. Wynikowe oszacowania liniowej części scoringu są przedstawione w Tabeli 6.2. Widzimy, że pominięcie sposobu użytkowania pozostawia pozostałe oszacowania niemal niezmienione.
+Gładkie, nieokreślone funkcje $b_j$ oraz współczynniki regresji $\beta_0, \beta_1, \ldots, \beta_{p_{\text{cat}}}$ są szacowane na podstawie dostępnych danych przy użyciu technik przedstawionych w następnej sekcji (lokalne GLM lub splajny).
+GLM zakładają określoną formę dla funkcji $b_j$, taką jak liniowa lub kwadratowa, która może być oszacowana parametrycznie. Przeciwnie, GAM nie określają żadnej sztywnej formy parametrycznej dla $b_j$, ale pozostawiają je nieokreślone. Jedyne założenie dotyczące $b_j$ to gładkość. Przekładając to na terminy matematyczne, oznacza to, że $b_j$ jest ciągła z ciągłymi pierwszymi, drugimi, ..., pochodnymi. To ograniczenie jest znacznie mniej restrykcyjne niż podejście parametryczne. Ta elastyczność jest często pożądana w badaniach ubezpieczeniowych, gdzie skoki lub gwałtowne przerwy rzadko występują. I to proste założenie wydaje się być wystarczające do oszacowania $b_j$ za pomocą podejść semi-parametrycznych, takich jak lokalne GLM lub splajny.
+Ponieważ funkcja $b_j$ wymaga niewielkiej ilości informacji, musimy narzucić $E[b_j(X_{ij})] = 0$, aby mieć model identyfikowalny. W przeciwnym razie moglibyśmy dodawać i odejmować stałe do jednowymiarowych funkcji $b_j$, pozostawiając scoring niezmieniony. Ograniczenie to jest generalnie uwzględniane po ostatnim kroku estymacji, poprzez centrowanie wszystkich oszacowanych funkcji $b_j$ (odejmując średnią wartość przekształconej cechy).
+Oprócz funkcji jednowymiarowych, do scoringu mogą również wchodzić terminy interakcji w postaci $b_{jk}(x_{ij}, x_{ik})$ lub $b_{jkl}(x_{ij}, x_{ik}, x_{il})$. Dla więcej niż trzech cech jest generalnie niemożliwe dopasowanie terminów interakcji wyższego rzędu. Czasami przydatne jest uwzględnienie ograniczonych terminów w postaci $b_{jk}(x_{ij}, x_{ik})$ z argumentem, że produkt cech $j$-tej z $k$-tą, zwłaszcza gdy wielkość próby jest umiarkowana. Poniższe przykłady ilustrują użycie funkcji z dwoma argumentami w analizie GAM.
 
-**Tabela 6.1** Wynik funkcji `gam` z pakietu R `mgcv` dla dopasowania liczby roszczeń w ubezpieczeniu OC komunikacyjnym.
-| Coefficient | Estimate | Std. Error | z value | $Pr(> \mid z\mid )$ | |
-|---|---|---|---|---|---|
-| **Intercept** | –2.12986 | 0.01641 | –129.812 | < 2 x 10⁻¹⁶ | *** |
-| **Fuel diesel** | 0.19219 | 0.01566 | 12.271 | < 2 x 10⁻¹⁶ | *** |
-| **Gender female** | 0.07499 | 0.01718 | 4.366 | 1.27 x 10⁻⁵ | *** |
-| **Cover comprehensive** | –0.16264 | 0.02540 | –6.403 | 1.52 x 10⁻¹⁰ | *** |
-| **Cover Limited.MD** | –0.15170 | 0.01796 | –8.444 | < 2 x 10⁻¹⁶ | *** |
-| **Split half-yearly** | 0.16614 | 0.01784 | 9.311 | < 2 x 10⁻¹⁶ | *** |
-| **Split monthly**| 0.30639 | 0.02212 | 13.854 | < 2 x 10⁻¹⁶ | *** |
-| **Split quarterly**| 0.36560 | 0.02545 | 14.365 | < 2 x 10⁻¹⁶ | *** |
-| **Use professional**| 0.03206 | 0.03349 | 0.957 | 0.338413 | |
-| **PowerCat C1** | –0.07913 | 0.01620 | –4.885 | 1.04 x 10⁻⁶ | *** |
-| **PowerCat C3** | 0.08000 | 0.02555 | 3.131 | 0.001741 | ** |
-| **PowerCat C4** | 0.18747 | 0.04877 | 3.844 | 0.000121 | *** |
-| **PowerCat C5** | 0.47399 | 0.18631 | 2.544 | 0.010955 | * |
+**Przykład 6.2.3** Obecnie stało się powszechną praktyką, aby składka za ryzyko na jednostkę ekspozycji zmieniała się w zależności od obszaru geograficznego, gdy utrzymywane są wszystkie inne czynniki ryzyka. Na przykład w ubezpieczeniach komunikacyjnych większość firm przyjęła klasyfikację ryzyka w zależności od strefy geograficznej, w której mieszka ubezpieczający (np. miasto vs. wieś). Jeśli ubezpieczyciel chce wdrożyć dokładniejsze podziały kraju zgodnie z kodami pocztowymi, wówczas zmienność przestrzenna związana z czynnikami geograficznymi (tj. czynnikami społeczno-demograficznymi) może być uchwycona na mapie, reprezentowanej przez szerokość i długość geograficzną. Główne założenie tego podejścia jest takie, że charakterystyki roszczeń mają tendencję do bycia podobnymi w sąsiednich obszarach kodów pocztowych (po uwzględnieniu innych czynników ryzyka). GAM wykorzystują tę przestrzenną gładkość, pozwalając na transfer informacji do i z sąsiednich regionów.
+Efekt geograficzny można uchwycić poprzez lokalizację miejsca zamieszkania ubezpieczającego, reprezentowaną przez szerokość i długość geograficzną. Scoring zawiera wtedy termin postaci
 
-**Tabela 6.2** Wynik funkcji `gam` z pakietu R `mgcv` dla dopasowania liczby roszczeń w ubezpieczeniu OC komunikacyjnym.
-| Coefficient | Estimate | Std. Error | z value | $Pr(> \mid z\mid )$ | |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Intercept** | –2.12876 | 0.01637 | –130.075 | < 2 x 10⁻¹⁶ | *** |
-| **Fuel diesel** | 0.19320 | 0.01563 | 12.364 | < 2 x 10⁻¹⁶ | *** |
-| **Gender female** | 0.07484 | 0.01718 | 4.357 | 1.32 x 10⁻⁵ | *** |
-| **Cover comprehensive** | –0.16073 | 0.02532 | –6.348 | 2.18 x 10⁻¹⁰ | *** |
-| **Cover Limited.MD** | –0.15142 | 0.01796 | –8.430 | < 2 x 10⁻¹⁶ | *** |
-| **Split half-yearly** | 0.16565 | 0.01784 | 9.288 | < 2 x 10⁻¹⁶ | *** |
-| **Split monthly**| 0.30594 | 0.02211 | 13.837 | < 2 x 10⁻¹⁶ | *** |
-| **Split quarterly**| 0.36548 | 0.02545 | 14.360 | < 2 x 10⁻¹⁶ | *** |
-| **PowerCat C1** | –0.07956 | 0.01619 | –4.914 | 8.95 x 10⁻⁷ | *** |
-| **PowerCat C3** | 0.08150 | 0.02550 | 3.196 | 0.00139 | ** |
-| **PowerCat C4** | 0.19092 | 0.04864 | 3.926 | 8.65 x 10⁻⁵ | *** |
-| **PowerCat C5** | 0.47702 | 0.18628 | 2.561 | 0.01045 | * |
+$$
+\ldots + b_{\text{spat}}(\text{szerokość}_i, \text{długość}_i) + \ldots
+$$
 
-Zauważmy, że niektóre poziomy można by połączyć. Na przykład, oszacowane współczynniki regresji dla Limited.MD i Comprehensive nie różnią się znacząco, biorąc pod uwagę związane z nimi błędy standardowe, więc moglibyśmy zdefiniować nową cechę Cover2 z tylko dwoma poziomami, TPL.Only i TPL+, przy czym ten drugi łączy poziomy Limited.MD i Comprehensive. Podobne grupowania można by osiągnąć dla Split.
+gdzie funkcja $b_{\text{spat}}(\cdot, \cdot)$ jest zakładana jako gładka i szacowana na podstawie danych.
 
-Rozważmy teraz dopasowanie nieliniowej części scoringu. Efekt wieku dla kierowców płci żeńskiej ma edf równe 5.238 i jest wysoce istotny z *p*-value mniejszym niż $2 \times 10^{-16}$, podczas gdy edf związane z wiekiem dla kierowców płci męskiej jest równe 6.132 z *p*-value mniejszym niż $2 \times 10^{-16}$. Pozostałe dwie cechy ciągłe są również wysoce istotne, z edf równym 7.878 i *p*-value $1.14 \times 10^{-13}$ dla wieku samochodu oraz edf równym 26.281 z *p*-value mniejszym niż $2 \times 10^{-16}$ dla efektu geograficznego. Oszacowane funkcje są przedstawione na Rys. 6.19. Widzimy, że uzyskane wyniki są bardzo podobne do tych z Rys. 6.16, z tą różnicą, że tutaj wartości są podane w skali logarytmicznej, a wynik dla efektu geograficznego nie jest narysowany na mapie z `gam`.
+**Przykład 6.2.4** Powszechnie spotykana interakcja w ubezpieczeniach komunikacyjnych obejmuje wiek i moc samochodu. Potencjalnie niebezpieczne mogą być potężne samochody prowadzone przez niedoświadczonych kierowców, podczas gdy wpływ mocy zmienia się wraz z wiekiem. Oznacza to, że scoring zawiera wtedy termin postaci
+
+$$
+\ldots + b(\text{moc}_i, \text{wiek}_i) + \ldots
+$$
+
+gdzie funkcja $b(\cdot, \cdot)$ jest zakładana jako gładka i szacowana na podstawie danych.
+
+Interakcje między cechami kategorialnymi i ciągłymi mogą być również uwzględnione w scoringu, jak pokazano w następnym przykładzie.
+
+**Przykład 6.2.5** Aby uwzględnić możliwą interakcję między wiekiem ubezpieczającego a płcią ($\text{płeć}_i = 1$, jeśli ubezpieczający $i$ jest mężczyzną, a $\text{płeć}_i=0$ w przeciwnym razie), predyktor zawiera
+
+$$
+b_1(\text{wiek}_i) + b_2(\text{wiek}_i)\text{płeć}_i
+$$
+
+W tym modelu funkcja $b_1$ odpowiada (nieliniowemu) wpływowi wieku dla kobiet, a $b_2$ odchyleniu od tego wpływu dla mężczyzn. Wpływ dla mężczyzn jest zatem dany przez sumę $b_1 + b_2$.
+
+W porównaniu z metodami opartymi na drzewach (Trufin i in. 2019) i sieciami neuronowymi (Hainaut i in. 2019), interakcje muszą być ustrukturyzowane przed włączeniem do GAM. Zatem drzewa i sieci neuronowe są pomocne w eksploracji możliwych efektów interakcji obecnych w danych, aby kierować aktuariuszem przy określaniu odpowiednich addytywnych scoringów w GAM.
+
+Podsumowując, modele addytywne są znacznie bardziej elastyczne niż modele liniowe, ale pozostają interpretowalne, ponieważ oszacowaną funkcję $b_j$ można wykreślić, aby zwizualizować marginalną zależność między cechą ciągłą $x_{ij}$ a odpowiedzią. W porównaniu z parametrycznymi przekształceniami cech, takimi jak wielomiany, modele addytywne określają najlepsze przekształcenie $b_j$ bez żadnych sztywnych założeń parametrycznych poza gładkością. GAM oferują zatem podejście oparte na danych, mające na celu odkrycie odrębnego wpływu każdej cechy na scoring, przy założeniu, że jest on addytywny.
