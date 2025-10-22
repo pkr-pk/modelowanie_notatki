@@ -725,3 +725,268 @@ Rozważmy teraz dopasowanie nieliniowej części wyniku. Efekt wieku dla kobiet-
 | PowerCat C3         | 0.08150    | 0.02550   | 3.196     | 0.00139              | **  |
 | PowerCat C4         | 0.19092    | 0.04864   | 3.926     | $8.65 \times 10^{-5}$ | *** |
 | PowerCat C5         | 0.47702    | 0.18628   | 2.561     | 0.01045              | *   |
+
+## 6.5 Regresja Poissona do Klasyfikacji Ryzyka w Ubezpieczeniach na Życie i Zdrowotnych
+
+### 6.5.1 Modelowanie Tablic Trwania Życia
+
+Niech ${_t}p_x$ będzie $\tau$-rocznym prawdopodobieństwem przeżycia dla osoby w wieku $x$, a ${_t}q_x = 1 - {_t}p_x$ odpowiadającym mu prawdopodobieństwem zgonu. Odtąd zakładamy, że funkcja $t \mapsto {_t}q_x$ jest różniczkowalna prawie wszędzie i oznaczamy odpowiadającą jej siłę śmiertelności (force of mortality) w wieku $x+\tau$ jako
+
+$$
+\mu_{x+\tau} = \frac{1}{{_\tau}p_x} \frac{\partial}{\partial \tau} {_\tau}q_x.
+$$
+
+Ponadto, w całym tym rozdziale zakładamy, że siły śmiertelności są odcinkami stałe na każdym jednostkowym przedziale, tj.
+
+$$
+\mu_{x+\xi} = \mu_x \quad \text{dla} \quad 0 \le \xi < 1 \quad \text{i całkowitego } x.
+$$
+
+Zależność ta jest oczywiście tylko w przybliżeniu prawdziwa, ale jest ogólnie wystarczająco dokładna do celów praktycznych. Założenie (6.8) znacznie upraszcza dopasowanie modelu statystycznego. Na przykład można pokazać, że tożsamości
+
+$$
+\mu_x = -\ln p_x
+$$
+
+oraz
+
+$$
+{_\tau}p_x = \exp(-\tau \mu_x) \quad 0 \le \tau \le 1
+$$
+
+obowiązują, gdy (6.8) jest prawdziwe, dla każdej całkowitej wartości wieku $x$.
+
+### 6.5.2 Statystyki Śmiertelności
+
+Załóżmy, że portfel ubezpieczeń na życie był obserwowany przez dany okres czasu (zazwyczaj 3-5 lat). Ubezpieczający $i, i=1, 2, \dots, n$, był obserwowany od wieku $a_i$ do wieku $b_i$. Tutaj $a_i$ może być wiekiem ubezpieczającego na początku okresu obserwacji w przypadku istniejącej umowy lub wiekiem w momencie przystąpienia do portfela dla nowej umowy, wystawionej w okresie obserwacji. Ubezpieczający przestał być obserwowany w wieku $b_i$, albo z powodu śmierci w tym wieku, albo dlatego, że okres obserwacji zakończył się, albo ponieważ ubezpieczający opuścił portfel z powodu anulowania lub wygaśnięcia umowy. Zauważ, że aktuariusze analizują śmiertelność w funkcji wieku osiągniętego, tak że wiek w chwili śmierci jest zmienną będącą przedmiotem zainteresowania.
+
+Na początek załóżmy, że używamy tylko jednego roku obserwacji i że rozważamy homogeniczną grupę $n$ osób w wieku $x$. Stąd, wszyscy członkowie grupy podlegają tej samej, nieznanej sile śmiertelności $\mu_x$, którą należy oszacować na podstawie ich doświadczenia. Model dwumianowy nie ma już zastosowania, ponieważ mamy do czynienia z otwartą grupą, z pewnymi przybyciami i odejściami z portfela. Omówimy bardziej ogólne ustawienie, w którym siła śmiertelności może się różnić między osobami, ze względu na obserwowalne cechy, wykraczające poza płeć i wiek, w dalszej części tego rozdziału.
+
+Każdej z tych $n$ osób przypisujemy zmienną wskaźnikową,
+
+$$
+d_i = \begin{cases} 1 & \text{jeśli ubezpieczający } i \text{ umiera w okresie obserwacji}, \\ 0 & \text{w przeciwnym razie}, \end{cases}
+$$
+
+$i=1, 2, \dots, n$. Czas spędzony w portfelu przez osobę $i$ w roku obserwacji, czyli ekspozycja na ryzyko, wynosi
+
+$$
+e_i = b_i - a_i \in (0, 1].
+$$
+
+Pracując ze wskaźnikami śmiertelności, odpowiednią miarą ekspozycji na ryzyko jest ekspozycja w osobolatach, zwana również centralną ekspozycją na ryzyko w literaturze aktuarialnej. Ekspozycja na ryzyko odnosi się do czasu, w latach, w którym populacja była narażona na ryzyko śmierci. W naszym przypadku, ekspozycja na ryzyko wynosi
+
+$$
+e_x = \sum_{i=1}^n e_i \in (0, n],
+$$
+
+całkowity czas spędzony w portfelu przez wszystkich ubezpieczających w wieku $x$ w dniu ostatnich urodzin. Z powodu nadużycia notacji, używamy tej samej litery „e” do oznaczenia indywidualnej ekspozycji na ryzyko $e_i$, odpowiadającej osobie $i$, i zagregowanej ekspozycji $e_x$, odpowiadającej całej grupie w wieku $x$. Różnica materializuje się w indeksie dolnym i z kontekstu staje się jasne, która wielkość jest używana.
+
+### 6.5.3 Rzeczywista Wiarygodność
+
+Zakładamy, że mamy do dyspozycji niezależne i o jednakowym rozkładzie obserwacje $(d_i, e_i)$ dla każdej z $n$ osób. Wkład osoby $i$ do wiarygodności wynosi albo
+
+$$
+\exp(-e_i \mu_x)
+$$
+
+w przypadku przeżycia ($d_i=0$) lub
+
+$$
+\exp(-e_i \mu_x) \mu_x
+$$
+
+w przypadku śmierci ($d_i=1$). Dlatego wkład osoby $i$ do wiarygodności można zapisać jako
+
+$$
+\exp(-e_i \mu_x)(\mu_x)^{d_i}.
+$$
+
+Zakładając wzajemną niezależność, wiarygodność pojawia się jako iloczyn po $i$ tych indywidualnych wkładów. Zatem wiarygodność zapisuje się jako
+
+$$
+\mathcal{L}(\mu_x) = \prod_{i=1}^n \exp(-e_i \mu_x)(\mu_x)^{d_i} = \exp(-e_x \mu_x)(\mu_x)^{d_x}
+$$
+
+gdzie
+
+$$
+d_x = \sum_{i=1}^n d_i
+$$
+
+jest liczbą zgonów zarejestrowanych wśród osób w wieku $x$.
+
+### 6.5.4 Wiarygodność Poissona
+
+Kluczowy argument polega teraz na zauważeniu, że rzeczywista wiarygodność $\mathcal{L}(\mu_x)$ jest proporcjonalna do wiarygodności Poissona
+
+$$
+\mathcal{L}_{\mathcal{Poi}}(\mu_x) = \exp(-e_x \mu_x) \frac{(e_x \mu_x)^{d_x}}{d_x!}
+$$
+
+która jest wiarygodnością opartą na rozkładzie $D_x \sim \mathcal{Poi}(e_x \mu_x)$. Dlatego jest równoważne, aby pracować na podstawie wnioskowania statystycznego opartego na maksymalnej „prawdziwej” wiarygodności $\mathcal{L}(\mu_x)$ podanej w (6.10) lub na podstawie wiarygodności Poissona $\mathcal{L}_{\mathcal{Poi}}(\mu_x)$ podanej w (6.11). Wielką zaletą korzystania z tej ostatniej jest to, że pracujemy wtedy w ramach GLM/GAM. Zauważ, że nigdy formalnie nie zakładamy, że liczba zgonów $D_x$ podlega rozkładowi Poissona. W rzeczywistości, rozkład Poissona jest co najwyżej surowym przybliżeniem dokładnego rozkładu $D_x$. W przypadku rozkładu Poissona, masa prawdopodobieństwa jest dodatnia dla każdej dodatniej liczby całkowitej, więc przy założeniu Poissona, $D_x$ może równie dobrze przekroczyć $n$, co jest oczywiście niemożliwe. Powołując się na proporcjonalność $\mathcal{L}(\mu_x)$ i $\mathcal{L}_{\mathcal{Poi}}(\mu_x)$, wolno nam postępować „tak jakby” liczba zgonów była rozłożona Poissona do celów wnioskowania statystycznego. Jest to w przeciwieństwie do analizy śmiertelności na poziomie populacji ogólnej, gdzie liczba zgonów była zakładana jako podlegająca rozkładowi dwumianowemu w Rozdziale 4 (rozsądnie zamknięte portfele ubezpieczeniowe populacji ogólnej w przeciwieństwie do otwartych grup ubezpieczeniowych). W obu przypadkach, jednorodność jest zakładana (ponieważ ta sama siła śmiertelności dotyczy osób w tym samym wieku i płci).
+
+### 6.5.5 Modelowanie Podwójne (Dual Modeling)
+
+Rozważając wyrażenie (6.10) dla wiarygodności powiązanej z danymi, można je również postrzegać jako proporcjonalne do wiarygodności Gamma. Dokładnie, załóżmy, że przy danej liczbie obserwowanych zgonów $d_x$, całkowita ekspozycja $E_x$ uzyskana przez zsumowanie indywidualnych ekspozycji $E_i, i=1, 2, \dots, n$, spełnia
+
+$$
+E_x \sim \mathcal{Gam}(\gamma_x, \mu_x).
+$$
+
+Wiarygodność Gamma związana z (6.12) zapisuje się jako
+
+$$
+\mathcal{L}_{\mathcal{Gam}}(\mu_x) = \exp(-e_x \mu_x) \frac{(e_x \mu_x)^{\gamma_x}}{e_x \Gamma(\gamma_x)}
+$$
+
+co wydaje się być proporcjonalne do (6.10). Estymacje maksymalnej wiarygodności $\hat{\mu}_x$, uzyskane z obu funkcji wiarygodności, są zatem równe i wnioskowanie statystyczne może być prowadzone na podstawie $\mathcal{L}_{\mathcal{Gam}}$. Rozważając wiarygodność Poissona $\mathcal{L}_{\mathcal{Poi}}$, parametrem zainteresowania jest siła śmiertelności $\mu_x$, podczas gdy w podwójnej wiarygodności Gamma $\mathcal{L}_{\mathcal{Gam}}$, parametrem zainteresowania staje się siła witalności (force of vitality) $1/\mu_x$.
+
+Wracając do modelowania indywidualnego, ideą jest założenie, że ekspozycja specyficzna dla ubezpieczającego $E_i$ jest realizacją zmiennej losowej podlegającej rozkładowi Gamma $\mathcal{Gam}(d_i/n, \mu_x)$. Sumując te indywidualne ekspozycje dla $n$ osób w wieku $x$, otrzymujemy
+
+$$
+E_x = \sum_{i=1}^n E_i = \sum_{j=1}^{d_x} G_j
+$$
+
+gdzie
+
+$$
+G_j \sim \mathcal{Gam}(1, \mu_x), \quad j=1, \dots, d_x,
+$$
+
+są niezależne i o jednakowym rozkładzie. Ponownie widzimy, że rozkład Gamma nie jest dokładnym rozkładem ekspozycji. Nośnik tego rozkładu to półprosta dodatnia, podczas gdy indywidualne ekspozycje należą do przedziału jednostkowego, a zagregowana musi być mniejsza niż liczba $n$ badanych osób. Ponownie, wykorzystujemy fakt, że prawdziwa wiarygodność jest proporcjonalna do wiarygodności Gamma, aby skorzystać z ram GLM/GAM do prowadzenia wnioskowania.
+
+### 6.5.6 Poisson GLM z Danymi Zagregowanymi
+
+Do tej pory zakładaliśmy, że grupa osób w wieku $x$ jest jednorodna, w tym sensie, że ta sama śmiertelność $\mu_x$ dotyczy ich wszystkich. Na tym etapie, jedyną ciągłą cechą jest wiek (analiza jest generalnie prowadzona oddzielnie dla mężczyzn i kobiet, tak że płeć wchodzi również w analizę poprzez podział grupy na dwie subpopulacje). Jak wyjaśniono we wstępie do tego rozdziału, w ubezpieczonej śmiertelności często występuje znaczna niejednorodność. Tę niejednorodność można uwzględnić za pomocą modelu regresji w ramach GLM, o ile aktuariusze modelują śmiertelność populacji w odniesieniu do pewnej referencyjnej tablicy trwania życia (nazywa się to modelem relacyjnym w demografii).
+
+Konkretnie, zapisujemy teraz liczbę zgonów $Y_i$ z ekspozycji na ryzyko $e_i$ zgodnie z wartością wektora $p+1$ cech $x_i = (1, x_{i1}, x_{i2}, \dots, x_{ip})^T$ zawierającego wyraz wolny i wiek, $i=1, 2, \dots, n$. Często analiza jest przeprowadzana w odniesieniu do pewnej referencyjnej tablicy trwania życia $\mu_x^{ref}$. Może to być rynkowa tablica trwania życia, na przykład. Logarytm referencyjnej śmiertelności $\mu_x^{ref}$ jest wtedy uwzględniany w offsecie, a cechy $x_{ij}$ pozycjonują śmiertelność doświadczalną w stosunku do oczekiwanej liczby zgonów zgodnie z referencyjną tablicą trwania życia. Wykorzystanie $\ln \mu_x^{ref}$ uwzględnia wpływ osiągniętego wieku i pozwala uniknąć potrzeby stosowania GAM.
+
+Jeśli używana jest referencyjna tablica trwania życia, a wszystkie pozostałe cechy $x_{ij}$ są kategorialne, to po prostu uruchamiamy Poissona GLM, aby oszacować wpływ cech na parametry regresji nieznanej $\boldsymbol{\beta} = (\beta_0, \beta_1, \dots, \beta_p)^T$, dając efekt cech na śmiertelność. Cechy są powiązane ze wskaźnikami śmiertelności za pomocą wyniku liniowego i logarytmicznej funkcji łączącej:
+
+$$
+\ln \mu_i = \boldsymbol{x}_i^T \boldsymbol{\beta}.
+$$
+
+Nieznane parametry $\boldsymbol{\beta}$ mogą być estymowane metodą największej wiarygodności Poissona, tj. przy założeniu, że $Y_i \sim \mathcal{Poi}(e_i \mu_i)$. Logarytm ekspozycji na ryzyko $\ln e_i$ jest tutaj traktowany jako offset. Gdy estymacje parametrów $\hat{\boldsymbol{\beta}}$ dla $\boldsymbol{\beta}$ zostaną uzyskane, dopasowane wskaźniki śmiertelności dla danego zestawu cech można obliczyć za pomocą $\exp(\boldsymbol{x}_i^T \hat{\boldsymbol{\beta}})$.
+Zauważ, że jeśli cechy są kategorialne i zostały zakodowane za pomocą zmiennych binarnych $x_{ij}$, to równania wiarygodności mają jasną interpretację. Zrównanie z zerem pochodnej cząstkowej log-wiarygodności względem $\beta_j$ daje
+
+$$
+\sum_{i | x_{ij}=1} y_i = \sum_{i | x_{ij}=1} e_i \mu_i.
+$$
+
+To równanie narzuca, że model przewiduje dokładnie całkowitą obserwowaną liczbę zgonów dla tych komórek z $x_{ij}=1$. Jeśli w liniowym wyniku uwzględniony jest wyraz wolny, to całkowita liczba zgonów jest dokładnie dopasowana przez model. Jest to zgodne z dobrze znaną metodą sum marginalnych, która poprzedza regresję Poissona w literaturze aktuarialnej dotyczącej ubezpieczeń majątkowych, jak wyjaśniono w Rozdziale 4.
+
+### 6.5.7 Regresja Poissona z Danymi Indywidualnymi
+
+#### 6.5.7.1 Dekompozycja Wyniku
+
+Oprócz wieku osiągniętego, mamy do dyspozycji zestaw cech oznaczonych jako $\boldsymbol{x}_i$ dla ubezpieczającego $i$. Siła śmiertelności jest funkcją wieku osiągniętego $x$ i cech $\boldsymbol{x}_i$. Jest oznaczana jako $\mu(x|\boldsymbol{x}_i)$ i zakłada się, że jest odcinkowo stała w odniesieniu do wieku $x$, zgodnie z założeniem (6.8). Zatem siła śmiertelności jest stała w ciągu każdego roku wieku, ale może się różnić między latami, zgodnie z praktyką aktuarialną. Niemniej jednak wspomnijmy, że moglibyśmy arbitralnie używać małych przedziałów wiekowych (miesięcy, tygodni lub dni), w zależności od dostępności danych.
+Siła śmiertelności jest wtedy zazwyczaj dekomponowana w sposób addytywny na skali punktowej, używając funkcji łączącej log, to znaczy
+
+$$
+\ln \mu(x | \boldsymbol{x}_i) = \beta_0 + \sum_{j=1}^{p_{cat}} \beta_j x_{ij} + b_0(x) + \sum_{j=p_{cat}+1}^p b_j(x_{ij}) = \text{score}_i
+$$
+
+dla pewnych gładkich nieokreślonych funkcji $b_j$. Parametry regresji $\beta_0, \beta_1, \dots, \beta_{p_{cat}}$ oraz funkcje $b_j$ są estymowane na podstawie dostępnych danych o śmiertelności przy użyciu maszynerii GAM. Wynik obejmuje efekty nieliniowe, szacowane w sposób nieparametryczny (za pomocą lokalnych modeli wielomianowych lub dekompozycji splajnów), dla dwóch argumentów. Interakcje można również uwzględnić, na przykład za pomocą gładkich sum z dwoma argumentami.
+
+**Przykład 6.5.1** Załóżmy, że mamy do dyspozycji sumę ubezpieczenia $z_i$. Wtedy można by rozważyć następujące modele. Specyfikacja ogólna
+$\ln \mu(x|z) = b(x,z)$ pozwalająca na wszystkie interakcje między wiekiem $x$ a sumą ubezpieczenia $z$ jest często upraszczana do addytywnej dekompozycji postaci
+
+$$
+\ln \mu(x|z) = b_0(x) + b_1(z)
+$$
+
+gdzie funkcje $b_0$ i $b_1$ są nieokreślone, ale zakłada się, że są gładkie. Funkcje te można oszacować na podstawie doświadczenia śmiertelności portfela, używając na przykład lokalnych technik wielomianowych lub splajnów.
+
+Często badania śmiertelności są prowadzone przy użyciu referencyjnej tablicy trwania życia, odpowiadającej rynkowi, na którym ubezpieczyciel działa. W takim przypadku siłę śmiertelności wyraża się jako
+
+$$
+\ln \mu(x|z) = b_0(\ln \mu_x^{ref}) + b_1(z)
+$$
+
+w kategoriach zestawu referencyjnych wskaźników śmiertelności $\mu_x^{ref}$ (traktowanych jako znane stałe spełniające (6.8)). Zauważ, że ta referencyjna tablica trwania życia może być zniekształcona przez funkcję $b_0$, aby lepiej odzwierciedlać śmiertelność portfela. Nawet jeśli w ścisłym sensie nie ma różnicy między specyfikacjami (6.14)-(6.15), ponieważ $\mu_x^{ref}$ jest samo w sobie funkcją wieku, druga z nich generalnie działa lepiej w badaniach empirycznych, ponieważ wystarczy zniekształcić krzywą $x \mapsto \ln \mu_x^{ref}$, która wygląda podobnie do tablicy trwania życia z doświadczenia portfela.
+
+Często estymowana funkcja $b_0$ w (6.15) wydaje się być w przybliżeniu liniowa, więc zamiast niej można by użyć liniowego modelu transformowanego hazardu:
+
+$$
+\ln \mu(x|z) = \beta_0 + \beta_1 \ln \mu_x^{ref} + b_1(z).
+$$
+
+Czas kalendarzowy $t$ można by uwzględnić w cechach. Jednak analizy portfelowe są generalnie prowadzone w stosunkowo krótkich okresach (zazwyczaj 3-5 lat). Dlatego trendy czasowe mogą być łatwiejsze do wykrycia przy użyciu danych populacyjnych lub rynkowych, a model relacyjny (6.15) z referencyjną śmiertelnością zależną od czasu kalendarzowego może być lepszą alternatywą, jak pokazano w następnym przykładzie.
+
+**Przykład 6.5.2** Czas kalendarzowy można również uwzględnić w modelu, gdy jako odniesienie używana jest prognozowana tablica trwania życia. Dokładnie, referencyjne wskaźniki śmiertelności są wtedy prognozowane w czasie, z $\mu_{x,t}^{ref}$ reprezentującym siłę śmiertelności w wieku $x$ w roku kalendarzowym $t$. Zatem specyfikacja staje się
+
+$$
+\ln \mu(x|t,z) = b_0(\ln \mu_{x,t}^{ref}) + b_1(z)
+$$
+
+co często można uprościć do
+
+$$
+\ln \mu(x|t,z) = \beta_0 + \beta_1 \ln \mu_{x,t}^{ref} + b_1(z).
+$$
+
+#### 6.5.7.2 Wiarygodność
+
+Niech $d_i$ będzie wskaźnikiem śmierci dla ubezpieczającego $i$ zdefiniowanym w (6.9). Wkład ubezpieczającego $i$ do wiarygodności jest wtedy dany przez
+
+$$
+\ell_i = \exp\left(-\int_{a_i}^{b_i} \mu(s|\boldsymbol{x_i}) ds\right) (\mu(b_i|\boldsymbol{x_i}))^{d_i}.
+$$
+
+Zgodnie z założeniem (6.8), zintegrowana siła śmiertelności pojawiająca się w funkcji wykładniczej może być dalej uproszczona do sumy dla każdego roku wieku między $a_i$ i $b_i$, jak pokazano poniżej.
+
+Dla danej liczby rzeczywistej $s$, niech $\lfloor s \rfloor$ oznacza $s$ zaokrąglone w dół, a $\lceil s \rceil$ oznacza $s$ zaokrąglone w górę. Dokładnie, $\lfloor s \rfloor$ jest największą liczbą całkowitą mniejszą lub równą $s$, a $\lceil s \rceil = \lfloor s \rfloor + 1$ jest najmniejszą liczbą całkowitą większą lub równą $s$. Jeśli $\lfloor a_i \rfloor < \lfloor b_i \rfloor$, całkę w wykładniku w (6.16) można podzielić w następujący sposób:
+
+$$\begin{align*}
+\ell_i =& \exp\left(-\int_{a_i}^{\lfloor a_i \rfloor} \mu(s|\boldsymbol{x_i}) ds\right) \exp\left(-\sum_{k=\lfloor a_i \rfloor}^{\lfloor b_i \rfloor-1} \int_k^{k+1} \mu(s|\boldsymbol{x_i}) ds\right) \\
+& \exp\left(-\int_{\lfloor b_i \rfloor}^{b_i} \mu(s|\boldsymbol{x_i}) ds\right) (\mu(b_i|\boldsymbol{x_i}))^{d_i}
+\end{align*}$$
+
+z konwencją, że suma po $k$ jest równa 0, jeśli $\lfloor a_i \rfloor = \lfloor b_i \rfloor$. Teraz siła śmiertelności pojawiająca się w każdej całce jest stała zgodnie z naszym założeniem (6.8), więc wkład ubezpieczającego $i$ do wiarygodności można zapisać jako
+
+$$\begin{align*}
+\ell_i =& \exp(-(\lceil a_i \rceil - a_i)\mu(\lfloor a_i \rfloor | \boldsymbol{x_i})) \prod_{k=\lfloor a_i \rfloor}^{\lfloor b_i \rfloor-1} \exp(-\mu(k|\boldsymbol{x_i})) \\
+& \exp(-(b_i - \lfloor b_i \rfloor)\mu(\lfloor b_i \rfloor | \boldsymbol{x_i})) (\mu(b_i|\boldsymbol{x_i}))^{d_i},
+\end{align*}$$
+
+z konwencją, że iloczyn po $k$ jest równy 1, jeśli $\lfloor a_i \rfloor = \lfloor b_i \rfloor$. Jeśli $\lfloor a_i \rfloor = \lfloor b_i \rfloor$, to ten wkład redukuje się do
+
+$$
+\ell_i = \exp(-(\lceil a_i \rceil - a_i)\mu(\lfloor a_i \rfloor | \boldsymbol{x_i})) (\mu(b_i|\boldsymbol{x_i}))^{d_i}.
+$$
+
+Zakładając niezależne czasy życia, całkowita wiarygodność jest wtedy uzyskiwana przez pomnożenie indywidualnych wkładów $\ell_i$ dla wszystkich ubezpieczających $i=1, \dots, n$.
+
+#### 6.5.7.3 Niezależne Zliczenia Poissona
+
+Powiążmy teraz wiarygodność uzyskaną w poprzedniej sekcji z rozkładem zmiennych losowych Poissona. W tym celu zdefiniujmy niezależne zmienne losowe $D_{ik}$, $k = \lfloor a_i \rfloor, \dots, \lfloor b_i \rfloor$, które zakłada się, że podlegają rozkładowi Poissona z odpowiednimi średnimi
+
+$$
+E[D_{ik}] = \begin{cases} (\lceil a_i \rceil - a_i)\mu(\lfloor a_i \rfloor | \boldsymbol{x}_i) & \text{dla } k=\lfloor a_i \rfloor, \\ \mu(k|\boldsymbol{x}_i) & \text{dla } k=\lfloor a_i \rfloor, \dots, \lfloor b_i \rfloor-1, \\ (b_i - \lfloor b_i \rfloor)\mu(\lfloor b_i \rfloor | \boldsymbol{x}_i) & \text{dla } k=\lfloor b_i \rfloor. \end{cases}
+$$
+
+Stąd,
+
+$$
+P[D_{ik}=0] = \begin{cases} \exp(-(\lceil a_i \rceil - a_i)\mu(\lfloor a_i \rfloor | \boldsymbol{x}_i)) & \text{dla } k=\lfloor a_i \rfloor, \\ \exp(-\mu(k|\boldsymbol{x}_i)) & \text{dla } k=\lfloor a_i \rfloor, \dots, \lfloor b_i \rfloor-1, \end{cases}
+$$
+
+a dla $k=\lfloor b_i \rfloor$,
+
+$$
+P[D_{i,\lfloor b_i \rfloor} = d_i] = \exp(-(b_i - \lfloor b_i \rfloor)\mu(\lfloor b_i \rfloor | \boldsymbol{x}_i))((b_i - \lfloor b_i \rfloor)\mu(\lfloor b_i \rfloor | \boldsymbol{x}_i))^{d_i}.
+$$
+
+To pokazuje, że $\ell_i$ można przepisać jako
+
+$$
+\ell_i = \left( \prod_{k=\lfloor a_i \rfloor}^{\lfloor b_i \rfloor-1} P[D_{ik}=0] \right) \frac{P[D_{i,\lfloor b_i \rfloor}=d_i]}{(b_i - \lfloor b_i \rfloor)^{d_i}}
+$$
+
+z konwencją, że iloczyn po $k$ jest równy 1, jeśli $\lfloor a_i \rfloor = \lfloor b_i \rfloor$. Stąd wkład każdego ubezpieczającego do wiarygodności można zapisać jako iloczyn prawdopodobieństw Poissona, z dokładnością do czynnika $(b_i - \lfloor b_i \rfloor)^{-d_i}$. Dlatego możemy przeprowadzić wnioskowanie za pomocą regresji Poissona, pod warunkiem, że przekształcimy unikalną obserwację $(a_i, b_i, d_i, x_i)$ związaną z ubezpieczającym $i$ w sekwencję niezależnych zliczeń Poissona $D_{ik}$, $k=\lfloor a_i \rfloor, \dots, \lfloor b_i \rfloor$, które wszystkie są równe 0, z wyjątkiem ewentualnie ostatniego, który jest równy $d_i \in \{0,1\}$. Formułowanie wnioskowania w kategoriach regresji Poissona jest ważne z praktycznych powodów, ponieważ narzędzia wykonujące analizy GAM są szeroko dostępne i wydajne obliczeniowo, nie wspominając o tym, że aktuariusze na całym świecie są teraz przyzwyczajeni do prowadzenia tego rodzaju badań regresji.
+
+W praktyce, rekord $(a_i, b_i, d_i, \boldsymbol{x}_i)$ związany z ubezpieczającym $i$ w dostępnej bazie danych jest zastępowany blokiem $\lfloor b_i \rfloor - \lfloor a_i \rfloor + 1$ rekordów $(D_{ik}, d_i, \boldsymbol{x}_i)$, $k=\lfloor a_i \rfloor, \dots, \lfloor b_i \rfloor$. Analiza regresji Poissona jest następnie przeprowadzana na odpowiedziach $D_{ik}$, zakładając ich wzajemną niezależność. Typowe badania śmiertelności aktuarialnej są przeprowadzane na danych zebranych w ciągu 3 do 5 lat, więc rozszerzona baza danych, na której przeprowadzana jest regresja Poissona, jest od trzech do pięciu razy większa w porównaniu do początkowej. Nawet przy dużych portfelach nie powinno to stanowić problemu, ponieważ techniki regresji Poissona mogą radzić sobie z bardzo dużymi zbiorami danych.
+
+Aby być skutecznymi, ubezpieczyciele na życie powinni utrzymywać bazy danych podobne do tych, które spotyka się w ubezpieczeniach majątkowych i osobowych. Oznacza to, że na każdy rok i na każdego ubezpieczającego przypada jeden rekord (połączony identyfikatorem, takim jak numer polisy), gdzie oprócz dostępnych cech, znajdujemy wskaźnik śmierci $d_i$.
