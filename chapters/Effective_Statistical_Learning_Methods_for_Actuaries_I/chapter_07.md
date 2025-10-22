@@ -240,3 +240,60 @@ W związku z tym każdy czynnik ryzyka zwiększający oczekiwaną wysokość szk
 
 Jednak często tak nie jest w zastosowaniach ubezpieczeniowych. W rezerwacji szkodowej, czynniki geograficzne zazwyczaj mają przeciwne skutki dla częstotliwości i wysokości szkód, przy wyższych, ale mniejszych szkodach w dużych miastach i odwrotnie na obszarach wiejskich. Tutaj modelowanie strat za pomocą złożonego modelu Poissona Tweedie nie rozpoznaje tych dwóch sprzecznych efektów.
 Użycie modelu Tweedie GLM często wymaga zatem przejścia do ustawienia podwójnego GLM, w którym parametr dyspersji $\phi$ zależy również od informacji zawartych w $x_i$. W tym przypadku iterujemy między GLM dla średniej a Gamma GLM dla dyspersji, uruchamianym na resztach dewiacyjnych (zobacz następną sekcję 7.3, aby uzyskać więcej szczegółów).
+
+## 7.3 Modelowanie dyspersji: Podwójne modele GLM
+
+Modele GLM narzucają wymóg, aby parametr dyspersji $\phi$ był taki sam dla każdej obserwacji. W związku z tym, wariancja $\mathrm{Var}[Y_i] = \frac{\phi}{v_i}V(\mu_i)$ może zmieniać się wraz z czynnikami ryzyka tylko jako funkcja średniej $\mu_i$. Podwójne modele GLM pozwalają uniknąć tego ograniczenia. Dokładniej, w podwójnym modelu GLM parametr dyspersji
+
+$$
+\phi_i = \phi(\mathbf{x}_i)
+$$
+
+również zależy od dostępnych cech poprzez określony wynik (score), co czyni go teraz specyficznym для każdej obserwacji. Zatem, nie tylko średnia odpowiedź zależy od dostępnych cech, ale również współczynnik dyspersji. Dokładniej, oprócz modelowania średniej $g(\mu_i) = \mathbf{x}_i^T \boldsymbol{\beta}$, istnieje również modelowanie dyspersji
+
+$$
+g_d(\phi_i) = \mathbf{x}_i^T \boldsymbol{\gamma}
+$$
+
+z własną funkcją łączącą $g_d$ i współczynnikami regresji $\boldsymbol{\gamma}$. Często dla $g_d$ używana jest logarytmiczna funkcja łącząca, aby zapewnić, że $\phi_i$ pozostaje dodatnie. Jednak inne funkcje łączące могут być przydatne w niektórych zastosowaniach (zobacz na przykład zastosowanie do graduacji śmiertelności w obecności duplikatów omówione w następnej sekcji).
+
+Współczynniki regresji $\boldsymbol{\gamma}$ są następnie estymowane za pomocą modelu Gamma GLM dopasowanego do kwadratów reszt dewiacyjnych $r_i^D$ lub reszt Pearsona $r_i^P$ zdefiniowanych w Sekcji 4.9. Zaczynając od $\phi_i = 1$ dla wszystkich $i$ w kroku 0, współczynniki regresji $\boldsymbol{\beta}$ i $\boldsymbol{\gamma}$ są następnie estymowane naprzemiennie, aż do osiągnięcia zbieżności. Dokładniej, dopasowanie podwójnego modelu GLM uzyskuje się poprzez iterację następujących kroków:
+
+1.  dopasuj model GLM dla średniej odpowiedzi, ze stałym $\phi$ dla wszystkich obserwacji, to jest,
+    $$
+    \begin{aligned}
+    g(\mathrm{E}[Y_i]) &= \mathbf{x}_i^T \boldsymbol{\beta} \\
+    \mathrm{Var}[Y_i] &= \frac{\phi}{v_i} V(\mathrm{E}[Y_i]).
+    \end{aligned}
+    $$
+
+2.  oblicz wkład każdej obserwacji do dewiacji i oblicz kwadraty reszt Pearsona lub dewiacyjnych $R_i^2$.
+
+3.  dopasuj model GLM dla dyspersji, przyjmując jako odpowiedź wkład $R_i^2$ każdej obserwacji do dewiacji. Rozkład jest Gamma i w tym kroku nie uwzględnia się żadnych wag. Dopasowane wartości są nowym parametrem dyspersji dla każdego rekordu. Dokładniej, modelowanie dyspersji wykorzystuje model Gamma GLM z
+    $$
+    \begin{aligned}
+    g_d(\mathrm{E}[R_i^2]) &= \mathbf{x}_i^T \boldsymbol{\gamma} \\
+    \mathrm{Var}[R_i^2] &= \tau (\mathrm{E}[R_i^2])^2 \\
+    \phi_i &= g_d^{-1}(\mathbf{x}_i^T \boldsymbol{\gamma}).
+    \end{aligned}
+    $$
+
+4.  dopasuj model GLM dla średniej, ale tym razem używając specyficznego parametru dyspersji dla każdego rekordu (dzieląc wagę przez specyficzny dla odpowiedzi parametr dyspersji uzyskany w poprzednim kroku), to jest,
+    $$
+    \begin{aligned}
+    g(\mathrm{E}[Y_i]) &= \mathbf{x}_i^T \boldsymbol{\beta} \\
+    \mathrm{Var}[Y_i] &= \frac{\phi_i}{v_i} V(\mathrm{E}[Y_i]).
+    \end{aligned}
+    $$
+
+5.  oblicz kwadraty reszt Pearsona lub dewiacyjnych $R_i^2$ i powtórz poprzednie kroki.
+
+Ten proces iteracyjny jest kontynuowany, aż do spełnienia pewnego warunku zatrzymania. Związek między dwoma modelami GLM jest następujący: model dla średniej generuje odpowiedź $R_i^2$ używaną do dopasowania modelu dyspersji, który z kolei generuje dyspersję dla modelu średniej.
+
+Podwójny model GLM może poprawić estymację średniej w przypadku, gdy pewne klasy biznesu wydają się być bardziej zmienne w porównaniu z innymi. W tym ustawieniu model ma na celu nadanie mniejszej wagi bardziej zmiennym obserwacjom z przeszłości i większej wagi stabilniejszemu biznesowi, którego dane są bardziej informatywne. Dlatego model staje się zdolny do ignorowania większego szumu, gdy jest to konieczne, a tym samym do wychwytywania większej ilości sygnału. Podwójny model GLM w pewnym sensie określa wynik liniowy w celu zdefiniowania optymalnych wag, maksymalizując jakość dopasowania. Czasami cecha, która wydawała się nieistotna w ustawieniu GLM, staje się istotna, gdy aktuariusz przechodzi do ram podwójnego GLM.
+
+Podwójny model GLM jest szczególnie istotny w modelowaniu Tweedie, ze względu na ukryte ograniczenie nieodłącznie związane z tymi modelami, omówione w Sekcji 7.2.5. Rozważmy ponownie zastosowanie do rezerwacji szkodowej, z danymi przedstawionymi w formie trójkątnej, indeksowanymi rokiem wypadku AY i rokiem rozwoju DY. Załóżmy, że kwota pojawiająca się w komórce odpowiadającej AY=j i DY=k ma rozkład Tweedie ze średnią wyrażoną jako funkcja czynników związanych z rokiem wypadku j i rokiem rozwoju k. Dane przedstawione w trójkątach run-off zazwyczaj wykazują następujące dwa przeciwstawne efekty:
+*   ogólnie, większość roszczeń jest zgłaszana na wczesnym etapie rozwoju, więc składnik częstotliwości ma malejący trend w trakcie rozwoju;
+*   średni koszt na roszczenie wzrasta w latach rozwoju, więc składnik wysokości szkody wykazuje rosnący trend.
+
+Ponieważ częstotliwości i wysokości szkód mają przeciwstawne trendy, modele ze stałą dyspersją są podatne na błędy. W przypadku modelu Tweedie, stałe $\phi$ oznacza, że wpływ $j$ i $k$ na składniki zarówno częstotliwości, jak i wysokości szkody musi iść w tym samym kierunku. Dlatego pożądane jest przejście na podwójny model GLM, w którym zarówno średnia, jak i wariancja zależą od efektów $j$ i $k$.
