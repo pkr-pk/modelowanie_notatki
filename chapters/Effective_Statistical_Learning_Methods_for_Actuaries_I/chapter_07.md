@@ -297,3 +297,167 @@ Podwójny model GLM jest szczególnie istotny w modelowaniu Tweedie, ze względu
 *   średni koszt na roszczenie wzrasta w latach rozwoju, więc składnik wysokości szkody wykazuje rosnący trend.
 
 Ponieważ częstotliwości i wysokości szkód mają przeciwstawne trendy, modele ze stałą dyspersją są podatne na błędy. W przypadku modelu Tweedie, stałe $\phi$ oznacza, że wpływ $j$ i $k$ na składniki zarówno częstotliwości, jak i wysokości szkody musi iść w tym samym kierunku. Dlatego pożądane jest przejście na podwójny model GLM, w którym zarówno średnia, jak i wariancja zależą od efektów $j$ i $k$.
+
+## 7.4 Modelowanie dyspersji w graduacji śmiertelności z duplikatami
+
+### 7.4.1 Duplikaty
+
+W praktyce często zdarza się, że osoby fizyczne posiadają więcej niż jedną polisę, a zatem pojawiają się w liczbie osób narażonych na ryzyko lub zgonów więcej niż raz. W takim przypadku mówi się, że portfel zawiera duplikaty: obejmuje on kilka polis dotyczących tych samych osób.
+
+Zjawisko to można łatwo skorygować na poziomie każdej firmy ubezpieczeniowej, ale pozostaje problematyczne, gdy dane rynkowe są gromadzone i zestawiane przez jakąś agencję centralną. Dzieje się tak za sprawą Biura Ciągłych Badań Śmiertelności (Continuous Mortality Investigation - CMI) w Wielkiej Brytanii lub organów regulacyjnych (takich jak Bank Narodowy w Belgii). Nawet jeśli dane są deduplikowane przez każdego uczestnika przed przekazaniem statystyk śmiertelności do agencji centralnej, to jest, wszystkie polisy posiadane przez tę samą osobę są konsolidowane w jedną obserwację, nie można tego zrobić w odniesieniu do firm, ponieważ agencja centralna odpowiedzialna za gromadzenie danych (ponieważ dane są anonimizowane przez uczestniczące firmy przed ich przekazaniem) nie jest w stanie tego zrobić. Dane rynkowe generalnie zawierają wiele duplikatów, tak że zgony są mylone z roszczeniami z polis: śmierć ubezpieczającego posiadającego $m$ polis jest liczona jako $m$ zgonów w danych. Wobec braku informacji o rozkładzie polis na ubezpieczoną osobę, oszacowanie prawdopodobieństw zgonu staje się trudniejsze.
+
+Gdy w portfelu występują duplikaty, aktuariusz zna liczbę roszczeń $c_x$, tj. liczbę polis, których posiadacz zmarł w wieku $x$ w okresie obserwacji, a nie rzeczywistą liczbę zgonów $d_x$ spośród $l_x$ osób w wieku $x$. Wiemy, że gdy w danych o śmiertelności występują duplikaty, nierówność $c_x \ge d_x$ jest prawdziwa. Ponadto, niech $n_x$ oznacza liczbę polis, których posiadacz ma wiek $x$ odnotowany w bazie danych, przy czym $n_x > l_x$, dolna granica odpowiada brakowi duplikatów.
+
+### 7.4.2 Liczba umów, żyć, zgonów i roszczeń
+
+Formalnie, oznaczmy przez $l_x$ liczbę ubezpieczających w wieku $x$ i przez $D_x$ liczbę zgonów odnotowanych wśród nich. Dla ułatwienia prezentacji załóżmy, że każdy ubezpieczający był objęty ochroną przez cały rok. Liczba zgonów $D_x$ ma zatem rozkład dwumianowy o wielkości $l_x$ i prawdopodobieństwie $q_x$.
+Ponadto, zdefiniujmy zmienne losowe
+
+$$
+\begin{aligned}
+N_{xi} &= \text{liczba umów posiadanych przez ubezpieczającego } i, \text{ w wieku } x \\
+N_x &= \text{liczba umów posiadanych przez wszystkich ubezpieczających w wieku } x \\
+&= \sum_{i=1}^{l_x} N_{xi}.
+\end{aligned}
+$$
+
+Oznaczmy przez $C_{xi}$ liczbę roszczeń odpowiadającą ubezpieczającemu $i$, w wieku $x$. Ta zmienna losowa jest równa zero, jeśli ubezpieczający $i$ przeżyje, i jest równa $N_{xi}$ w przypadku jego lub jej śmierci.
+
+### 7.4.3 Zależność między średnią a wariancją
+
+Zakładamy, że zmienne losowe $C_{xi}$ są niezależne i mają identyczny rozkład z
+
+$$
+\mathrm{P}[C_{xi} = 0] = p_x
+$$
+
+i dla $k \ge 1$,
+
+$$
+\mathrm{P}[C_{xi} = k] = q_x \psi_x(k)
+$$
+
+gdzie $\psi_x(k) = \mathrm{P}[N_{xi}=k]$ oznacza prawdopodobieństwo, że osoba $i$ w wieku $x$ posiada $k$ polis, $k=1, 2, \dots$, z
+
+$$
+1 = \sum_{k=1}^\infty \psi_x^{(k)}.
+$$
+
+Innymi słowy, $\psi_x(k)$ odpowiada prawdopodobieństwu, że pojedynczy zgon zostanie zarejestrowany jako $k$ roszczeń.
+Zdefiniujmy
+
+$$
+\bar{\psi}_x^{[j]} = \sum_{k=1}^\infty k^j \psi_x(k) \quad \text{dla } j \in \{1, 2\}.
+$$
+
+Wówczas,
+
+$$
+\mathrm{E}[C_{xi}] = q_x \sum_{k=1}^\infty k \psi_x(k) = q_x \bar{\psi}_x^{[1]}
+$$
+
+i
+
+$$
+\begin{aligned}
+\mathrm{Var}[C_{xi}] &= \mathrm{E}[C_{xi}^2] - (\mathrm{E}[C_{xi}])^2 \\
+&= q_x \sum_{k=1}^\infty k^2 \psi_x(k) - \left(q_x \sum_{k=1}^\infty k \psi_x(k)\right)^2 \\
+&= q_x (\bar{\psi}_x^{[2]} - q_x(\bar{\psi}_x^{[1]})^2).
+\end{aligned}
+$$
+
+Rozważmy całkowitą liczbę roszczeń odpowiadającą ubezpieczającym w wieku $x$, daną przez
+
+$$
+C_x = \sum_{i=1}^{l_x} C_{xi}.
+$$
+
+Mamy
+
+$$
+\mathrm{E}[C_x] = l_x \mathrm{E}[C_{x1}] = r_x q_x
+$$
+
+z
+
+$$
+r_x = l_x \bar{\psi}_x^{[1]}.
+$$
+
+Tutaj $r_x$ jest oczekiwaną liczbą polis posiadanych przez $l_x$ osób w wieku $x$. Ponadto,
+
+$$
+\mathrm{Var}[C_x] = l_x \mathrm{Var}[C_{x1}] = \phi_x r_x q_x (1-q_x)
+$$
+
+z
+
+$$
+\phi_x = \frac{1}{1-q_x \bar{\psi}_x^{[1]}} \frac{\bar{\psi}_x^{[2]}}{\bar{\psi}_x^{[1]}} \left(1 - \frac{(\bar{\psi}_x^{[1]})^2}{\bar{\psi}_x^{[2]}}q_x\right).
+$$
+
+### 7.4.4 Naddyspersyjny rozkład dwumianowy
+
+Gdy w zbiorze danych nie ma duplikatów, $\psi_x(1)=1$ i $\psi_x(k)=0$ dla wszystkich $k \ge 2$. Wtedy mamy
+
+$$
+\phi_x=1, \quad r_x = l_x \quad \text{i} \quad C_x = D_x \sim \mathcal{Bin}(l_x, q_x).
+$$
+
+Gdy występują duplikaty, $\psi_x(k)>0$ dla pewnego $k \ge 2$. Wariancja liczby umów na ubezpieczoną osobę w wieku $x$ wynosi $\bar{\psi}_x^{[2]} - (\bar{\psi}_x^{[1]})^2$. Im większa zmienność w tym zakresie, tym większa wariancja i mniejszy stosunek $(\bar{\psi}_x^{[1]})^2 / \bar{\psi}_x^{[2]}$. W przypadku granicznym, gdy każdy ubezpieczający ma tylko jedną umowę, otrzymujemy $\phi_x=1$. Sugeruje to użycie przybliżenia
+
+$$
+\phi_x \approx \frac{\bar{\psi}_x^{[2]}}{\bar{\psi}_x^{[1]}} > 1
+\tag{7.3}
+$$
+
+które wydaje się być dokładne, o ile $q_x$ pozostaje małe. Ponieważ jest to prawdą z wyjątkiem najstarszych grup wiekowych, przybliżenie (7.3) jest skuteczne w badaniach ubezpieczeniowych. Zgodnie z (7.3), $C_x$ podlega naddyspersyjnemu rozkładowi dwumianowemu.
+
+### 7.4.5 Modelowanie dyspersji
+
+Niech $\hat{\psi}_x(k)$ będzie proporcją osób w wieku $x$ posiadających $k$ polis. Wariancja $vr_x$, zdefiniowana jako
+
+$$
+vr_x = \frac{\sum_{k \ge 1} k^2 \hat{\psi}_x(k)}{\sum_{k \ge 1} k \hat{\psi}_x(k)}
+$$
+
+może być użyta jako estymator dla $\phi_x$. Badania przeprowadzone na rynku brytyjskim ujawniają wskaźniki wariancji w przedziale $(1, 2)$.
+W przypadku braku informacji o wielokrotnym posiadaniu polis, nierealistycznym podejściem jest założenie, że $vr_x$ jest stałe w odniesieniu do $x$ (co jest oczywiście nierealistyczne) i użycie naddyspersyjnego modelu dwumianowego ze stałym parametrem dyspersji $\phi > 1$. Bardziej skutecznym podejściem jest uzupełnienie modelu dwumianowego GLM/GAM dla liczby zgonów o modelowanie dyspersji, w którym $\phi_x$ jest wyuczane z danych.
+Gdy występują duplikaty, graduacja śmiertelności przebiega w dwóch etapach, w ramach podwójnego modelu GLM. W pierwszym etapie (modelowanie średniej), liczba roszczeń $C_x$ jest modelowana zgodnie z naddyspersyjnym rozkładem dwumianowym z
+
+$$
+\mathrm{E}[C_x] = r_x q_x \quad \text{i} \quad \mathrm{Var}[C_x] = \phi_x r_x q_x (1-q_x).
+$$
+
+Alternatywnie, dla otwartych grup, przydatne może być przybliżenie Poissona, z odpowiednią ekspozycją na ryzyko opartą na polisach $n_x$ i $q_x$ zastąpionym siłą śmiertelności $\mu_x$. W drugim etapie parametr dyspersji $\phi_x$ jest estymowany w modelu regresji Gamma z kwadratami reszt dewiacyjnych jako zmiennymi odpowiedzi. Ponieważ $\phi_x \in [1, 1+\kappa)$ dla pewnego $\kappa$ (gdzie $\kappa=1$ jest wspierane przez badania przeprowadzone na rynku brytyjskim), funkcja łącząca drugiego etapu $g_d$ powinna uwzględniać ten konkretny rynek. Dla $\kappa=1$ osiąga się to za pomocą przesuniętej komplementarnej funkcji log-log
+
+$$
+\phi_x = 2 - \exp(-\exp(\text{score}_x)),
+$$
+
+przesuniętej funkcji logitowej
+
+$$
+\phi_x = \frac{1+2\exp(\text{score}_x)}{1+\exp(\text{score}_x)},
+$$
+
+lub przesuniętej funkcji probitowej
+
+$$
+\phi_x = 1 + \Phi(\text{score}_x)
+$$
+
+gdzie, jak poprzednio, $\Phi(\cdot)$ oznacza dystrybuantę rozkładu $\mathcal{N}(0,1)$. Wynik (score) zaangażowany w modelowanie dyspersji jest zazwyczaj kwadratową funkcją wieku $x$, to jest,
+
+$$
+\text{score}_x = \gamma_0 + \gamma_1 x + \gamma_2 x^2,
+$$
+
+lub funkcją liniową $r_x$, to jest,
+
+$$
+\text{score}_x = \gamma_0 + \gamma_1 r_x.
+$$
+
+Wielką zaletą tego podejścia jest to, że znajomość prawdopodobieństw wielokrotnego posiadania polis $\psi_x(\cdot)$ nie jest koniecznie potrzebna do przeprowadzenia graduacji śmiertelności. Obecność duplikatów jest uwzględniana przez użycie specyficznych dla wieku parametrów dyspersji $\phi_x$, zastępujących empiryczne wskaźniki wariancji $vr_x$, w ramach podwójnego modelu GLM.
+Na zakończenie wspomnijmy, że to samo podejście można zastosować do graduacji kwot w momencie zgonu, to jest, rozważając kwotę świadczeń wypłacanych przez towarzystwa ubezpieczeniowe zamiast rzeczywistej liczby zgonów.
