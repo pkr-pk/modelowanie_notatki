@@ -990,3 +990,35 @@ z konwencją, że iloczyn po $k$ jest równy 1, jeśli $\lfloor a_i \rfloor = \l
 W praktyce, rekord $(a_i, b_i, d_i, \boldsymbol{x}_i)$ związany z ubezpieczającym $i$ w dostępnej bazie danych jest zastępowany blokiem $\lfloor b_i \rfloor - \lfloor a_i \rfloor + 1$ rekordów $(D_{ik}, d_i, \boldsymbol{x}_i)$, $k=\lfloor a_i \rfloor, \dots, \lfloor b_i \rfloor$. Analiza regresji Poissona jest następnie przeprowadzana na odpowiedziach $D_{ik}$, zakładając ich wzajemną niezależność. Typowe badania śmiertelności aktuarialnej są przeprowadzane na danych zebranych w ciągu 3 do 5 lat, więc rozszerzona baza danych, na której przeprowadzana jest regresja Poissona, jest od trzech do pięciu razy większa w porównaniu do początkowej. Nawet przy dużych portfelach nie powinno to stanowić problemu, ponieważ techniki regresji Poissona mogą radzić sobie z bardzo dużymi zbiorami danych.
 
 Aby być skutecznymi, ubezpieczyciele na życie powinni utrzymywać bazy danych podobne do tych, które spotyka się w ubezpieczeniach majątkowych i osobowych. Oznacza to, że na każdy rok i na każdego ubezpieczającego przypada jeden rekord (połączony identyfikatorem, takim jak numer polisy), gdzie oprócz dostępnych cech, znajdujemy wskaźnik śmierci $d_i$.
+
+## 6.6 Ilustracja numeryczna
+
+W celu zilustrowania podejścia zaproponowanego w poprzedniej sekcji, rozważmy następujący hipotetyczny portfel umów dożywotnich rent. Obejmuje on 100 000 polis bez duplikatów. Wiek rencistów wynosi od 65 do 105 lat. Są oni obserwowani przez trzy lata. Dostępne informacje składają się z dwóch cech ciągłych (osiągnięty wiek i suma ubezpieczenia) oraz cechy kategorycznej o dwóch poziomach (dwa możliwe kanały sprzedaży, oznaczone odpowiednio jako SC1 i SC2). Suma ubezpieczenia jest roczną kwotą świadczenia rentowego.
+
+Nadmieńmy, że portfel ten jest realistyczny, ale nie prawdziwy (ze względu na kwestie poufności). Śmiertelność została zasymulowana zgodnie z doświadczeniem rynku belgijskiego. W szczególności, referencyjne wskaźniki umieralności pochodzą z belgijskiej regulacyjnej tablicy trwania życia MR (specyfikacja Makehama), podczas gdy wpływ sumy ubezpieczenia jest inspirowany pracą Gschlossl i in. (2011).
+
+Rysunek 6.20 opisuje skład portfela. Przedstawione tam histogramy pokazują strukturę wieku, rozkład sumy ubezpieczenia oraz liczbę polis według kanału sprzedaży.
+
+Plik polis zawiera jeden rekord na umowę, jak pokazano w górnym panelu Tabeli 6.3. Każdy indywidualny rekord jest następnie dzielony na 1–3 rekordy (w zależności od pozostałego czasu życia), jak pokazano w drugim panelu Tabeli 6.3. Pierwszy rencista dożywa do końca okresu obserwacji i jest reprezentowany przez trzy roczne rekordy, każdy z całym rokiem ekspozycji i zerowym wskaźnikiem zgonu. Drugi rencista umiera w trzecim roku, będąc reprezentowanym przez trzy rekordy. Ostatni z nich uwzględnia zgon za pomocą wskaźnika, a ekspozycja jest zredukowana do czasu przeżycia w roku zgonu. Rencista umierający w drugim roku byłby reprezentowany podobnie, ale tylko przez dwa rekordy. Wreszcie, osoba umierająca w pierwszym roku byłaby reprezentowana przez pojedynczy rekord w rozszerzonej bazie danych. Należy zauważyć, że w Tabeli 6.3 suma ubezpieczenia (lub jakakolwiek inna cecha) może zmieniać się w czasie, jeśli jest to właściwe. Może to odzwierciedlać premie przyznawane przez towarzystwo ubezpieczeniowe uczestniczącym polisom lub uwzględniać dodatkowe składki opłacane przez ubezpieczającego, w zależności od rozważanego produktu. Przejście na roczne rekordy oferuje zatem dużą elastyczność aktuariuszowi analizującemu doświadczenie śmiertelności.
+
+Rysunek 6.21 przedstawia oszacowane efekty wieku i sumy ubezpieczenia, uzyskane przy użyciu funkcji `gam` z pakietu `mgcv` w darmowym oprogramowaniu statystycznym R. Zastosowano regresję spline cienkopłytową, z równoważnymi liczbami stopni swobody dla każdego członu wybranymi z danych za pomocą uogólnionej walidacji krzyżowej. Wszystkie człony modelu są istotne, z równoważnymi stopniami swobody wynoszącymi 1,008 dla wieku i 5,383 dla sumy ubezpieczenia. Widzimy tam oszacowania punktowe otoczone punktowymi przedziałami ufności. Zgodnie z oczekiwaniami, oszacowany efekt wieku wykazuje rosnący, prawie liniowy wzorzec (odziedziczony po specyfikacji Makehama), podczas gdy efekt sumy ubezpieczenia wykazuje malejący trend, wyraźnie nieliniowy.
+
+### Tabela 6.3 Opis początkowego portfela i powiązanej bazy danych do przeprowadzenia regresji Poissona
+
+**Portfel początkowy**
+
+| ID Polisy | Wiek (początkowy) | Suma ubezpieczenia | Kanał sprzedaży | Pozostały czas życia |
+| :--- | :--- | :--- | :--- | :--- |
+| A | 67 | €14 000 | SC1 | $\ge 3$ |
+| B | 82 | €36 000 | SC2 | 2.0655 |
+
+**Rozszerzona baza danych do przeprowadzenia regresji Poissona**
+
+| ID Polisy | Wiek (osiągnięty) | Suma ubezpieczenia | Kanał sprzedaży | Wskaźnik zgonu | Ekspozycja na ryzyko |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| A | 67 | €14 000 | SC1 | 0 | 1 |
+| A | 68 | €14 000 | SC1 | 0 | 1 |
+| A | 69 | €14 000 | SC1 | 0 | 1 |
+| B | 82 | €36 000 | SC2 | 0 | 1 |
+| B | 83 | €36 000 | SC2 | 0 | 1 |
+| B | 84 | €36 000 | SC2 | 1 | 0.0655 |
