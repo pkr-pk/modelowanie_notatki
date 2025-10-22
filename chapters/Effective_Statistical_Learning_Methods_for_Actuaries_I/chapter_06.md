@@ -1022,3 +1022,144 @@ Rysunek 6.21 przedstawia oszacowane efekty wieku i sumy ubezpieczenia, uzyskane 
 | B | 82 | €36 000 | SC2 | 0 | 1 |
 | B | 83 | €36 000 | SC2 | 0 | 1 |
 | B | 84 | €36 000 | SC2 | 1 | 0.0655 |
+
+## 6.7 Graduacja wskaźników zachorowalności
+
+### 6.7.1 Modelowanie wielostanowe
+
+Intensywności przejść w modelach wielostanowych dla ubezpieczeń zdrowotnych mogą być analizowane w sposób podobny do wskaźników śmiertelności. Powodem jest to, że funkcja wiarygodności modelu wielostanowego jest proporcjonalna do iloczynu funkcji wiarygodności Poissona, gdy zakłada się, że intensywności przejść są przedziałami stałe, jak pokazano poniżej.
+
+W szczególności załóżmy, że stany $s_0, s_1, ..., s_m$ są potrzebne do opisania wszystkich świadczeń w umowie ubezpieczenia (związanych z pobytami w stanach lub przejściami między stanami). W klasycznym ubezpieczeniu na życie $m = 2$, a $s_0$ odpowiada stanowi „żywy”, podczas gdy $s_1$ odpowiada stanowi „zmarły”. W ubezpieczeniu od utraty dochodu moglibyśmy użyć $m = 3$ stanów, gdzie $s_0$ odpowiada stanowi „aktywny”, $s_1$ – „niepełnosprawny”, a $s_2$ – „zmarły”, z przejściami możliwymi z $s_0$ do $s_1$ w obu kierunkach oraz z tych dwóch stanów do $s_2$. W tym przypadku składki są opłacane przez ubezpieczającego, dopóki zajmuje on stan $s_0$, podczas gdy świadczenia są otrzymywane w stanie $s_1$.
+
+Proces stochastyczny $\mathcal{X} = \{X_t, t \ge 0\}$ z przestrzenią stanów $\{s_0, s_1, ..., s_m\}$ opisuje trajektorię stanu zajmowanego przez ubezpieczającego w czasie $t$. Umownie, czas zaczyna się w momencie zawarcia umowy. Zatem $t$ mierzy staż polisy (czas, który upłynął od wystawienia polisy).
+
+### 6.7.2 Prawdopodobieństwa przejścia i intensywności
+
+Załóżmy dla uproszczenia, że proces $\mathcal{X}$ jest markowowski. Obliczenia można następnie przeprowadzić przy użyciu prawdopodobieństw przejścia
+
+$$
+p_{ij}(s, t) = \mathrm{P}[X_t = s_j | X_s = s_i] \quad \text{dla} \quad s < t \quad \text{i} \quad i, j \in \{0, 1, ..., m\}.
+$$
+
+W zastosowaniach ubezpieczeniowych można przyjąć, że te prawdopodobieństwa przejścia są gładkie w swoich dwóch argumentach, z przedziałami ciągłą pierwszą pochodną. Intensywności przejść $\mu_{ij}$ dla $s_i \ne s_j$ są następnie definiowane z
+
+$$
+\mu_{ij}(t) = \lim_{\Delta t \searrow 0} \frac{\mathrm{P}[X_{t+\Delta t} = s_j | X_t = s_i]}{\Delta t}.
+$$
+
+W 2-stanowym modelu „żywy-zmarły” $\mu_{01}$ jest siłą wymieralności używaną wcześniej w tym rozdziale. W 3-stanowym modelu dla ochrony dochodu $\mu_{01}$ jest wskaźnikiem niepełnosprawności, $\mu_{10}$ jest wskaźnikiem powrotu do zdrowia, $\mu_{13}$ jest siłą wymieralności dla osób aktywnych, a $\mu_{23}$ jest siłą wymieralności dla osób niepełnosprawnych.
+
+Z definicji $\mu_{ij}(t)$ jako granicy prawdopodobieństwa przejścia podzielonego przez długość przedziału czasu, w którym to przejście musi nastąpić, możemy napisać
+
+$$
+\mathrm{P}[X_{t+\Delta t} = s_j | X_t = s_i] \approx \mu_{ij}(t) \Delta t
+$$
+
+gdzie aproksymacja jest dokładna dla wystarczająco małego $\Delta t$. Intensywności przejść kwantyfikują ryzyko (lub szansę) dla osoby w stanie $s_i$ w czasie $t$ na przejście do innego stanu $s_j$ w tym czasie.
+
+Intensywności wyjścia są zdefiniowane jako $\mu_{i\bullet} = \sum_{j=0 | j \ne i}^m \mu_{ij}(t)$. Wtedy prawdopodobieństwo pozostania w stanie $s_i$ jest po prostu dane przez
+
+$$
+\begin{aligned}
+p_i^{(0)}(s, t) &= \mathrm{P}[X_{s+z} = s_i \text{ dla wszystkich } 0 \le z \le t-s | X_s = s_i] \\
+&= \exp \left( \int_0^{t-s} \mu_{i\bullet}(s+z) dz \right).
+\end{aligned}
+$$
+
+### 6.7.3 Funkcja wiarygodności
+
+Napiszmy teraz funkcję wiarygodności związaną z obserwowanymi indywidualnymi trajektoriami w stanach $s_0, s_1, ..., s_m$. Rozważmy osobę, która była obserwowana od czasu $t_0$ do $t_q$. Ta osoba jest w stanie $s_{i_0}$ w czasie $t_0$ i pozostaje w stanie $s_{i_j}$ od czasu $t_j$ do czasu $t_{j+1}$, $j = 0, ..., q-1$, gdzie $t_q$ jest końcem okresu obserwacji. Każdy okres czasu spędzony w danym stanie $s_{i_j}$ wnosi czynnik równy prawdopodobieństwu pozostania w stanie
+
+$$
+\begin{aligned}
+p_{s_{i_j}}^{(0)}(t_j, t_{j+1}) &= \mathrm{P}[X_{t_j+z} = s_{i_j} \text{ dla wszystkich } 0 \le z \le t_{j+1}-t_j | X_{t_j} = s_{i_j}] \\
+&= \exp \left( \int_0^{t_{j+1}-t_j} \mu_{i_j\bullet}(t_j+z) dz \right)
+\end{aligned}
+$$
+
+do funkcji wiarygodności. Każde przejście ze stanu $s_{i_j}$ do stanu $s_{i_{j+1}}$ wnosi czynnik $\mu_{i_j i_{j+1}}$ do funkcji wiarygodności. Funkcja wiarygodności związana z tą indywidualną trajektorią zapisuje się więc
+
+$$
+\begin{aligned}
+&\exp \left( -\int_{t_0}^{t_1} \mu_{i_0\bullet}(s) ds \right) \mu_{i_0i_1}(t_1) \exp \left( -\int_{t_1}^{t_2} \mu_{i_1\bullet}(s) ds \right) \mu_{i_1i_2}(t_2) \\
+&\dots \mu_{i_{q-2}i_{q-1}}(t_{q-1}) \exp \left( -\int_{t_{q-1}}^{t_q} \mu_{i_{q-1}\bullet}(s) ds \right) \\
+&= \left( \prod_{j=1}^{q-1} \mu_{i_{j-1}i_j}(t_j) \right) \exp \left( -\sum_{j=1}^{q} \int_{t_{j-1}}^{t_j} \mu_{i_{j-1}\bullet}(s) ds \right).
+\end{aligned}
+$$
+
+Jeśli proces jest półmarkowowski, to wszystkie intensywności przejść zależą również od czasu, który upłynął od wejścia do bieżącego stanu, więc do badania należy włączyć kolejną cechę ciągłą.
+
+Łatwo rozpoznajemy iloczyn czynników podobny do $\ell_i$ zdefiniowanego w (6.16). Oznacza to, że analiza może być przeprowadzona oddzielnie dla każdej pary przejść, zakładając, że odpowiedź ma rozkład Poissona. Techniki proponowane w poprzednich sekcjach są więc również pomocne do graduacji intensywności przejść w obecności cech kategorycznych (GLM) lub ciągłych (GAM).
+
+### 6.7.4 Zastosowanie do ubezpieczenia kosztów leczenia
+
+Taka polisa ubezpieczeniowa pokrywa koszty hospitalizacji (powyżej kwoty refundowanej przez system ubezpieczeń społecznych). Rozważmy model 2-stanowy z $s_0 =$ „aktywny” i $s_1 =$ „w szpitalu”. Oznacza to, że pomijamy śmiertelność, co wydaje się bezpieczną strategią, o ile polisa nie zapewnia świadczeń w przypadku śmierci, a założenie Markowa wydaje się rozsądne dla krótkich pobytów w szpitalu, wykluczając na przykład zaburzenia psychiczne lub przypadki psychiatryczne. Dla dowolnego wieku $x$ i $0 \le \xi < 1$, zakładamy, że
+
+$$
+\mu_{01}(x+\xi) = \mu_{01}(x) \quad \text{i} \quad \mu_{10}(x+\xi) = \mu_{10}(x).
+$$
+
+To założenie o przedziałowej stałości jest zgodne z (6.8) podanym dla wskaźników śmiertelności.
+Załóżmy, że zaobserwowaliśmy dla grupy ubezpieczonych w wieku $x$ liczbę $y_x^{01}$ przejść z $s_0$ do $s_1$ przez całkowity czas spędzony w $s_0$ równy $e_x^{(0)}$ oraz liczbę $y_x^{10}$ przejść z $s_1$ do $s_0$ przez całkowity czas spędzony w $s_1$ równy $e_x^{(1)}$. Funkcja wiarygodności dla osób w wieku x jest wtedy
+
+$$
+\mathcal{L}(\mu_{01}(x), \mu_{10}(x)) = \exp(-\mu_{01}(x) e_x^{(0)}) \exp(-\mu_{10}(x) e_x^{(1)}) (\mu_{01}(x))^{y_x^{01}} (\mu_{10}(x))^{y_x^{10}}.
+$$
+
+Co ciekawe, widzimy, że funkcja wiarygodności dzieli się na czynniki
+
+$$
+\mathcal{L}(\mu_{01}(x), \mu_{10}(x)) = \mathcal{L}_{01}(\mu_{01}(x)) \mathcal{L}_{10}(\mu_{10}(x))
+$$
+
+gdzie
+
+$$
+\mathcal{L}_{01}(\mu_{01}(x)) = \exp(-\mu_{01}(x) e_x^{(0)}) (\mu_{01}(x))^{y_x^{01}}
+$$
+
+oraz
+
+$$
+\mathcal{L}_{10}(\mu_{10}(x)) = \exp(-\mu_{10}(x) e_x^{(1)}) (\mu_{10}(x))^{y_x^{10}}.
+$$
+
+Każdy czynnik $\mathcal{L}_{01}$ i $\mathcal{L}_{10}$ wchodzący w faktoryzację funkcji wiarygodności zależy tylko od jednego zestawu intensywności przejść. Pozwala to aktuariuszowi pracować oddzielnie nad każdym zestawem wskaźników przejść.
+Ustawiając na zero pochodne cząstkowe log-wiarygodności
+
+$$
+\begin{aligned}
+\ln \mathcal{L}(\mu_{01}(x), \mu_{10}(x)) &= \ln \mathcal{L}(\mu_{01}(x), \mu_{10}(x)) \\
+&= \ln \mathcal{L}_{01}(\mu_{01}(x)) + \ln \mathcal{L}_{10}(\mu_{10}(x)) \\
+&= -\mu_{01}(x) e_x^{(0)} + y_x^{01} \ln \mu_{01}(x) - \mu_{10}(x) e_x^{(1)} + y_x^{10} \ln \mu_{10}(x)
+\end{aligned}
+$$
+
+otrzymujemy równania wiarygodności
+
+$$
+0 = \frac{\partial}{\partial \mu_{01}(x)} \ln \mathcal{L}_{01}(\mu_{01}(x)) = -e_x^{(0)} + \frac{y_x^{01}}{\mu_{01}(x)},
+$$
+$$
+0 = \frac{\partial}{\partial \mu_{10}(x)} \ln \mathcal{L}_{10}(\mu_{10}(x)) = -e_x^{(1)} + \frac{y_x^{10}}{\mu_{10}(x)}.
+$$
+
+Rozwiązanie tych równań daje estymatory największej wiarygodności dla przedziałami stałych intensywności przejść:
+
+$$
+\hat{\mu}_{01}(x) = \frac{y_x^{01}}{e_x^{(0)}} \quad \text{oraz} \quad \hat{\mu}_{10}(x) = \frac{y_x^{10}}{e_x^{(1)}}.
+$$
+
+Zauważmy, że funkcja wiarygodności $\mathcal{L}$ jest proporcjonalna do funkcji dwóch niezależnych zmiennych losowych $Y_x^{01}$ i $Y_x^{10}$ o rozkładzie
+
+$$
+\begin{aligned}
+Y_x^{01} &\sim \mathcal{Poi}(e_x^{(0)} \mu_{01}(x)) \\
+Y_x^{10} &\sim \mathcal{Poi}(e_x^{(1)} \mu_{10}(x)).
+\end{aligned}
+$$
+
+Oznacza to, że wnioskowanie statystyczne można przeprowadzić, jeśli te założenia są spełnione. Surowe intensywności przejść $\hat{\mu}_{01}(x)$ i $\hat{\mu}_{10}(x)$ można zatem wyrównać/wygładzić za pomocą regresji Poissona dokładnie tak, jak wskaźniki śmiertelności.
+Rysunek 6.22 przedstawia dane dostępne do graduacji wskaźników $\hat{\mu}_{01}(x)$. Rysunek 6.23 jest analogiczny dla $\hat{\mu}_{10}(x)$. Obserwacje przedstawione na Rys. 6.22 i 6.23 zostały zebrane przez dużą firmę ubezpieczeniową działającą w Unii Europejskiej pod koniec lat 90. Dotyczą one głównie męskich ubezpieczających. Ponieważ pobyty w szpitalu kompensowane przez ten produkt ubezpieczeniowy są raczej krótkoterminowe (warunki polisy jawnie wykluczają hospitalizacje związane z zaburzeniami psychicznymi, które mogą trwać znacznie dłużej), widzimy, że $y_x^{01} \approx y_x^{10}$ dla wszystkich grup wiekowych x, ponieważ pobyty w szpitalu rozpoczynające się w danym roku kalendarzowym prawie wszystkie zakończyły się w tym samym roku. Wyjaśnia to, dlaczego środkowe panele na Rys. 6.22 i 6.23 wyglądają podobnie.
+
+Rysunki 6.24 i 6.25 przedstawiają wykres LCV, odpowiadające mu kwadratowe dopasowanie Poissona GLM, jak również reszty dewiacji. W schematach rozpoznajemy klasyczny kształt zestawu wskaźników zachorowalności, z profilem wiekowym podobnym do wskaźników śmiertelności, ale o wyższej magnitudzie. Dla kobiet ubezpieczających garb porodowy nakłada się na garb wypadkowy w młodym wieku. Wyrównane wskaźniki powrotu do zdrowia $\hat{\mu}_{10}$ globalnie maleją wraz z osiągniętym wiekiem, odzwierciedlając zwiększony czas spędzany w szpitalu w miarę starzenia się ubezpieczonych. Lokalne minimum około 20 roku życia odpowiada garbowi wypadkowemu w śmiertelności/zachorowalności. Istnieje drugie lokalne minimum około 40 roku życia, które być może można przypisać kryzysowi wieku średniego, ale powinno zostać poddane weryfikacji przez lekarzy.
