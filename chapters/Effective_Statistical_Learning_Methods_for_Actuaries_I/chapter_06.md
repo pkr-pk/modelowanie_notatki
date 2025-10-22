@@ -593,3 +593,135 @@ PL(\boldsymbol{\beta}_1, \dots, \boldsymbol{\beta}_p) = L(\boldsymbol{\beta}_1, 
 $$
 
 Tutaj $PL$ jest maksymalizowane względem $\boldsymbol{\beta}_1, \dots, \boldsymbol{\beta}_p$. Indeks $d$ wskazuje rząd różnic. Zwykle używa się $d=1$ lub $d=2$, co prowadzi odpowiednio do pierwszych różnic $\beta_{j,k} - \beta_{j,k-1}$ lub drugich różnic $\beta_{j,k} - 2\beta_{j,k-1} + \beta_{j,k-2}$. Kompromis między wiernością danych (rządzoną przez składnik wiarygodności) a gładkością (rządzoną przez składniki kary $\lambda_j$) jest kontrolowany przez parametry wygładzania $\lambda_j$. Im większe parametry wygładzania, tym gładsze wynikowe dopasowanie. W granicy ($\lambda_j \rightarrow \infty$) otrzymujemy wielomian, którego stopień zależy od rzędu kary różnicowej i stopnia splajnu. Na przykład dla $d=2$ i $l_j=3$ (najczęściej używana kom\mathcal{bin}acja) granicą jest dopasowanie liniowe. Wybór parametrów wygładzania jest kluczowy, ponieważ możemy uzyskać zupełnie inne dopasowania, zmieniając parametry wygładzania $\lambda_j$. Parametry wygładzania można wybrać za pomocą walidacji krzyżowej lub za pomocą kryteriów, takich jak uogólniona walidacja krzyżowa (GCV), nieobciążona estymacja ryzyka (UBRE) lub AIC, które unikają ponownego dopasowywania modelu kilka razy w celu przewidywania punktów danych spoza próby.
+
+## 6.4 Klasyfikacja Ryzyka w Ubezpieczeniach Komunikacyjnych
+
+W tej sekcji przeprowadzimy studium przypadku w ubezpieczeniach komunikacyjnych, aby zademonstrować znaczenie modeli GAM w ocenie ryzyka w ubezpieczeniach majątkowych i osobowych (Property and Casualty).
+
+### 6.4.1 Opis Zbioru Danych
+
+Zbiór danych dotyczy portfela belgijskich ubezpieczeń komunikacyjnych od odpowiedzialności cywilnej (OC) obserwowanego w roku 1997, obejmującego 162 468 umów ubezpieczeniowych.
+
+#### 6.4.1.1 Dostępne Cechy i Odpowiedzi
+
+Zmienne zawarte w bazie danych są następujące. Po pierwsze, mamy informacje o ubezpieczającym:
+
+*   `Gender` płeć ubezpieczającego, cecha kategorialna z dwoma poziomami: Mężczyzna i Kobieta;
+*   `AgePh` wiek ubezpieczającego w dniu ostatnich urodzin, cecha ciągła mierzona w latach, od 18 do 90;
+*   `District` kod pocztowy dystryktu w Belgii, w którym mieszka ubezpieczający.
+
+Następnie mamy informacje o ubezpieczonym pojeździe:
+
+*   `AgeCar` wiek pojazdu (na dzień 1 stycznia 1997), zaokrąglony w dół, w latach, od 0 do 20;
+*   `Fuel` paliwo pojazdu, cecha kategorialna z dwoma poziomami: Benzyna i Diesel;
+*   `PowerCat` moc samochodu, cecha kategorialna z pięcioma poziomami od C1 do C5 o rosnącej mocy;
+*   `Use` przeznaczenie samochodu, cecha kategorialna z dwoma poziomami: Prywatne i Służbowe.
+
+Na koniec mamy informacje o umowie wybranej przez ubezpieczającego:
+
+*   `Cover` zakres ochrony wybrany przez ubezpieczającego, cecha kategorialna z trzema poziomami,
+    -   albo tylko ubezpieczenie OC (poziom TP. Only),
+    -   albo ograniczone uszkodzenie materialne lub kradzież oprócz obowiązkowego ubezpieczenia OC (poziom Limited.MD),
+    -   albo ubezpieczenie autocasco (AC) oprócz obowiązkowego ubezpieczenia OC (poziom Comprehensive);
+*   `Split` liczba płatności składki rocznie, cecha kategorialna z czterema poziomami,
+    -   albo składka płatna raz w roku, oznaczona jako Yearly,
+    -   albo składka płatna dwa razy w roku, oznaczona jako Half-Yearly,
+    -   albo składka płatna cztery razy w roku, oznaczona jako Quarterly,
+    -   albo składka płatna co miesiąc, oznaczona jako Monthly.
+
+Oprócz tych cech, baza danych rejestruje również:
+
+*   `ExpoR` ekspozycja na ryzyko w latach (na podstawie liczby dni obowiązywania polisy w 1997 r.);
+*   `Nclaim` liczba szkód zgłoszonych przez każdego ubezpieczającego w 1997 r.
+*   `Cclaim` wynikowa łączna kwota roszczeń. Koszty szkód są wyrażone we frankach belgijskich, ponieważ euro zostało wprowadzone w Belgii dopiero później: 1 euro to w przybliżeniu 40 franków belgijskich.
+
+W tym rozdziale rozważamy `Nclaim` i odkładamy analizę `Cclaim` do Rozdziału 9. Dzieje się tak, ponieważ bardzo kosztowne szkody pojawiające się w bazie danych nie mogą być poprawnie opisane przez rozkłady z rodziny ED, takie jak Gamma czy Odwrotny Gaussowski. Na przykład duże szkody muszą najpierw zostać wyizolowane (a Teoria Wartości Ekstremalnych oferuje w tym celu dobre ramy), zanim pozostałe będą mogły być modelowane za pomocą GAM.
+
+#### 6.4.1.2 Skład Portfela w Odniesieniu do Cech
+
+Lewy górny panel na Rys. 6.8 przedstawia rozkład ekspozycji na ryzyko w portfelu. Większość (około 80%) polis była obserwowana przez cały rok 1997. Biorąc pod uwagę rozkład ekspozycji na ryzyko, widzimy, że zawarcia i wygaśnięcia polis są losowo rozłożone w ciągu roku. Pamiętaj, że powszechną praktyką jest rozpoczynanie nowej umowy za każdym razem, gdy dochodzi do zmiany jednego z elementów (np. gdy ubezpieczający przenosi się lub kupuje nowy samochód), co również skutkuje skróconymi ekspozycjami. Struktura płci portfela jest również opisana na Rys. 6.8, podobnie jak skład zbioru danych pod względem wieku pojazdu, mocy i rodzaju paliwa, a także zakresu ochrony wybranego przez ubezpieczających. Na Rys. 6.9 widzimy skład portfela w odniesieniu do płatności składki, wieku ubezpieczającego i użytkowania pojazdu.
+Całkowite ekspozycje na ryzyko dla poszczególnych dystryktów w Belgii (w skali logarytmicznej) są widoczne na Rys. 6.10. Dokładnie, widzimy tam czas trwania (w dniach) wszystkich polis, których posiadacze mieszkają w danym dystrykcie. Oczywiście firma sprzedaje więcej polis w centralnej części kraju. Ekspozycja na ryzyko jest mniejsza w dystryktach południowych. Czasami duże różnice w ekspozycji na ryzyko między sąsiednimi dystryktami można przypisać sposobowi sprzedaży polis w Belgii (głównie przez niezależnych brokerów współpracujących z kilkoma firmami ubezpieczeniowymi).
+
+### 6.4.2 Modelowanie Liczby Szkód
+
+Przeprowadzane są oddzielne analizy dla częstości i ciężkości szkód, włączając koszty likwidacji szkód, w celu stworzenia czystej składki. Takie podejście jest szczególnie istotne w ubezpieczeniach komunikacyjnych, gdzie czynniki ryzyka wpływające na dwa składniki czystej składki są zazwyczaj różne i gdzie wymagany jest oddzielny model dla liczby szkód do budowy systemów oceny doświadczenia (takich jak system bonus-malus).
+
+Oznaczmy przez $Y_i$ liczbę szkód zgłoszonych przez ubezpieczającego $i, i=1, \dots, n$. Tutaj $Y_i$ reprezentuje liczbę wypadków, za które firma musiała wypłacić odszkodowanie, w których ubezpieczający $i$ został uznany za odpowiedzialnego w 1997 roku. Mamy obserwacje $(y_i, e_i, \boldsymbol{x}_i), i=1, 2, \dots, n$, gdzie $y_i$ reprezentuje obserwowaną liczbę szkód, $e_i$ ekspozycję na ryzyko, a $x_i$ zbiór dostępnych cech.
+
+#### 6.4.2.1 Marginalny Wpływ Cech na Liczbę Szkód
+
+Lewy górny panel na Rys. 6.11 przedstawia histogram obserwowanych liczb szkód na polisę. Widzimy tam, że większość polis (142 902 z 162 468) w portfelu nie wygenerowała żadnych szkód. Około 10% portfela wyprodukowało jedną szkodę (16 328 umów). Następnie 1539 umów wyprodukowało 2 szkody, 156 umów 3 szkody, 17 umów 4 szkody i były 2 polisy z 5 szkodami. Daje to średnią częstotliwość szkód równą 13.93% na poziomie portfela (co jest raczej wysokie w porównaniu do dzisiejszych doświadczeń, gdzie częstości szkód są o około połowę niższe, ale pamiętajmy, że doświadczenie portfela pochodzi z 1997 roku).
+
+Każde badanie ubezpieczeniowe zaczyna się od analiz jednowymiarowych, czyli marginalnych, podsumowujących dane odpowiedzi dla każdej wartości każdej cechy, ale bez uwzględniania wpływu innych cech. Marginalne wpływy cech na roczne częstości szkód są przedstawione na Rys. 6.11 i 6.12, z wyjątkiem wieku ubezpieczającego, który jest przedstawiony na Rys. 6.13. Uzupełniliśmy estymacje punktowe średniej częstości szkód o 95% przedziały ufności, aby ustalić, czy różnica marginalna jest istotna, czy nie.
+
+Możemy tam zobaczyć, że:
+- pojazdy z silnikiem diesla mają tendencję do zgłaszania większej liczby szkód. Można to wyjaśnić tym, że pojazdy te są droższe, ale oleje napędowe są tańsze w porównaniu do benzyny (przynajmniej taka była sytuacja, gdy dane były rejestrowane, pod koniec lat 90. w Belgii). W związku z tym ubezpieczający wybierający pojazdy z silnikiem diesla zazwyczaj przejeżdżają większe roczne przebiegi, co ogólnie zwiększa ekspozycję na wypadki.
+- kobiety-kierowcy mają tendencję do zgłaszania większej liczby szkód w porównaniu do mężczyzn (ale to odkrycie musi być rozpatrywane w kontekście interakcji między wiekiem ubezpieczającego a płcią, co jest opisane na Rys. 6.13, co doprecyzuje ten wniosek, jak wyjaśniono poniżej).
+- nowe samochody wydają się być bardziej ryzykowne, z plateau dla samochodów w średnim wieku i spadkiem średniej częstości szkód dla starszych pojazdów. Może to być związane z obowiązkowym corocznym przeglądem technicznym organizowanym w Belgii dla wszystkich pojazdów użytkowanych dłużej niż 3 lata. Ubezpieczający pokonujący dłuższe dystanse zazwyczaj skupiają się w niższych poziomach tej cechy (ponieważ mają tendencję do kupowania nowych samochodów, intensywnego ich użytkowania przez trzy lata, a następnie sprzedawania jako pojazdy używane).
+- średnia częstość szkód ma tendencję do wzrostu wraz z mocą samochodu. Efekt ten jest często widoczny w ubezpieczeniach komunikacyjnych i ogólnie tłumaczy się faktem, że mocniejsze samochody są trudniejsze w prowadzeniu. Należy zauważyć, że niektóre bardziej zaawansowane analizy jednocześnie uwzględniają moc i masę pojazdu, aby uwzględnić fakt, że cięższe pojazdy są zazwyczaj wyposażone w mocniejsze silniki.
+- jeśli dodatkowe gwarancje są wykupywane oprócz obowiązkowego ubezpieczenia OC, średnie częstości szkód są niższe w ubezpieczeniu OC. Sugeruje to, że kupowanie większej liczby gwarancji ujawnia niższy profil ryzyka (i wyklucza selekcję negatywną).
+- średnie częstości szkód są wyższe, gdy płatność składki jest rozłożona w ciągu roku. Zazwyczaj jest to przypisywane niższemu profilowi społeczno-ekonomicznemu, gdy rozłożenie płatności składki skutkuje wzrostem całkowitej kwoty składki. Ubezpieczający płacący składkę w kilku ratach są w ten sposób karani, a ten wybór ujawnia silne ograniczenia budżetowe, które mogą również opóźniać niezbędne naprawy ubezpieczonego pojazdu.
+- wydaje się, że nie ma wpływu sposobu użytkowania samochodu na średnią częstość szkód.
+
+Ponieważ wiek ubezpieczającego generalnie wchodzi w interakcję z płcią w ubezpieczeniach komunikacyjnych, w tym sensie, że młodzi kierowcy płci męskiej są bardziej niebezpieczni w porównaniu do młodych kierowców płci żeńskiej, na Rys. 6.13 przedstawiamy obserwowane częstości szkód oddzielnie dla kierowców płci męskiej i żeńskiej. Aby lepiej zwizualizować możliwą interakcję, oszacowaliśmy oddzielnie dla mężczyzn i kobiet średnie częstości szkód w zależności od wieku przy użyciu modelu GAM z pojedynczą cechą `AgePh` w interakcji z `Gender`. Daje to ostatni wykres na Rys. 6.13. Z tych wykresów jasno wynika, że istnieje interakcja między tymi dwiema cechami, ponieważ efekt wieku wyraźnie zależy od płci.
+
+Jednakże, te wykresy uzyskane z analiz jednowymiarowych są w najlepszym razie trudne do zinterpretowania. Rzeczywiście, z powodu ograniczonej ekspozycji w niektórych kategoriach, czasami obserwujemy raczej poszarpane zachowanie. Co więcej, te wykresy przedstawiają jednoczynnikowy wpływ dostępnych cech na roczną częstość szkód. Z powodu możliwych korelacji, pozornie wysokie częstości obserwowane na Rys. 6.11 i 6.12 mogą być przypisane mylącym efektom innych czynników ryzyka. Na przykład, wyższe częstości dla nowych samochodów mogą być tylko pozorne i wynikać z faktu, że nowe samochody są prowadzone w większości przez młodych, niedoświadczonych ubezpieczających. Dlatego musimy zbudować model wielowymiarowy, który wyizoluje wpływ każdego czynnika ryzyka i wygładzi wpływ cech ciągłych w ich zakresach.
+
+Rysunek 6.14 przedstawia średnią częstość szkód dla każdego belgijskiego dystryktu. Wstępne wygładzenie zostało wykonane, ponieważ mapa z surowymi częstościami szkód jest w najlepszym razie trudna do zinterpretowania, a nawet może być poważnie myląca (z powodu faktu, że surowe częstości mają tendencję do bycia znacznie bardziej ekstremalnymi w regionach o mniejszej ekspozycji na ryzyko). W związku z tym regiony z najmniej wiarygodnymi danymi zazwyczaj przyciągają główną uwagę wizualną. Jest to jeden z powodów, dla których w praktyce trudno jest próbować jakiegokolwiek wygładzania lub oceny "na oko".
+
+Z mapy nie wyłania się żaden wyraźny wzorzec, poza tym, że duże miasta są związane z wyższymi obserwowanymi częstościami szkód. Ponieważ profil ryzyka ubezpieczających mieszkających w tych dystryktach może się w dużym stopniu różnić, interpretacja takiej mapy nie jest możliwa, ponieważ miesza ona wiele różnych efektów. Model badany w następnym podrozdziale pozwala aktuariuszowi wyizolować efekty przestrzenne, po uwzględnieniu innych czynników ryzyka.
+
+#### 6.4.2.2 Model Regresji GAM dla Liczby Szkód
+
+Rozkład Poissona jest naturalnym kandydatem do modelowania liczby zgłaszanych szkód. Typowym założeniem w tych okolicznościach jest to, że warunkowa średnia częstość szkód może być zapisana jako funkcja wykładnicza addytywnego wyniku, który ma być oszacowany na podstawie danych.
+
+Zaczynamy od modelu uwzględniającego wszystkie dostępne informacje, pozwalającego na możliwą interakcję między wiekiem a płcią ubezpieczającego. Poziomy odniesienia dla cech kategorialnych są następujące: Benzyna dla `Fuel`, Mężczyzna dla `Gender`, C2 dla `Power`, TP. Only dla `Cover`, Yearly dla `Split` i Prywatne dla `Use`. Jest to zgodne z najliczniejszymi kategoriami widocznymi na Rys. 6.8 i 6.9. Domyślnie R porządkuje poziomy alfabetycznie, ale można to zmodyfikować za pomocą polecenia `C` określającego poziom bazowy lub odniesienia.
+
+Dopasowanie jest wykonywane za pomocą algorytmu `backfitting`. Procedura ta zbiegła się szybko: potrzebne były tylko trzy iteracje, z kryterium zatrzymania w postaci względnej różnicy w log-wiarygodnościach mniejszej niż $10^{-5}$. Rysunek 6.15 porównuje wartości parametrów uzyskanych w różnych iteracjach tego algorytmu dla cech kategorialnych. Rysunek 6.16 przedstawia estymowane efekty dla cech ciągłych. Widzimy, że początkowe estymacje są już bardzo bliskie ostatecznym. Rysunek 6.17 przedstawia różnicę między krokiem początkowym a ostatecznymi estymacjami dla poszczególnych dystryktów w Belgii. Ponownie widzimy, że różnica między początkowymi a ostatecznymi estymacjami jest raczej słaba.
+
+Niewielkie różnice między różnymi krokami algorytmu `backfitting` uzasadniają procedurę krok po kroku preferowaną przez wielu praktyków, którzy często zatrzymują się po pierwszym cyklu algorytmu `backfitting` i jedynie uwzględniają efekty w sposób progresywny, poprzez zamrażanie poprzednich estymacji.
+
+Skomentujmy krótko wynikowe dopasowanie. Zaczynamy od cech kategorialnych. Widzimy, że subskrybowanie większej liczby gwarancji niż obowiązkowe OC zmniejsza oczekiwaną liczbę szkód (co widać po ujemnych estymowanych współczynnikach regresji). Również prowadzenie pojazdu z silnikiem diesla wydaje się bardziej niebezpieczne. Badając nieliniową część wyniku (patrz Rys. 6.16), widzimy, że interakcja wiek-płeć jest istotna. Młodzi mężczyźni (poniżej 35 lat) mają tendencję do zgłaszania więcej wypadków niż młode kobiety, a także starsi mężczyźni (powyżej 80). Pomiędzy nimi, mężczyźni wydają się mniej niebezpieczni. Można to przypisać faktowi, że z powodu wysokich składek pobieranych od młodych posiadaczy polis, w Belgii powszechną praktyką było proszenie starszych krewnych (najczęściej ojca) o zakup polisy. Szczyt efektu wieku około 45 lat jest generalnie przypisywany wypadkom spowodowanym przez dzieci za kierownicą. Nowe samochody wydają się bardziej niebezpieczne niż starsze. Efekt staje się prawie stały po 4 latach. Pamiętaj, że w Belgii samochód nie podlega corocznemu przeglądowi technicznemu organizowanemu przez państwo przez pierwsze trzy lata. Kierowcy z wysokim rocznym przebiegiem często trzymają swój samochód tylko przez trzy lata, a następnie kupują nowy. Efekt geograficzny przedstawiony na Rys. 6.18 jest zgodny z naszymi oczekiwaniami, wskazując, że duże miasta są bardziej niebezpieczne pod względem częstotliwości szkód.
+
+Przeprowadźmy teraz analizę z pomocą funkcji `gam` zawartej w pakiecie R `mgcv`. Zaimplementowana jest tam ukarana estymacja największej wiarygodności, a optymalna wartość parametrów wygładzania jest wybierana za pomocą kryterium uogólnionej walidacji krzyżowej (GCV) podanej przez $D / (n - \text{edf})^2$, gdzie $D$ to dewiancja, a edf to równoważna liczba stopni swobody, lub przeskalowane $AIC$.
+
+Estymacje liniowej części wyniku, obejmujące cechy kategorialne, są przedstawione w Tabeli 6.1. Widzimy, że sposób użytkowania pojazdu nie ma istotnego wpływu na oczekiwaną liczbę szkód. Dlatego wykluczamy tę cechę z modelu i ponownie dopasowujemy model Poissona GAM. Wynikowe estymacje liniowej części wyniku są przedstawione w Tabeli 6.2. Widzimy, że pominięcie tej jednej zmiennej pozostawia pozostałe estymacje prawie niezmienione.
+
+Zauważ, że niektóre poziomy można by pogrupować. Na przykład, estymowane współczynniki regresji dla `Limited.MD` i `Comprehensive` nie różnią się istotnie, biorąc pod uwagę ich skojarzone błędy standardowe, więc moglibyśmy zdefiniować nową cechę `Cover2` z tylko dwoma poziomami, `TPL.Only` i `TPL+`, ta ostatnia łącząca poziomy `Limited.MD` i `Comprehensive`. Podobne grupowania można by osiągnąć dla `Split`.
+
+Rozważmy teraz dopasowanie nieliniowej części wyniku. Efekt wieku dla kobiet-kierowców ma edf równe 5.238 i jest wysoce istotny z $p$-wartością mniejszą niż $2 \times 10^{-16}$, podczas gdy edf związane z wiekiem dla mężczyzn-kierowców jest równe 6.132 z $p$-wartością mniejszą niż $2 \times 10^{-16}$. Pozostałe dwie cechy ciągłe są również wysoce istotne, z edf równym 7.878 i $p$-wartością $1.14 \times 10^{-13}$ dla wieku samochodu oraz edf równym 26.281 z $p$-wartością mniejszą niż $2 \times 10^{-16}$ dla efektu geograficznego. Estymowane funkcje są przedstawione na Rys. 6.19. Widzimy, że uzyskane wyniki są bardzo podobne do tych na Rys. 6.16, z wyjątkiem tego, że wartości są podane w skali logarytmicznej, a wynik dla efektu geograficznego nie jest narysowany na mapie z `gam`.
+
+**Tabela 6.1** Wynik funkcji `gam` z pakietu R `mgcv` dla dopasowania liczby szkód w ubezpieczeniu OC komunikacyjnym
+
+| Współczynnik        | Estymata   | Błąd Std. | wartość z | $\Pr(>\mid z\mid )$             |     |
+| ------------------- | ---------- | --------- | --------- | -------------------- | --- |
+| Intercept           | -2.12986   | 0.01641   | -129.812  | $<2 \times 10^{-16}$  | *** |
+| Fuel diesel         | 0.19219    | 0.01566   | 12.271    | $<2 \times 10^{-16}$  | *** |
+| Gender female       | 0.07499    | 0.01718   | 4.366     | $1.27 \times 10^{-5}$ | *** |
+| Cover comprehensive | -0.16264   | 0.02540   | -6.403    | $1.52 \times 10^{-10}$| *** |
+| Cover Limited.MD    | -0.15170   | 0.01796   | -8.444    | $<2 \times 10^{-16}$  | *** |
+| Split half-yearly   | 0.16614    | 0.01784   | 9.311     | $<2 \times 10^{-16}$  | *** |
+| Split monthly       | 0.30639    | 0.02212   | 13.854    | $<2 \times 10^{-16}$  | *** |
+| Split quarterly     | 0.36560    | 0.02545   | 14.365    | $<2 \times 10^{-16}$  | *** |
+| Use professional    | 0.03206    | 0.03349   | 0.957     | 0.338413             |     |
+| PowerCat C1         | -0.07913   | 0.01620   | -4.885    | $1.04 \times 10^{-6}$ | *** |
+| PowerCat C3         | 0.08000    | 0.02555   | 3.131     | 0.001741             | **  |
+| PowerCat C4         | 0.18747    | 0.04877   | 3.844     | 0.000121             | *** |
+| PowerCat C5         | 0.47399    | 0.18631   | 2.544     | 0.010955             | *   |
+
+**Tabela 6.2** Wynik funkcji `gam` z pakietu R `mgcv` dla dopasowania liczby szkód w ubezpieczeniu OC komunikacyjnym
+
+| Współczynnik        | Estymata   | Błąd Std. | wartość z | $\Pr(>\mid z\mid )$             |     |
+| ------------------- | ---------- | --------- | --------- | -------------------- | --- |
+| Intercept           | -2.12876   | 0.01637   | -130.075  | $<2 \times 10^{-16}$  | *** |
+| Fuel diesel         | 0.19320    | 0.01563   | 12.364    | $<2 \times 10^{-16}$  | *** |
+| Gender female       | 0.07484    | 0.01718   | 4.357     | $1.32 \times 10^{-5}$ | *** |
+| Cover comprehensive | -0.16073   | 0.02532   | -6.348    | $2.18 \times 10^{-10}$| *** |
+| Cover Limited.MD    | -0.15142   | 0.01796   | -8.430    | $<2 \times 10^{-16}$  | *** |
+| Split half-yearly   | 0.16565    | 0.01784   | 9.288     | $<2 \times 10^{-16}$  | *** |
+| Split monthly       | 0.30594    | 0.02211   | 13.837    | $<2 \times 10^{-16}$  | *** |
+| Split quarterly     | 0.36548    | 0.02545   | 14.360    | $<2 \times 10^{-16}$  | *** |
+| PowerCat C1         | -0.07956   | 0.01619   | -4.914    | $8.95 \times 10^{-7}$ | *** |
+| PowerCat C3         | 0.08150    | 0.02550   | 3.196     | 0.00139              | **  |
+| PowerCat C4         | 0.19092    | 0.04864   | 3.926     | $8.65 \times 10^{-5}$ | *** |
+| PowerCat C5         | 0.47702    | 0.18628   | 2.561     | 0.01045              | *   |
