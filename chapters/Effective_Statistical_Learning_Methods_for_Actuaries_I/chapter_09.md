@@ -20,7 +20,237 @@ Co więcej, kilka dużych szkód w portfelu często stanowi znaczną część ś
 
 Gdy głównym przedmiotem zainteresowania jest ogon rozkładu ciężkości szkód, kluczowe jest posiadanie dobrego modelu dla największych szkód. Rozkłady, które zapewniają dobre ogólne dopasowanie, takie jak rozkłady z rodziny wykładniczej (ED), mogą być szczególnie nieodpowiednie do modelowania ogonów. Teoria Wartości Ekstremalnych (EVT) koncentruje się właśnie na ogonach, opierając się na solidnych podstawach teoretycznych. Zasada leżąca u podstaw EVT polega na przeprowadzeniu analizy w oparciu o tę część próby, która niesie informację o zachowaniu ekstremalnym, czyli wyłącznie na największych wartościach z próby. W tym rozdziale przypomniano podstawy EVT, przydatne w zastosowaniach aktuarialnych.
 
-***
+## 9.2 Podstawy EVT
+
+### 9.2.1 Średnie z próby i maksima
+
+Rozważając ciąg niezależnych zmiennych losowych o jednakowym rozkładzie (powiedzmy, wysokości szkód lub pozostałe długości życia) $Y_1, Y_2, Y_3, \dots$, większość klasycznych wyników z rachunku prawdopodobieństwa i statystyki, które są istotne dla ubezpieczeń, opiera się na sumach $S_n = \sum_{i=1}^n Y_i$. Przywołajmy na przykład prawo wielkich liczb i centralne twierdzenie graniczne.
+
+Centralne twierdzenie graniczne określa rzeczywiste ciągi $a_n$ i $b_n$ takie, że znormalizowane sumy częściowe $\frac{S_n - a_n}{b_n}$ zbiegają do standardowego rozkładu normalnego, gdy $n$ rośnie. W szczególności, oznaczając $\mu = E[Y_1]$ i $\sigma^2 = \text{Var}[Y_1] < \infty$, wiemy, że tożsamość
+
+$$
+\lim_{n \to \infty} P\left[\frac{\sum_{i=1}^n Y_i - a_n}{b_n} \le x\right] = \Phi(x)
+$$
+
+zachodzi dla $a_n = n\mu$ i $b_n = \sqrt{n}\sigma$.
+Inną interesującą, choć mniej standardową statystyką dla aktuariusza jest
+
+$$
+M_n = \max\{Y_1, \dots, Y_n\}
+$$
+
+maksimum z $n$ zmiennych losowych $Y_1, \dots, Y_n$. EVT odnosi się do następującego pytania: jak zachowuje się $M_n$ w dużych próbach (tj. gdy $n$ dąży do nieskończoności)? Oczywiście, bez dalszych ograniczeń, $M_n$ dąży do $\omega$, gdzie $\omega$ jest prawym krańcem nośnika $Y_1$, precyzyjniej zdefiniowanym jako
+
+$$
+\omega = \sup\{y \in (-\infty, \infty) | F(y) < 1\}, \text{ być może nieskończone,}
+$$
+
+gdzie $F$ oznacza dystrybuantę zmiennych losowych $Y_1, Y_2, Y_3, \dots$ objętych badaniem. Wiemy, że
+
+$$
+P[M_n \le y] = P[Y_i \le y \text{ dla wszystkich } i=1, \dots, n] = (F(y))^n.
+$$
+
+W praktyce jednak dokładny rozkład $M_n$ ma niewielkie znaczenie dla wszystkich $y < \omega$, ponieważ
+
+$$
+\lim_{n \to \infty} P[M_n \le y] = \lim_{n \to \infty} (F(y))^n = 0.
+$$
+
+Jeśli $\omega < \infty$, to dla wszystkich $y \ge \omega$
+
+$$
+\lim_{n \to \infty} P[M_n \le y] = \lim_{n \to \infty} (F(y))^n = 1.
+$$
+
+Co więcej, mały błąd oszacowania $F$ może mieć dramatyczne konsekwencje dla estymacji wysokich kwantyli $M_n$.
+
+### 9.2.2 Rozkład skrajnych wartości
+
+Gdy $M_n$ jest odpowiednio wycentrowane i znormalizowane, może jednak zbiegać do pewnego konkretnego rozkładu granicznego (jednego z trzech różnych typów, w zależności od grubości ogonów $F$). Wraz z stałymi normalizującymi, ten rozkład graniczny określa asymptotyczne zachowanie maksimum z próby $M_n$. Jeśli istnieją ciągi liczb rzeczywistych $c_n > 0$ i $d_n \in (-\infty, \infty)$ takie, że znormalizowana sekwencja $(M_n - d_n)/c_n$ zbiega w rozkładzie, tj.
+
+$$
+\lim_{n \to \infty} P\left[\frac{M_n - d_n}{c_n} \le y\right] = \lim_{n \to \infty} (F(c_n y + d_n))^n = H(y) \quad (9.1)
+$$
+
+dla wszystkich punktów ciągłości $H$, to $H$ jest uogólnionym rozkładem wartości ekstremalnych. Zauważ, że (9.1) jest odpowiednikiem centralnego twierdzenia granicznego dla sum $S_n$.
+Uogólniona funkcja rozkładu wartości ekstremalnych (GEV) z indeksem ogona $\xi$ pojawiającym się jako granica w (9.1) ma postać
+
+$$
+H_\xi(y) = 
+\begin{cases} 
+\exp\left(-(1+\xi y)_+^{-1/\xi}\right) & \text{jeśli } \xi \ne 0, \\
+\exp(-\exp(-y)) & \text{jeśli } \xi = 0, 
+\end{cases}
+$$
+
+gdzie $z_+ = \max\{z, 0\}$ jest dodatnią częścią $z$. Nośnik $H_\xi$ jest
+
+$$
+\begin{cases} 
+(-1/\xi, \infty) & \text{jeśli } \xi > 0 \\
+(-\infty, -1/\xi) & \text{jeśli } \xi < 0 \\
+(-\infty, \infty) & \text{jeśli } \xi = 0. 
+\end{cases}
+$$
+
+Tutaj parametr $\xi$ kontrolujący prawy ogon rozkładu nazywany jest indeksem ogona lub indeksem wartości ekstremalnej. Trzy klasyczne rozkłady wartości ekstremalnych są szczególnymi przypadkami rodziny GEV:
+
+* jeśli $\xi > 0$, mamy rozkład Frecheta,
+* jeśli $\xi < 0$, mamy rozkład Weibulla, a
+* jeśli $\xi = 0$, mamy rozkład Gumbela.
+
+Rozkład GEV wydaje się być jedynym niezdegenerowanym rozkładem granicznym dla odpowiednio znormalizowanych maksimów z próby, co formalnie stwierdzono w następnej sekcji.
+
+### 9.2.3 Twierdzenie Fishera-Tippetta
+
+Jeśli odpowiednio znormalizowane maksima z próby $M_n$ zbiegają w rozkładzie do niezdegenerowanego rozkładu granicznego $H$ w (9.1), mówi się, że funkcja rozkładu $F$ należy do dziedziny przyciągania rozkładu GEV $H$. Klasa rozkładów, dla których zachowuje się takie asymptotyczne zachowanie, jest duża: obejmuje wszystkie powszechnie spotykane rozkłady ciągłe. Wyniki szeroko omówione do tej pory można podsumować w następującym twierdzeniu.
+
+**Twierdzenie 9.2.1 (Twierdzenie Fishera-Tippetta)** Jeśli istnieją ciągi stałych rzeczywistych $c_n$ i $d_n$ takie, że (9.1) zachodzi dla jakiegoś niezdegenerowanego rozkładu $H$ (tj. nieskoncentrowanego w jednym punkcie), to $H$ musi być rozkładem GEV, tj.
+
+$$
+H = H_\xi \text{ dla pewnego } \xi.
+$$
+
+Parametr $\xi$ jest znany jako indeks wartości ekstremalnej (lub indeks Pareto, lub indeks ogona).
+Rozkład Pareto jest typowym przykładem elementu należącego do klasy Frecheta, jak pokazano w następnym przykładzie.
+
+**Przykład 9.2.2 ($\mathcal{Par}(\alpha, \tau) \Rightarrow \xi > 0$)** Załóżmy, że $Y_1, Y_2, Y_3, \dots$ są niezależne i wszystkie podlegają rozkładowi $\mathcal{Par}(\alpha, \tau)$, z dystrybuantą
+
+$$
+F(y) = 1 - \left(\frac{\tau}{\tau+y}\right)^\alpha, \quad \alpha, \tau > 0, \quad y \ge 0.
+$$
+
+Biorąc pod uwagę stałe normalizujące
+
+$$
+c_n = \frac{\tau}{n^{1/\alpha}} \quad \text{i} \quad d_n = \tau n^{1/\alpha} - \tau
+$$
+
+otrzymujemy dla
+
+$$
+c_n y + d_n \ge 0 \iff 1 + \frac{y}{n^{1/\alpha}} \ge n^{-1/\alpha}
+$$
+
+że
+
+$$
+\begin{align*}
+\left(F(c_n y + d_n)\right)^n &= \left(1 - \left(\frac{\tau}{\tau + y\frac{\tau n^{1/\alpha}}{\alpha} + \tau n^{1/\alpha} - \theta}\right)^\alpha\right)^n \\
+&= \left(1 - \frac{1}{n}\left(1 + \frac{y}{\alpha}\right)^{-\alpha}\right)^n \\
+&\to \exp\left(-\left(1 + \frac{y}{\alpha}\right)^{-\alpha}\right) = H_{1/\alpha}(y) \text{ as } n \to \infty.
+\end{align*}
+$$
+
+Zatem indeks wartości ekstremalnej rozkładu $\mathcal{Par}(\alpha, \tau)$ wynosi $\xi = 1/\alpha$. Zauważ, że ograniczenie $1 + \frac{y}{n^{1/\alpha}} \ge n^{-1/\alpha}$ staje się $1 + \frac{y}{\alpha} > 0$ w granicy, więc dziedzina jest dobrze dopasowana do postaci $(-1/\xi, \infty)$, jak zapowiedziano. To pokazuje, że rozkład $\mathcal{Par}(\alpha, \tau)$ należy do dziedziny przyciągania rozkładu Frecheta z indeksem wartości ekstremalnej $\xi = 1/\alpha$, który jest dodatni.
+
+Oczywiście, klasa Frecheta ($\xi > 0$) nie ogranicza się do rozkładu Pareto. Można ją opisać w szerokim ujęciu w następujący sposób. Twierdzenie Fishera-Tippetta zachodzi z $H_\xi, \xi > 0$, wtedy i tylko wtedy, gdy reprezentacja
+
+$$
+1 - F(y) = y^{-1/\xi} \ell(y) \quad (9.2)
+$$
+
+zachodzi dla pewnej wolno zmieniającej się funkcji $\ell(\cdot)$, takiej że
+
+$$
+\lim_{y \to \infty} \frac{\ell(ty)}{\ell(y)} = 1 \text{ dla wszystkich } t > 0.
+$$
+
+Innymi słowy, zasadniczo oznacza to, że jeśli $1-F$ zanika jak funkcja potęgowa, to rozkład należy do dziedziny przyciągania rozkładu Frecheta. Wzór (9.2) jest często przyjmowany jako definicja rozkładów o grubych ogonach. Oprócz rozkładu Pareto, którego ogony maleją wielomianowo, przykłady rozkładów należących do klasy Frecheta obejmują rozkłady Burr, Log-Gamma, Cauchy'ego i Studenta $t$. Nie wszystkie momenty są skończone.
+Stosowność rozkładów o grubych ogonach w klasie Frecheta do modelowania ryzyka katastroficznego przejawia się w relacji asymptotycznej
+
+$$
+\lim_{t \to \infty} \frac{P[M_n > t]}{P[S_n > t]} = 1.
+$$
+
+Ta relacja opisuje sytuację, w której suma $S_n$ roszczeń staje się duża wtedy i tylko wtedy, gdy maksymalne roszczenie $M_n$ staje się duże. Rozkłady spełniające ten warunek są zwykle określane w literaturze aktuarialnej jako sub-wykładnicze.
+Rozkłady o grubych ogonach są najczęściej spotykane w zastosowaniach ubezpieczeń majątkowych. Rozkłady o lżejszych ogonach (zazwyczaj z wykładniczym spadkiem w ogonach) należą do klasy Gumbela, jak pokazano w następnym przykładzie.
+
+**Przykład 9.2.3 ($\mathcal{E}xp(\tau) \Rightarrow \xi = 0$)** Załóżmy, że $Y_1, Y_2, \dots$ są niezależne i wszystkie podlegają rozkładowi $\mathcal{E}xp(\tau)$, z dystrybuantą
+
+$$
+F(y) = 1 - \exp(-\tau y), \quad \tau > 0, \quad y \ge 0.
+$$
+
+Z $c_n = \frac{1}{\tau}$ i $d_n = \frac{\ln n}{\tau}$, otrzymujemy dla
+
+$$
+c_n y + d_n \ge 0 \iff y \ge -\ln n
+$$
+
+że
+
+$$
+\begin{aligned}
+(F(c_n y + d_n))^n &= \left(1 - \exp\left(-\tau\left(\frac{y}{\tau} + \frac{\ln n}{\tau}\right)\right)\right)^n \\
+&= \left(1 - \frac{1}{n}\exp(-y)\right)^n \\
+&\to \exp(-\exp(-y)) = H_0(y), \quad y \in (-\infty, \infty) \text{ gdy } n \to \infty.
+\end{aligned}
+$$
+
+Zauważ, że ograniczenie $y \ge -\ln n$ nie jest już wiążące w granicy, więc dziedzina rozszerza się na całą prostą rzeczywistą $(-\infty, \infty)$. Zatem rozkład $\mathcal{E}xp(\tau)$ należy do dziedziny przyciągania rozkładu Gumbela z zerowym indeksem wartości ekstremalnej.
+Charakteryzacja rozkładów Gumbela $\xi = 0$ jest bardziej skomplikowana. Z grubsza mówiąc, ona zawiera rozkłady, których ogony zanikają wykładniczo do 0 (rozkłady o lekkich ogonach). Wszystkie momenty są skończone. Przykłady obejmują rozkłady Normalny, LogNormalny i Gamma (w szczególności ujemny rozkład wykładniczy).
+Klasa Weibulla ($\xi < 0$) wydaje się być szczególnie użyteczna w ubezpieczeniach na życie, ponieważ jej elementy mają ograniczony nośnik. To zachowanie będzie badane w następnych sekcjach poświęconych modelowaniu pozostałych długości życia w starszym wieku.
+
+### 9.2.4 Ekstremalne długości życia
+
+Przeformułujmy teraz centralny wynik EVT w kontekście ubezpieczeń na życie, dla modelowania śmiertelności w najstarszych grupach wiekowych. Odpowiedzi $Y$ zazwyczaj reprezentują długości życia w kontekście ubezpieczeń na życie i są w związku z tym oznaczane jako $T$. Rozważmy ciąg niezależnych indywidualnych długości życia $T_1, T_2, T_3, \dots$ z wspólną dystrybuantą
+
+$$
+F(x) = {}_xq_0 = P[T_i \le x], \quad x \ge 0,
+$$
+
+dla $i=1, \dots, n$, spełniającą $F(0) = 0$. Tutaj $T_i$ reprezentuje całkowitą długość życia, od urodzenia do śmierci. W wielu zastosowaniach ubezpieczeniowych może również reprezentować pozostałą długość życia po osiągnięciu danego wieku $\alpha$, ze wspólną dystrybuantą $F_\alpha(x) = {}_xq_\alpha$. W słowach, $M_n$ reprezentuje w tym ujęciu wiek najstarszej osoby zmarłej w jednorodnej grupie $n$ osób podlegających tej samej tablicy trwania życia $x \mapsto {}_xq_0$. EVT bada asymptotyczne zachowanie $M_n$, gdy $n$ dąży do nieskończoności, pod warunkiem spełnienia pewnych warunków technicznych dotyczących $x \mapsto {}_xq_0$. Oczywiście, bez dalszych ograniczeń, $M_n$ zbliża się do górnego krańca nośnika
+
+$$
+\omega = \sup\{x \ge 0 | {}_xq_0 < 1\}, \text{ być może nieskończonego.}
+$$
+
+W ubezpieczeniach na życie $\omega$ jest określane jako ostateczny wiek w tablicy trwania życia. Można to łatwo zauważyć z
+
+$$
+P[M_n \le x] = ({}_xq_0)^n \to 
+\begin{cases} 
+0 & \text{jeśli } x < \omega \\
+1 & \text{jeśli } x \ge \omega 
+\end{cases} 
+\text{ gdy } n \to \infty.
+$$
+
+Gdy $M_n$ jest odpowiednio wycentrowane i znormalizowane, może jednak zbiegać do pewnego konkretnego rozkładu granicznego, jak w (9.1). Gdy $\xi > 0$, mamy do czynienia z rozkładami o grubych ogonach, co jest sprzeczne z danymi empirycznymi dla ludzkich długości życia (w tym przypadku siły śmiertelności zmniejszałyby się wraz z wiekiem). Zatem przypadki $\xi=0$ i $\xi < 0$ są interesujące dla zastosowań w ubezpieczeniach na życie. Zauważ, że jeśli (9.1) zachodzi z $\xi < 0$, to $\omega < \infty$, więc ujemna wartość $\xi$ potwierdza istnienie skończonego ostatecznego wieku $\omega$.
+Przypomnijmy, że
+
+$$
+\mu_x = \lim_{\Delta x \searrow 0} \frac{P[x < T \le x + \Delta x | T > x]}{\Delta x} = \frac{\frac{d}{dx}{}_xq_0}{{}_xp_0}
+$$
+
+jest siłą śmiertelności w wieku $x$. Określa ona ryzyko natychmiastowej śmierci dla osoby żyjącej w wieku $x$. Warunkiem wystarczającym, aby (9.1) zachodziło jest
+
+$$
+\lim_{x \to \omega} \frac{d}{dx}\left(\frac{1}{\mu_x}\right) = \xi. \quad (9.3)
+$$
+
+Intuicyjnie, $\frac{1}{\mu_x}$ można uznać za siłę oporu wobec śmiertelności, lub siłę witalności w wieku $x$. Opór wobec śmiertelności musi się stabilizować, gdy $\xi = 0$ lub staje się ostatecznie liniowy. Ujemna wartość $\xi$ wskazuje, że opór ostatecznie maleje w starszym wieku. Dla $\xi < 0$ mamy $\omega < \infty$ i warunek (9.3) implikuje
+
+$$
+\lim_{x \to \omega} (\omega - x)\mu_x = -\frac{1}{\xi}.
+$$
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## 9.5 Podejście POT (Peak Over Threshold)
 
