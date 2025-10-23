@@ -16,7 +16,7 @@ Co więcej, kilka dużych szkód w portfelu często stanowi znaczną część ś
 
 * wyceny umów reasekuracyjnych, takich jak traktaty **reasekuracji nadwyżki szkody** (w ramach których reasekurator musi zapłacić za nadwyżkę szkody ponad ustalony próg, zwany franszyzą redukcyjną).
 * szacowania wysokich kwantyli (nazywanych również **Wartością Narażoną na Ryzyko** w zarządzaniu ryzykiem finansowym).
-* wyznaczania **prawdopodobnej szkody maksymalnej** (w skrócie PML), która ma być używana jako robocza górna granica wielkości szkody w obliczaniu miar ryzyka.
+* wyznaczania **prawdopodobnej szkody maksymalnej** (w skrócie \widehat{PML}), która ma być używana jako robocza górna granica wielkości szkody w obliczaniu miar ryzyka.
 
 Gdy głównym przedmiotem zainteresowania jest ogon rozkładu ciężkości szkód, kluczowe jest posiadanie dobrego modelu dla największych szkód. Rozkłady, które zapewniają dobre ogólne dopasowanie, takie jak rozkłady z rodziny wykładniczej (ED), mogą być szczególnie nieodpowiednie do modelowania ogonów. Teoria Wartości Ekstremalnych (EVT) koncentruje się właśnie na ogonach, opierając się na solidnych podstawach teoretycznych. Zasada leżąca u podstaw EVT polega na przeprowadzeniu analizy w oparciu o tę część próby, która niesie informację o zachowaniu ekstremalnym, czyli wyłącznie na największych wartościach z próby. W tym rozdziale przypomniano podstawy EVT, przydatne w zastosowaniach aktuarialnych.
 
@@ -734,3 +734,152 @@ $$ \hat{\omega} = \begin{cases} 114.90 & \text{dla mężczyzn,} \\ 122.13 & \tex
 co jest zgodne z wartościami w (9.8) uzyskanymi przy użyciu indywidualnych wieków zgonu. 
 
 Główną trudnością przy pracy z danymi zagregowanymi jest wybór odpowiedniego wieku progowego, powyżej którego zachowanie Uogólnionego Rozkładu Pareto staje się widoczne.
+
+## 9.6 Model Poissona-Uogólnionego Pareto dla Nadwyżek Ponad Wysoki Próg
+
+### 9.6.1 Rozkład Maksimum z Próby Poissona o Rozmiarze z Uogólnionego Rozkładu Pareto
+
+Liczba $N_u$ nadwyżek ponad próg $u$ podlega rozkładowi $\mathcal{Bin}(n, \bar{F}(u))$. Pod warunkiem, że $u$ i $n$ są wystarczająco duże, ten rozkład dwumianowy może być przybliżony rozkładem Poissona. W związku z tym interesujące jest rozważenie próby o losowym, poissnowsko rozłożonym rozmiarze. Jest to dokładnie temat badany w tej sekcji.
+
+Rozważmy zmienną losową $N$ o rozkładzie zgodnym z prawem Poissona ze średnią $\lambda$ i niech $Y_1, \dots, Y_N$ będzie ciągiem $N$ niezależnych zmiennych losowych o jednakowym rozkładzie ze wspólną dystrybuantą $G_{\xi;\tau}$. Zdefiniujmy
+
+$$
+M_N = \max\{Y_1, Y_2, \dots, Y_N\}.
+$$
+
+Zdefiniujmy również rodzinę lokalizacji-skali $H_{\xi;\mu,\psi}$ odpowiadającą funkcji rozkładu GEV $H_\xi$ przez
+
+$$
+H_{\xi;\mu,\psi}(y) = H_\xi\left(\frac{y - \mu}{\psi}\right), \quad \mu \in (-\infty, \infty), \quad \psi > 0.
+$$
+
+Następny wynik podaje rozkład $M_N$ w ustawieniu Poissona-Uogólnionego Pareto.
+
+**Własność 9.6.1** Rozważmy ciąg $Y_1, Y_2, \dots$ niezależnych zmiennych losowych ze wspólnym rozkładem $\mathcal{GPar}(\xi, \tau)$, niezależnych od $N \sim Poi(\lambda)$. Wtedy mamy
+
+$$
+P[M_N \le y] = H_{\xi;\mu,\psi}(y), \quad (9.10)
+$$
+
+z
+
+$$
+\mu = \tau \xi^{-1}(\lambda^\xi - 1) \text{ oraz } \psi = \tau \lambda^\xi.
+$$
+
+**Dowód** Ten wynik można ustalić w następujący sposób. Dla $\xi \neq 0$,
+
+$$
+\begin{align*}
+P[M_N \le y] &= P[\max\{Y_1, \dots, Y_N\} \le y] \\
+&= \sum_{n=0}^{\infty} P[\max\{Y_1, \dots, Y_N\} \le y | P[N=n] \\
+&= \sum_{n=0}^{\infty} (P[Y_1 \le y])^n P[N=n] \\
+&= \sum_{n=0}^{\infty} \frac{(\lambda G_{\xi,\tau}(y))^n}{n!} \exp(-\lambda) \\
+&= \exp(-\lambda(1 - G_{\xi,\tau}(y))) \\
+&= \exp\left(-\lambda\left(1 + \xi \frac{y}{\tau}\right)_+^{-1/\xi}\right) \\
+&= \exp\left(-\left(1 + \xi \frac{y - \tau\xi^{-1}(\lambda^\xi - 1)}{\tau\lambda^\xi}\right)_+^{-1/\xi}\right) \\
+&= H_{\xi; \tau\xi^{-1}(\lambda^\xi-1), \tau\lambda^\xi}(y),
+\end{align*}
+$$
+
+co dowodzi ogłoszonego wyniku. Dla $\xi = 0$ wystarczy zauważyć, że
+
+$$
+\begin{align*}
+P[M_N \le y] &= \sum_{n=0}^{\infty} \frac{(\lambda(1 - \exp(-y/\tau)))^n}{n!} \exp(-\lambda) \\
+&= \exp(-\lambda \exp(-y/\tau)) \\
+&= \exp\left(-\exp\left(-\frac{1}{\tau}(y - \tau\ln\lambda)\right)\right) \\
+&= H_{0; \tau\ln\lambda, \tau}(y).
+\end{align*}
+$$
+
+Ponieważ
+
+$$
+\lim_{\xi \to 0} \tau \frac{\lambda^\xi - 1}{\xi} = \tau \ln\lambda,
+$$
+
+to kończy dowód.
+
+Zastosujmy teraz ten wynik do badania rozkładu najwyższego wieku w chwili śmierci w ubezpieczeniach na życie oraz do określenia prawdopodobnej maksymalnej straty w ubezpieczeniach majątkowych i osobowych.
+
+### 9.6.2 Prawdopodobna Maksymalna Strata
+
+Prawdopodobna maksymalna strata (PML) to najgorsza strata, jaka prawdopodobnie wystąpi. Jest ona definiowana jako wysoki kwantyl rozkładu maksimum wszystkich wysokości szkód uderzających w portfel w danym okresie referencyjnym (zazwyczaj jeden rok). Ponieważ to maksimum przekroczy tak zdefiniowaną PML z niewielkim, kontrolowanym prawdopodobieństwem, jest bardzo mało prawdopodobne, że indywidualna kwota szkody zarejestrowana w tym portfelu przyjmie wartość większą niż PML.
+
+Zacznijmy teraz od twierdzenia Pickandsa-Balkemy-de Haana z przybliżeniem Uogólnionym Rozkładem Pareto dla nadwyżek ponad dostatecznie wysoki próg. Oznaczmy przez $Y_{(N_u)}$ maksimum z $N_u$ szkód ponad $u$. Oczywiście, $N_u \sim \mathcal{Bin}(n, \bar{F}(u))$ jest w przybliżeniu Poissonem dla $n$ i $u$ wystarczająco dużych. Załóżmy, że $N_u \sim \mathcal{Poi}(\lambda_u)$ i, biorąc pod uwagę $N_u \ge 1$, $Y_1 - u, \dots, Y_{N_u} - u$ są niezależne i podlegają rozkładowi $\mathcal{GPar}(\xi, \tau)$. Wtedy, dla $y > u$, Własność 9.6.1 daje
+
+$$
+P[Y_{(N_u)} \le y] = P[Y_{(N_u)} - u \le y - u] = \exp\left(-\lambda_u\left(1 + \xi \frac{y-u}{\tau}\right)_+^{-1/\xi}\right).
+$$
+
+Definiując PML jako kwantyl $Y_{(N_u)}$ odpowiadający poziomowi prawdopodobieństwa $1-\epsilon$, dla pewnego $\epsilon$ wystarczająco małego, to jest,
+
+$$
+\text{Pr}[Y_{(N_u)} \le PML] = 1 - \epsilon
+$$
+
+otrzymujemy
+
+$$
+PML = F_{Y_{(N_u)}}^{-1}(1-\epsilon) = u + \frac{\tau}{\xi}\left(\left(\frac{\lambda_u}{-\ln(1-\epsilon)}\right)^\xi - 1\right).
+$$
+
+Jako przykład, rozważmy portfel ubezpieczeń OC komunikacyjnych z trzeciego rozdziału. Z $\epsilon=5\%$, otrzymujemy
+
+$$
+\widehat{PML} = 2,471,312 + \frac{7,655,438}{0.2718819}\left(\left(-\frac{29}{\ln 0.95}\right)^{0.2718819} - 1\right) = 132,039,070
+$$
+
+co rzeczywiście przekracza obserwowane maksimum 80 258 970 franków belgijskich. Do obliczeń z tym portfelem aktuariusz może ustawić roboczą górną granicę wysokości szkody na \widehat{PML}.
+
+### 9.6.3 Najwyższy Wiek w Chwili Śmierci
+
+Najwyższy wiek w chwili śmierci może być modelowany statystycznie jako maksimum $M_N$ z losowej próby o rozmiarze $N$. W celu zbadania zachowania najwyższego wieku w chwili śmierci $M_N$, używamy przybliżenia Uogólnionym Rozkładem Pareto dla pozostałych okresów życia w wieku $x \ge x^*$. W warunkach prowadzących do przybliżenia Uogólnionym Rozkładem Pareto $G_{\xi;\tau}$ dla pozostałego okresu życia w wieku $x^*$, liczba $L_{x^*}$ osób, które przeżyły do wieku $x^*$, jest w przybliżeniu Poissonem ze średnią $\lambda_{x^*} = E[L_{x^*}]$ jako przybliżenie rozkładu dwumianowego ważnego dla dużych rozmiarów i małych prawdopodobieństw sukcesu. W konsekwencji rozkład maksimum wieku w chwili śmierci $M_{L_{x^*}}$ można uzyskać z Własności 9.6.1. Wynik ten pokazuje, że rozkład maksimum $M_{L_{x^*}}$ z okresów życia $L_{x^*}$ osób osiągających wiek $x^*$ można przybliżyć rozkładem GEV $H_{\xi;\mu,\psi}$ gdzie
+
+$$
+\mu = \tau \xi^{-1}(\ell_{x^*}^\xi - 1) \text{ oraz } \psi = \tau \ell_{x^*}^\xi.
+$$
+
+Stąd,
+
+$$
+P[M_{L_{x^*}} \le s] = \exp\left(-\ell_{x^*}\left(1 + \xi \frac{s - x^*}{\tau}\right)_+^{-1/\xi}\right)
+$$
+
+na podstawie (9.10). Jako zastosowanie, znajdujemy następujące przybliżenie dla kwantyla na poziomie prawdopodobieństwa $1-\epsilon$ z $M_{L_{x^*}}$:
+
+$$
+F_{M_{L_{x^*}}}(1-\epsilon) \approx x^* + \frac{\tau}{\xi}\left(\left(-\frac{\ell_{x^*}}{\ln(1-\epsilon)}\right)^\xi - 1\right).
+$$
+
+### 9.6.4 Własność Stabilności przy Rosnących Progach
+
+Jeśli liczba nadwyżek ponad próg $u$ ma rozkład Poissona ze średnią $\lambda_u$, a odpowiadające nadwyżki podążają za rozkładem $\mathcal{GPar}(\xi, \tau)$, to liczba nadwyżek ponad większy próg $v > u$ jest Poissonem z wartością oczekiwaną
+
+$$
+\lambda_v = \lambda_u\left(1 + \xi \frac{v-u}{\tau}\right)^{-1/\xi}.
+$$
+
+Jest to zastosowanie Własności 2.3.2. Wyrażenie to daje
+
+$$
+E[N_v] = E[N_u]\left(1 + \xi \frac{v-u}{\tau}\right)^{-1/\xi}. \quad (9.11)
+$$
+
+Jako zastosowanie, rozważmy sumę $S_v$ nadwyżek ponad $v$, z $v > u$, to jest
+
+$$
+S_v = \sum_{i | Y_i > v} (Y_i - v)_+ = \sum_{i | Y_i > u} (Y_i - v).
+$$
+
+Zgodnie z (9.11), wartość oczekiwana $S_v$ jest dana przez
+
+$$
+\begin{align*}
+E[S_v] &= E[N_v]E[Y - v | Y > v] \\
+&= E[N_v]\left(\tau + (v-u)\frac{\xi}{1-\xi}\right).
+\end{align*}
+$$
+
+Ta wartość oczekiwana reprezentuje średnie świadczenia reasekuracyjne wypłacane w ramach traktatu nadwyżki szkody. Można ją oszacować, podstawiając estymatory punktowe dla odpowiednich nieznanych wielkości.
