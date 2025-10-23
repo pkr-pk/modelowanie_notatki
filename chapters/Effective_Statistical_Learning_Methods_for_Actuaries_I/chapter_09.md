@@ -569,7 +569,7 @@ Twierdzenie Pickandsa-Balkemy-de Haana pokazuje, że (pod warunkiem, że $u$ jes
 
 Oznaczmy liczbę szkód powyżej progu $u$ jako
 
-$$ N_u = \sum_{i=1}^n I[Y_i > u] \sim \text{Bin}(n, \bar{F}(u)). $$
+$$ N_u = \sum_{i=1}^n I[Y_i > u] \sim \mathcal{Bin}(n, \bar{F}(u)). $$
 
 Pod warunkiem, że mamy wystarczająco dużą próbę, możemy dokładnie oszacować $\bar{F}(u)$ za pomocą jego empirycznego odpowiednika $N_u/n$. Dla $x > u$, $\bar{F}(x) = \bar{F}(u)\bar{F}_u(x − u)$, więc możemy oszacować $\bar{F}(x)$ za pomocą
 
@@ -661,7 +661,7 @@ Naszym celem jest zatem określenie minimalnej wartości progu, powyżej któreg
 
 Wiemy, że Uogólniony Rozkład Pareto posiada wygodną właściwość stabilności progowej, która zapewnia, że
 
-$$ Y \sim \text{GPar}(\xi, \tau) \implies P[Y - u > t | Y > u] = 1 - G_{\xi, \tau + \xi u}(t) $$
+$$ Y \sim \mathcal{GPar}(\xi, \tau) \implies P[Y - u > t | Y > u] = 1 - G_{\xi, \tau + \xi u}(t) $$
 
 z tym samym parametrem indeksu $\xi$, dla dowolnego $u > 0$. Mówiąc prościej, jeśli $Y$ ma Uogólniony Rozkład Pareto, to nadwyżki $Y$ ponad dowolny próg nadal mają Uogólniony Rozkład Pareto. Ta właściwość jest wykorzystywana przez większość procedur wyboru optymalnego progu $u$, powyżej którego przybliżenie Uogólnionym Rozkładem Pareto ma zastosowanie. 
 
@@ -699,7 +699,7 @@ Przejdźmy teraz do modelowania skrajnych czasów życia. Wykresy indeksu Pareto
 
 Oszacowany wiek graniczny ω jest dany wzorem
 
-$$ \hat{\omega} = x^* - \frac{\hat{\tau}}{\hat{\xi}} = \begin{cases} 114,82 & \text{dla mężczyzn,} \\ 122,73 & \text{dla kobiet.} \end{cases} $$
+$$ \hat{\omega} = x^* - \frac{\hat{\tau}}{\hat{\xi}} = \begin{cases} 114.82 & \text{dla mężczyzn,} \\ 122.73 & \text{dla kobiet.} \end{cases} $$
 
 Populacja kobiet ma najwyższy oszacowany wiek graniczny. Estymacje są zgodne z najwyższymi zaobserwowanymi wiekami zgonu 112.58 dla kobiet i 111.47 dla mężczyzn dla rozważanych kohort urodzonych w Belgii. Wyniki te są spójne z maksymalnymi obserwowanymi na świecie wiekami zgonu. Co ciekawe, uzyskany wiek graniczny dla kobiet jest bliski rekordowi Jeanne Calment wynoszącemu 122.42 (122 lata i 164 dni, urodzona w Arles we Francji 21 lutego 1875 r., zmarła w tym samym miejscu 4 sierpnia 1997 r.). 
 
@@ -713,7 +713,7 @@ $$ p_x = p_x(\xi, \tau) = \left( 1 + \frac{\xi}{\tau + \xi(x - x^*)} \right)^{-1
 
 Parametry Uogólnionego Rozkładu Pareto można oszacować w modelu warunkowym
 
-$$D_x \sim Bin(L_x, q_x), \quad \text{gdzie} \quad q_x = q_x(\xi, \tau) = 1 − p_x(\xi, \tau). $$ 
+$$D_x \sim \mathcal{Bin}(L_x, q_x), \quad \text{gdzie} \quad q_x = q_x(\xi, \tau) = 1 − p_x(\xi, \tau). $$ 
 
 Dokładniej, maksymalizujemy funkcję log-wiarygodności rozkładu dwumianowego
 
