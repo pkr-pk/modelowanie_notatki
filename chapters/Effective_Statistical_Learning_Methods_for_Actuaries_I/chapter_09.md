@@ -167,7 +167,7 @@ $$
 Ta relacja opisuje sytuację, w której suma $S_n$ roszczeń staje się duża wtedy i tylko wtedy, gdy maksymalne roszczenie $M_n$ staje się duże. Rozkłady spełniające ten warunek są zwykle określane w literaturze aktuarialnej jako sub-wykładnicze.
 Rozkłady o grubych ogonach są najczęściej spotykane w zastosowaniach ubezpieczeń majątkowych. Rozkłady o lżejszych ogonach (zazwyczaj z wykładniczym spadkiem w ogonach) należą do klasy Gumbela, jak pokazano w następnym przykładzie.
 
-**Przykład 9.2.3 ($\mathcal{E}xp(\tau) \Rightarrow \xi = 0$)** Załóżmy, że $Y_1, Y_2, \dots$ są niezależne i wszystkie podlegają rozkładowi $\mathcal{E}xp(\tau)$, z dystrybuantą
+**Przykład 9.2.3 ($\mathcal{Exp}(\tau) \Rightarrow \xi = 0$)** Załóżmy, że $Y_1, Y_2, \dots$ są niezależne i wszystkie podlegają rozkładowi $\mathcal{Exp}(\tau)$, z dystrybuantą
 
 $$
 F(y) = 1 - \exp(-\tau y), \quad \tau > 0, \quad y \ge 0.
@@ -189,7 +189,7 @@ $$
 \end{aligned}
 $$
 
-Zauważ, że ograniczenie $y \ge -\ln n$ nie jest już wiążące w granicy, więc dziedzina rozszerza się na całą prostą rzeczywistą $(-\infty, \infty)$. Zatem rozkład $\mathcal{E}xp(\tau)$ należy do dziedziny przyciągania rozkładu Gumbela z zerowym indeksem wartości ekstremalnej.
+Zauważ, że ograniczenie $y \ge -\ln n$ nie jest już wiążące w granicy, więc dziedzina rozszerza się na całą prostą rzeczywistą $(-\infty, \infty)$. Zatem rozkład $\mathcal{Exp}(\tau)$ należy do dziedziny przyciągania rozkładu Gumbela z zerowym indeksem wartości ekstremalnej.
 Charakteryzacja rozkładów Gumbela $\xi = 0$ jest bardziej skomplikowana. Z grubsza mówiąc, ona zawiera rozkłady, których ogony zanikają wykładniczo do 0 (rozkłady o lekkich ogonach). Wszystkie momenty są skończone. Przykłady obejmują rozkłady Normalny, LogNormalny i Gamma (w szczególności ujemny rozkład wykładniczy).
 Klasa Weibulla ($\xi < 0$) wydaje się być szczególnie użyteczna w ubezpieczeniach na życie, ponieważ jej elementy mają ograniczony nośnik. To zachowanie będzie badane w następnych sekcjach poświęconych modelowaniu pozostałych długości życia w starszym wieku.
 
@@ -266,7 +266,7 @@ $$
 gdzie $\bar{F}_u = 1 - F_u$. Zatem $e(u)$ reprezentuje oczekiwaną nadwyżkę ponad próg $u$, pod warunkiem, że próg ten jest osiągnięty. Łatwo jest udowodnić, że jeśli $Y$ ma rozkład wykładniczy, jego funkcja średniej nadwyżki jest stała, to znaczy
 
 $$
-Y \sim \mathcal{E}xp(\tau) \iff e(u) = E[Y] = \frac{1}{\tau}.
+Y \sim \mathcal{Exp}(\tau) \iff e(u) = E[Y] = \frac{1}{\tau}.
 $$
 
 Jest to bezpośrednia konsekwencja właściwości braku pamięci charakteryzującej Ujemny Rozkład Wykładniczy. W konsekwencji, wykres $e(u)$ w funkcji $u$ będzie linią poziomą. Rozkłady o cienkich ogonach będą wykazywać trend spadkowy. Z drugiej strony, trend wzrostowy będzie wskazówką zachowania gruboogonowego. Trend spadkowy jest typowy dla rozkładów o skończonych nośnikach.
@@ -401,18 +401,106 @@ Empiryczna wersja oczekiwanej pozostałej długości życia $\hat{e}(x)$ jako fu
 
 Porównanie z rozkładem Ujemnym Wykładniczym długości życia można przeprowadzić za pomocą wykresu kwantylowo-kwantylowego (QQ-plot) wykładniczego, jak wyjaśniono wcześniej przy omawianiu wysokości szkód w ubezpieczeniach komunikacyjnych. Jeśli dane są niezależną i identycznie rozłożoną próbą z rozkładu Ujemnego Wykładniczego, powinien być widoczny trend liniowy. Wypukłe odchylenie od tego kształtu wskazuje na rozkład o grubszym ogonie w tym sensie, że kwantyle empiryczne rosną szybciej niż teoretyczne. Przeciwnie, wklęsłość wskazuje na rozkład o cieńszym ogonie. Wklęsły wzór wykresu kwantylowo-kwantylowego wykładniczego widoczny na Rys. 9.6 potwierdza zachowanie o cienkim ogonie rozkładu czasu życia dla obu płci.
 
+## 9.4 Uogólniony rozkład Pareto
 
+### 9.4.1 Definicja
 
+Uogólnione rozkłady Pareto odgrywają ważną rolę w EVT, w związku z rozkładem nadwyżek ponad wysokie progi. Ta rodzina ciągłych rozkładów prawdopodobieństwa obejmuje dwa parametry: parametr skali $\tau$ i parametr kształtu $\xi$. Czasami dopuszcza się również parametr lokalizacji. Dokładniej, funkcja dystrybuanty $G_{\xi;\tau}$ Uogólnionego Rozkładu Pareto $\mathcal{GPar}(\xi, \tau)$ jest dana przez
 
+$$
+G_{\xi;\tau}(y) = 
+\begin{cases} 
+1 - \left(1 + \xi \frac{y}{\tau}\right)_+^{-1/\xi} & \text{jeśli } \xi \neq 0 \\
+1 - \exp\left(-\frac{y}{\tau}\right) & \text{jeśli } \xi = 0 
+\end{cases}
+$$
 
+gdzie $\tau > 0$ oraz
 
+$$
+y \in [0, \infty) \text{ gdy } \xi \ge 0
+$$
 
+$$
+y \in \left[0, -\frac{\tau}{\xi}\right) \text{ gdy } \xi < 0.
+$$
 
+Jako szczególne przypadki Uogólnionych Rozkładów Pareto, znajdujemy rozkład Pareto gdy $\xi > 0$, rozkład Pareto typu II gdy $\xi < 0$ oraz Ujemny Rozkład Wykładniczy gdy $\xi = 0$. Odpowiadająca funkcja gęstości prawdopodobieństwa to
 
+$$
+g_{\xi;\tau}(y) = 
+\begin{cases} 
+\frac{1}{\tau}\left(1 + \xi \frac{y}{\tau}\right)_+^{-1/\xi-1} & \text{jeśli } \xi \neq 0 \\
+\frac{1}{\tau}\exp\left(-\frac{y}{\tau}\right) & \text{jeśli } \xi = 0. 
+\end{cases}
+$$
 
+### 9.4.2 Własności
 
+#### 9.4.2.1 Mieszanina Ujemnych Rozkładów Wykładniczych
 
+Gdy $\xi > 0$, Uogólniony Rozkład Pareto można uzyskać jako mieszaninę Ujemnych Rozkładów Wykładniczych z mieszaniem Gamma. Dokładniej, załóżmy, że warunkowo od $\Lambda = \lambda$, zmienna losowa $Y$ podlega Ujemnemu Rozkładowi Wykładniczemu $\mathcal{Exp}(\lambda)$. Załóżmy dalej, że zmienna losowa $\Lambda$ ma rozkład Gamma $Gam(\alpha, \beta)$. Wtedy, bezwarunkowo, $Y$ podlega Uogólnionemu Rozkładowi Pareto z parametrami $\xi = 1/\alpha$ i $\tau = \beta/\alpha$. Zauważmy jednak, że ponieważ parametr $\alpha$ dla rozkładu Gamma musi być dodatni, ta konstrukcja ma zastosowanie tylko do przypadku $\xi > 0$. Rozszerza to odpowiednią właściwość rozkładu Pareto na Uogólniony Rozkład Pareto z dodatnim parametrem kształtu $\xi$.
 
+#### 9.4.2.2 Momenty
+
+Pod warunkiem $\xi < 1$, wartość średnia dla $Y \sim \mathcal{GPar}(\xi, \tau)$ wynosi
+
+$$
+E[Y] = \frac{\tau}{1 - \xi}.
+$$
+
+Jeśli $Y \sim \mathcal{GPar}(\xi, \tau)$ i $\xi > 0$, wtedy
+
+$$
+E[Y^k] = \infty \text{ gdy } k \ge \frac{1}{\xi}.
+$$
+
+Niezależnie od $\xi > 0$, niektóre momenty odpowiedzi podlegającej Uogólnionemu Rozkładowi Pareto stają się nieskończone, gdy potęga staje się wystarczająco duża.
+
+#### 9.4.2.3 Stabilność progowa
+
+Jeśli $Y \sim \mathcal{GPar}(\xi, \tau)$, to funkcja nadwyżki ponad próg $u$ odpowiadająca $F = G_{\xi;\tau}$ jest dana przez
+
+$$
+\begin{align*}
+\bar{F}_u(y) &= \frac{\left(1 + \xi \frac{y+u}{\tau}\right)^{-1/\xi}}{\left(1 + \xi \frac{u}{\tau}\right)^{-1/\xi}} \\
+&= \left(\frac{\tau + \xi(y+u)}{\tau + \xi u}\right)^{-1/\xi} \\
+&= \left(1 + \xi \frac{y}{\tau + \xi u}\right)^{-1/\xi}
+\end{align*}
+$$
+
+tak że
+
+$$
+F_u(y) = G_{\xi, \tau(u)}(y) \text{ z } \tau(u) = \tau + \xi u
+$$
+
+gdzie
+
+$$
+y \ge 0 \text{ gdy } \xi \ge 0 \text{ oraz } 0 \le y \le -\frac{\tau}{\xi} - u \text{ gdy } \xi < 0.
+$$
+
+Innymi słowy, jeśli nadwyżki $Y$ ponad $u$ podlegają rozkładowi $\mathcal{GPar}(\xi, \tau)$, to nadwyżki $Y$ ponad wyższy próg $v > u$ również są zgodne z Uogólnionym Rozkładem Pareto z tym samym parametrem kształtu $\xi$, ale ze zaktualizowanym parametrem skali $\tau + \xi(v - u)$.
+W szczególności, jeśli $Y \sim \mathcal{Exp}(\tau) = \mathcal{GPar}(0, \tau)$, to znaczy $F(y) = 1 - \exp(-y/\tau)$, wtedy znajdujemy tożsamość
+
+$$
+F_u(x) = F(x) \text{ dla wszystkich } u > 0.
+$$
+
+Odzyskujemy w ten sposób właściwość braku pamięci, która charakteryzuje Ujemny Rozkład Wykładniczy.
+
+#### 9.4.2.4 Funkcja średniej nadwyżki
+
+Ponieważ nadwyżki ponad próg pozostają w rozkładzie Uogólnionego Pareto, funkcję średniej nadwyżki można łatwo uzyskać ze wzoru na wartość oczekiwaną związaną z Uogólnionym Rozkładem Pareto. Dokładniej, rozkład $\mathcal{GPar}(\xi, \tau)$ z $\xi < 1$ ma funkcję średniej nadwyżki w postaci
+
+$$
+e(u) = \frac{\tau(u)}{1 - \xi} = \frac{\tau}{1 - \xi} + \frac{\xi}{1 - \xi}u
+$$
+
+gdzie $u \ge 0$ jeśli $0 \le \xi < 1$ oraz $0 \le u \le -\frac{\tau}{\xi}$ jeśli $\xi < 0$. Dlatego liniowość funkcji średniej nadwyżki charakteryzuje Uogólniony Rozkład Pareto.
+
+Opierając się na liniowym zachowaniu funkcji średniej nadwyżki Uogólnionego Rozkładu Pareto, naturalnym pomysłem na wykrycie takiego zachowania jest ustalenie na podstawie wykresu empirycznej funkcji średniej nadwyżki $\hat{e}_n$ regionu $(u, \infty)$, w którym $\hat{e}_n(t)$ staje się w przybliżeniu liniowe dla $t \ge u$. Wskazuje to, że nadwyżki podlegają rozkładowi $\mathcal{GPar}(\xi, \tau)$ w ogonie powyżej $u$. Sugeruje to również graficzne oszacowania $\xi < 1$ i $\tau$ na podstawie nachylenia i punktu przecięcia ostatecznego trendu liniowego $\hat{e}_n$.
 
 ## 9.5 Podejście POT (Peak Over Threshold)
 
@@ -427,7 +515,7 @@ Okazuje się, że Uogólniony Rozkład Pareto stanowi dla aktuariusza przybliże
 
 $$ \lim_{u \to \omega} \sup_{0 \le y \le \omega - u} |F_u(y) - G_{\xi, \tau(u)}(y)| = 0. $$
 
-Twierdzenie 9.5.1 wskazuje, że rozkład $GPar(\xi, \tau)$ stanowi dobre przybliżenie rozkładu nadwyżek ponad dostatecznie wysokie progi $u$. W praktyce, dla pewnej funkcji $\tau(u)$ i pewnego indeksu Pareto $\xi$ zależnego od $F$, możemy użyć przybliżenia
+Twierdzenie 9.5.1 wskazuje, że rozkład $\mathcal{GPar}(\xi, \tau)$ stanowi dobre przybliżenie rozkładu nadwyżek ponad dostatecznie wysokie progi $u$. W praktyce, dla pewnej funkcji $\tau(u)$ i pewnego indeksu Pareto $\xi$ zależnego od $F$, możemy użyć przybliżenia
 
 $$ \bar{F}_u(y) \approx 1 - G_{\xi; \tau(u)}(y), \quad y \ge 0, $$
 
@@ -450,7 +538,7 @@ $$ = \bar{F}(u)\bar{F}_u(y - u) $$
 
 $$ = \bar{F}(u) \left( 1 + \xi \frac{y - u}{\tau} \right)^{-1/\xi}. $$
 
-Ten wzór jest użyteczny do obliczania wysokich kwantyli zmiennej odpowiedzi. Funkcja kwantylowa rozkładu $GPar(\xi, \tau)$ jest dana wzorem
+Ten wzór jest użyteczny do obliczania wysokich kwantyli zmiennej odpowiedzi. Funkcja kwantylowa rozkładu $\mathcal{GPar}(\xi, \tau)$ jest dana wzorem
 
 $$ G^{-1}_{\xi;\tau}(p) = \frac{\tau}{\xi} \left[ (1 - p)^{-\xi} - 1 \right], \quad 0 < p < 1. $$
 
