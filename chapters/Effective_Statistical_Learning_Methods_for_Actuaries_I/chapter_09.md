@@ -237,7 +237,169 @@ $$
 \lim_{x \to \omega} (\omega - x)\mu_x = -\frac{1}{\xi}.
 $$
 
+## 9.3 Nadwyżka ponad próg i funkcja średniej nadwyżki
 
+### 9.3.1 Rozkład nadwyżki
+
+Biorąc pod uwagę ciąg niezależnych zmiennych losowych o identycznym rozkładzie $Y_1, Y_2, \dots$ oraz próg $u$, uważany za duży, aktuariusze są często zainteresowani nadwyżkami $Y_i - u$ ponad $u$ dla $Y_i > u$. Zauważmy, że tutaj ograniczamy się do tych elementów $Y_i$, dla których spełniony jest warunek $Y_i > u$, tzn. $Y_i$ osiąga próg $u$ będący przedmiotem rozważań.
+
+Niech $F_u$ oznacza dystrybuantę nadwyżki losowej zmiennej $Y$ ponad próg $u$, pod warunkiem, że próg $u$ jest osiągnięty, to znaczy,
+
+$$
+\begin{align*}
+F_u(y) &= P[Y - u \le y | Y > u] \\
+&= \frac{F(y+u) - F(u)}{1 - F(u)} \\
+&= 1 - \frac{\bar{F}(y+u)}{\bar{F}(u)}, \quad y \ge 0,
+\end{align*}
+$$
+
+gdzie $\bar{F} = 1 - F$ jest funkcją nadwyżki (lub komplementarną do dystrybuanty, lub funkcją przeżycia) powiązaną z (skumulowaną) funkcją dystrybuanty $F$.
+
+### 9.3.2 Funkcja średniej nadwyżki
+
+Pod warunkiem, że $E[Y] < \infty$, funkcja średniej nadwyżki $e(\cdot)$ powiązana z $Y$ jest zdefiniowana jako
+
+$$
+e(u) = E[Y - u | Y > u] = \int_0^\infty \bar{F}_u(t)dt
+$$
+
+gdzie $\bar{F}_u = 1 - F_u$. Zatem $e(u)$ reprezentuje oczekiwaną nadwyżkę ponad próg $u$, pod warunkiem, że próg ten jest osiągnięty. Łatwo jest udowodnić, że jeśli $Y$ ma rozkład wykładniczy, jego funkcja średniej nadwyżki jest stała, to znaczy
+
+$$
+Y \sim \mathcal{E}xp(\tau) \iff e(u) = E[Y] = \frac{1}{\tau}.
+$$
+
+Jest to bezpośrednia konsekwencja właściwości braku pamięci charakteryzującej Ujemny Rozkład Wykładniczy. W konsekwencji, wykres $e(u)$ w funkcji $u$ będzie linią poziomą. Rozkłady o cienkich ogonach będą wykazywać trend spadkowy. Z drugiej strony, trend wzrostowy będzie wskazówką zachowania gruboogonowego. Trend spadkowy jest typowy dla rozkładów o skończonych nośnikach.
+
+Zazwyczaj funkcja średniej nadwyżki $e(\cdot)$ nie jest znana, ale można ją łatwo oszacować na podstawie próby losowej, a jej empiryczny estymator $\hat{e}_n$ może być wykreślony. Dokładniej, funkcja średniej nadwyżki z próby losowej $\{y_1, y_2, \dots, y_n\}$ jest określona przez
+
+$$
+\hat{e}_n(u) = \frac{\sum_{i=1}^n Y_i I[Y_i > u]}{\#\{i | Y_i > u\}} - u = \frac{\sum_{i=1}^n (Y_i - u)I[Y_i > u]}{\#\{i | Y_i > u\}}
+$$
+
+gdzie $\#\{i | y_i > u\}$ oznacza liczbę obserwacji przekraczających $u$, a $I[\cdot]$ jest funkcją wskaźnikową. Innymi słowy, $e(u)$ jest szacowane przez sumę wszystkich nadwyżek ponad próg $u$ podzieloną przez liczbę punktów danych przekraczających próg $u$. Zazwyczaj funkcja średniej nadwyżki jest oceniana w obserwacjach z próby. Dokładniej, oznaczmy obserwacje z próby w porządku rosnącym (statystyki pozycyjne) jako
+
+$$
+y_{(1)} \le y_{(2)} \le \dots \le y_{(n)}.
+$$
+
+Mamy wtedy
+
+$$
+\hat{e}_n(y_{(k)}) = \frac{1}{n-k} \sum_{j=1}^{n-k} (y_{(k+j)} - y_{(k)}).
+$$
+
+### 9.3.3 Ilustracja w ubezpieczeniach majątkowych
+
+Rozważmy wysokości szkód w belgijskim portfelu ubezpieczeń OC komunikacyjnych rozważanym w Rozdz. 6. Informacje o kwotach szkód w bazie danych zostały zarejestrowane 6 miesięcy po zakończeniu okresu obserwacji. Stąd większość "małych" szkód została rozliczona, a ich ostateczny koszt jest znany. Jednak dla dużych szkód pracowaliśmy tutaj ze szkodami poniesionymi (wypłacone odszkodowania plus rezerwy). Wszystkie koszty są wyrażone we frankach belgijskich, walucie obowiązującej w Belgii pod koniec lat 90. (jedno euro to około czterdzieści franków belgijskich).
+
+Statystyki opisowe dla kosztów szkód są przedstawione w Tabeli 9.1. Mamy do dyspozycji 18 042 obserwowane indywidualne koszty szkód, w zakresie od 1 do ponad 80 000 000 franków belgijskich, ze średnią 72 330,7 franków belgijskich. Widzimy w Tabeli 9.1, że 25% zarejestrowanych kosztów szkód jest mniejszych niż 5 850 franków belgijskich, a 90% z nich jest mniejszych niż 121 902 franków belgijskich. Pozostałe 10% obserwowanych wysokości szkód rozciąga się zatem do ponad 80 milionów, co sugeruje, że zbiór danych zawiera bardzo duże kwoty w ogonie rozkładu.
+
+Ponieważ dane są znacznie skośne w prawo, zdecydowaliśmy się na reprezentację logarytmiczną, aby przedstawić wysokości szkód. Histogram wyświetlony na Rys. 9.1 pokazuje, że prawa część rozkładu ujawnia obecność bardzo dużych strat nawet w skali logarytmicznej. Zachowanie ogona danych jest dalej badane za pomocą wykresu $\hat{e}_n$. Empiryczna funkcja średniej nadwyżki wyświetlona na Rys. 9.2 pokazuje gruboogonowe zachowanie wysokości szkód, które materializuje się w widocznym trendzie wzrostowym. Ten wykres został uzyskany za pomocą funkcji `mrlplot` z pakietu R `POT`.
+
+Wiemy, że funkcja średniej nadwyżki jest stała, jeśli wysokości szkód podlegają Ujemnemu Rozkładowi Wykładniczemu. Rozkłady o cienkich ogonach wykazują trend spadkowy, podczas gdy trend wzrostowy wskazuje na zachowanie gruboogonowe. Rosnący trend $\hat{e}_n$, który jest wyraźnie widoczny na Rys. 9.2, wspiera zachowanie gruboogonowe. Dlatego oczekuje się dodatniej wartości indeksu ogona $\xi$.
+
+Ujemny Rozkład Wykładniczy służy również jako punkt odniesienia na wykresie kwantylowo-kwantylowym (QQ-plot) wykładniczym. Interpretacja takiego wykresu jest prosta. Jeśli dane są zgodne z Ujemnym Rozkładem Wykładniczym, punkty powinny leżeć w przybliżeniu wzdłuż linii prostej. Wypukłe odchylenie od kształtu liniowego wskazuje na rozkład o grubszym ogonie w tym sensie, że kwantyle empiryczne rosną szybciej niż teoretyczne.
+
+---
+**Tabela 9.1** Statystyki opisowe kosztów szkód (tylko wartości ściśle dodatnie) dla belgijskiego portfela ubezpieczeń OC komunikacyjnych obserwowanego pod koniec lat 90., wszystkie wartości kosztów wyrażone we frankach belgijskich.
+
+| | |
+| :--- | :--- |
+| **Liczba obserwacji** | 18 042 |
+| **Minimum** | 1 |
+| **Maksimum** | 80 258 970 |
+| **Średnia** | 72 331 |
+| **Odchylenie standardowe** | 710 990,5 |
+| **25. percentyl** | 5 850 |
+| **Mediana** | 23 242 |
+| **75. percentyl** | 58 465 |
+| **90. percentyl** | 121 902 |
+| **95. percentyl** | 170 530,9 |
+| **99. percentyl** | 794 900,9 |
+
+Przeciwnie, wklęsłość wskazuje na rozkład o cieńszym ogonie. Wypukły wzór wykresu kwantylowo-kwantylowego wykładniczego przedstawionego na Rys. 9.3 potwierdza gruboogonowe zachowanie rozkładu wysokości szkód.
+
+### 9.3.4 Ilustracja w ubezpieczeniach na życie
+
+Techniki EVT są również przydatne do badania samego końca tablic trwania życia. Ubezpieczyciele muszą być w stanie oszacować śmiertelność w najstarszych grupach wiekowych, aby wycenić renty dożywotnie i odwrócone hipoteki, na przykład. Do dopasowania statystyk śmiertelności często używano modeli parametrycznych, w tym:
+
+- Model Gompertza:
+  $$ \mu_x = a \exp(bx) \text{ z } a, b > 0; $$
+- Model Makehama:
+  $$ \mu_x = c + a \exp(bx) \text{ z } a, b, c > 0. $$
+
+Wykładniczy wzrost siły śmiertelności w modelach Gompertza i Makehama jest ogólnie odpowiedni dla dorosłych i osób wczesnej starości, ale śmiertelność ma tendencję do spowalniania w starszych grupach wiekowych, zazwyczaj około 85. roku życia, więc modele te zwykle zawodzą w opisie końca życia (przeszacowując śmiertelność w najstarszych grupach wiekowych, co wydaje się być problematyczne na przykład dla rent dożywotnich). Zaproponowano alternatywne modele w celu uwzględnienia spowolnienia śmiertelności obserwowanego w starszym wieku w uprzemysłowionych krajach. Płaskowyż, który pojawia się w tych zaawansowanych grupach wiekowych, jest często przypisywany wcześniejszej selekcji bardziej odpornych osób w heterogenicznych kohortach. Ten empiryczny dowód wspiera model logistyczny uzyskany przez włączenie losowego współczynnika kruchości (frailty) o rozkładzie Gamma w celu uwzględnienia heterogeniczności w modelu Gompertza, jak wyjaśniono dalej.
+
+Kruchość jest zdefiniowana jako nieujemna zmienna losowa, której wartość wyraża nieobserwowalne czynniki ryzyka wpływające na indywidualną śmiertelność. Podstawową ideą jest to, że osoby o wyższej kruchości umierają średnio wcześniej niż inne. Niech $Z$ oznacza kruchość odpowiadającą dożywotniej $T$. Biorąc pod uwagę $Z=z$, siła śmiertelności w multiplikatywnym modelu kruchości jest zdefiniowana jako
+$$ \mu_x(z) = z \mu_x $$
+gdzie $\mu_x$ reprezentuje siłę śmiertelności dla osoby ze standardowym profilem $Z=1; \mu_x$ jest uważana za standardową siłę śmiertelności. Jeśli $z < 1$, wtedy $\mu_x(z) < \mu_x$, co sugeruje, że osoba jest w dobrej kondycji; odwrotnie, jeśli $z > 1$. Teraz załóżmy, że $Z \sim \mathcal{Gam}(\delta, \theta)$. Odnosząc się do dorosłych, możemy założyć model Gompertza do opisu standardowej siły śmiertelności, tak że
+$$ \mu_x(z) = z a \exp(bx). $$
+Populacyjna siła śmiertelności jest wtedy dana przez
+$$ \frac{a \delta \exp(bx)}{(\theta - \frac{a}{b}) + \frac{a}{b} \exp(bx)} = \frac{1}{\theta - \frac{a}{b}} \frac{a \delta \exp(bx)}{1 + \frac{a}{b\theta - a} \exp(bx)}. $$
+
+---
+**Tabela 9.2** Statystyki opisowe dla obserwowanego wieku w chwili śmierci powyżej 95 lat, kohorty urodzone w Belgii w latach 1886-1904.
+
+| | Mężczyźni | Kobiety |
+| :--- | :--- | :--- |
+| **Liczba obserwacji** | 10 050 | 36 616 |
+| **Średnia** | 97,35 | 97,75 |
+| **Odchylenie standardowe** | 2,05 | 2,37 |
+| **25. percentyl** | 95,77 | 95,91 |
+| **Mediana** | 96,79 | 97,12 |
+| **75. percentyl** | 98,36 | 98,99 |
+| **Maksimum** | 111,47 | 112,58 |
+
+Definiując $\frac{a \delta}{\theta - \frac{a}{b}} = a'$ i $\frac{a}{b\theta - a} = \delta'$, otrzymujemy model logistyczny
+
+$$ \frac{a' \exp(bx)}{1 + \delta' \exp(bx)} $$
+
+dla populacyjnej siły śmiertelności, który tworzy wcześniej wspomniany płaskowyż śmiertelności.
+
+Gdy głównym celem jest śmiertelność w najstarszych grupach wiekowych, wnioskowanie prowadzone jest na podstawie próby, w której zakres danych jest bardzo mały. Co więcej, ekstrapolacja poza zakres danych jest często pożądaną procedurą. W takiej sytuacji niezbędne jest posiadanie dobrego modelu dla najdłuższych okresów życia. Zatem EVT wydaje się naturalnym kandydatem do analizy śmiertelności w najstarszych grupach wiekowych. Ponadto, EVT jest ściśle powiązane z granicznymi rozkładami resztkowymi życia i oferuje jednolite podejście do modelowania prawego ogona rozkładu czasu życia. Na przykład funkcja średniej nadwyżki odpowiada oczekiwanej pozostałej długości życia jako funkcji osiągniętego wieku.
+
+Biorąc pod uwagę analizowane dane, mamy do dyspozycji zgony w każdym indywidualnym wieku dla kobiet i mężczyzn, którzy zmarli w wieku 95 lat lub więcej, a także listę osób, które przeżyły wiek 95 lat i zmarły na końcu okresu obserwacji. Jest 46 666 obserwacji dotyczących osób urodzonych w Belgii, które zmarły po 1981 roku. Baza danych zawiera 22% mężczyzn i 78% kobiet. Dla każdej osoby znamy dokładną datę urodzenia i śmierci.
+
+Podstawowe statystyki opisowe zbiorów danych podano w Tabeli 9.2. Średni wiek śmierci dla kobiet jest większy niż dla mężczyzn, zgodnie z oczekiwaniami. Różnice są jednak raczej umiarkowane, w porównaniu do różnic w całkowitej długości życia od urodzenia, z wyjątkiem znacznie wyższej liczby kobiet osiągających wiek 95 lat w porównaniu z mężczyznami.
+
+Dane kohortowe są przedstawione w Tabeli 9.3, oddzielnie dla każdej płci. Możemy tam odczytać początkową liczbę osób włączonych do analizy, dla każdej kohorty urodzonej w latach 1886 i 1904 (czyli liczbę $L_{95}$ osób w kalendarzowym roku $c \in \{1886, \dots, 1904\}$ wciąż żyjących w wieku 95 lat) oraz wiek śmierci $M_{L_{95}}$ ostatniej osoby, która przeżyła dla każdej kohorty. Widzimy, że $L_{95}$ wzrasta w miarę upływu czasu, zgodnie z oczekiwaniami połączonego efektu rosnącej populacji i malejącej śmiertelności w młodszych grupach wiekowych w czasie. Ponadto liczba osób
+
+---
+**Tabela 9.3** Początkowa wielkość dla każdej kohorty $L_{95}$, obserwowany najwyższy wiek śmierci $M_{L_{95}}$ oraz średni wiek śmierci $95 + \hat{e}(95)$ dla każdej kohorty urodzonej w roku kalendarzowym $c$ od 1886 do 1904.
+
+| Kohorta | Mężczyźni | | | Kobiety | | |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **c** | **$L_{95}$** | **$M_{L_{95}}$** | **$95 + \hat{e}(95)$** | **$L_{95}$** | **$M_{L_{95}}$** | **$95 + \hat{e}(95)$** |
+| 1886 | 359 | 108.17 | 97.35 | 1045 | 107.78 | 97.70 |
+| 1887 | 418 | 105.13 | 97.41 | 1130 | 110.45 | 97.64 |
+| 1888 | 412 | 106.33 | 97.20 | 1242 | 110.32 | 97.68 |
+| 1889 | 462 | 105.58 | 97.53 | 1208 | 110.16 | 97.69 |
+| 1890 | 425 | 107.70 | 97.50 | 1311 | 112.58 | 97.60 |
+| 1891 | 428 | 105.81 | 97.35 | 1368 | 109.72 | 97.70 |
+| 1892 | 444 | 105.44 | 97.29 | 1510 | 110.89 | 97.72 |
+| 1893 | 492 | 110.29 | 97.46 | 1544 | 107.75 | 97.63 |
+| 1894 | 498 | 106.19 | 97.22 | 1760 | 107.41 | 97.71 |
+| 1895 | 526 | 106.62 | 97.24 | 1852 | 109.38 | 97.86 |
+| 1896 | 545 | 106.27 | 97.43 | 1894 | 109.79 | 97.85 |
+| 1897 | 568 | 106.43 | 97.33 | 2009 | 109.85 | 97.72 |
+| 1898 | 572 | 105.74 | 97.26 | 2149 | 110.89 | 97.71 |
+| 1899 | 630 | 106.88 | 97.35 | 2301 | 111.60 | 97.72 |
+| 1900 | 576 | 111.47 | 97.27 | 2460 | 111.70 | 97.78 |
+| 1901 | 635 | 103.77 | 97.23 | 2787 | 110.36 | 97.89 |
+| 1902 | 632 | 106.79 | 97.42 | 2829 | 112.36 | 97.82 |
+| 1903 | 669 | 104.71 | 97.46 | 2980 | 109.96 | 97.81 |
+| 1904 | 759 | 106.15 | 97.32 | 3237 | 110.18 | 97.74 |
+---
+wchodzących do bazy danych jest większa dla kobiet w porównaniu z mężczyznami z powodu niższych wskaźników śmiertelności dla kobiet w porównaniu z mężczyznami we wszystkich grupach wiekowych. Maksima $M_{L_{95}}$ są stosunkowo stabilne w kohortach i są wyższe dla kobiet w porównaniu z mężczyznami. Zauważ, że dla każdej kohorty ostatnią osobą, która przeżyła, była kobieta. Najwyższy wiek w chwili śmierci obserwowany w Belgii dla tych kohort to 112,58 lat dla kobiet i 111,47 dla mężczyzn. Przypomnijmy, że Jeanne Calment zmarła w wieku 122 lat w 1997 roku. Po tym rekordzie tylko jedna osoba, Sarah Knauss, żyła 119 lat i zmarła w 1999 roku. Od tego czasu trzy kobiety żyły ponad 117 lat, a trzy inne wciąż żyją w wieku 116 lat. Biorąc pod uwagę ograniczony rozmiar populacji belgijskiej, maksima zawarte w bazie danych są zgodne z tymi światowymi rekordami.
+
+Widzimy również z Tabeli 9.3, że nie ma widocznego trendu w średnim wieku w chwili śmierci, ani oczekiwanej długości życia $95 + \hat{e}(95)$ dla osób żyjących w wieku 95 lat. Pozostaje on nawet stabilny na poziomie około 97 lat zarówno dla kohort męskich, jak i żeńskich. Obserwacja, że $\hat{e}(95)$ nie poprawiła się w 19 kohortach urodzonych jest dość niezwykła. Wydaje się to sugerować, że nie ma potencjalnego zysku w ekstremalnej długowieczności przez pokolenia w tych zaawansowanych grupach wiekowych. Można to potwierdzić za pomocą formalnego testu (jak wykonano w Gbari i in. 2017a).
+
+Ograniczmy teraz zbiór danych do wieku 98 lat i więcej. Powód jest następujący: statystyki śmiertelności rynkowej są dostępne w Belgijskim Banku Narodowym, działającym jako regulator ubezpieczeniowy, do wieku 98 lat (ostatnia kategoria jest otwarta i obejmuje wiek 99 lat i więcej). Ponieważ celem jest dostarczenie aktuariuszom ekstrapolacji rynkowych tablic trwania życia na starsze grupy wiekowe, naturalne jest skoncentrowanie się na grupach wiekowych nieobjętych rynkowymi tablicami trwania życia. Histogramy są wyświetlone na Rys. 9.4. Wykresy te zostały uzyskane z obserwowanych wieków w chwili śmierci $\{t_1, t_2, \dots, t_n\}$ z $t_i \ge 98$ zawartych w bazie danych. Widzimy, że te histogramy sugerują, że pozostałe okresy życia powyżej 98 roku życia mają malejącą funkcję gęstości prawdopodobieństwa, z pewnymi obserwacjami znajdującymi się daleko w ogonie rozkładów.
+
+Empiryczna wersja oczekiwanej pozostałej długości życia $\hat{e}(x)$ jako funkcja osiągniętego wieku $x$ jest przedstawiona na Rys. 9.5. Wiemy, że jeśli pozostałe okresy życia podlegają Ujemnemu Rozkładowi Wykładniczemu, to funkcja średniej nadwyżki jest stała. W konsekwencji wykres $e(x)$ w funkcji wieku $x$ będzie linią poziomą. Rozkłady o cienkich ogonach będą wykazywać trend spadkowy. Przeciwnie, trend wzrostowy będzie wskazówką zachowania gruboogonowego. Malejący kształt $\hat{e}(x)$ widoczny na Rys. 9.5 zaprzecza zachowaniu Ujemnego Rozkładu Wykładniczego dla pozostałego czasu życia. Trend spadkowy jest wyraźnie widoczny na Rys. 9.5, wspierając zachowanie o cienkim ogonie. Dlatego oczekuje się ujemnej wartości indeksu ogona $\xi$, co skutkuje skończonym ostatecznym wiekiem $\omega$.
+
+Porównanie z rozkładem Ujemnym Wykładniczym długości życia można przeprowadzić za pomocą wykresu kwantylowo-kwantylowego (QQ-plot) wykładniczego, jak wyjaśniono wcześniej przy omawianiu wysokości szkód w ubezpieczeniach komunikacyjnych. Jeśli dane są niezależną i identycznie rozłożoną próbą z rozkładu Ujemnego Wykładniczego, powinien być widoczny trend liniowy. Wypukłe odchylenie od tego kształtu wskazuje na rozkład o grubszym ogonie w tym sensie, że kwantyle empiryczne rosną szybciej niż teoretyczne. Przeciwnie, wklęsłość wskazuje na rozkład o cieńszym ogonie. Wklęsły wzór wykresu kwantylowo-kwantylowego wykładniczego widoczny na Rys. 9.6 potwierdza zachowanie o cienkim ogonie rozkładu czasu życia dla obu płci.
 
 
 
