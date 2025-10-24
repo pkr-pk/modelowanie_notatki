@@ -8,11 +8,10 @@ W przypadku wypadku, choroby lub śmierci, ubezpieczający lub beneficjent może
 
 W konsekwencji, w momencie sprzedaży polisy ubezpieczeniowej, dostawca nie zna ostatecznych kosztów tej usługi, ale opiera się na danych historycznych i modelach aktuarialnych, aby przewidzieć zrównoważoną cenę dla swojego produktu. Centralną częścią tej ceny jest składka czysta, czyli najlepsze oszacowanie lub oczekiwana (obecna) wartość przyszłych zobowiązań.
 
-W tym rozdziale wprowadzającym dokonujemy przeglądu podstawowych koncepcji taryfikacji aktuarialnej, które będą używane w całej tej książce. Starannie przygotowujemy grunt i wprowadzamy ogólne zasady leżące u podstaw modelowania szkodowości ubezpieczeniowej i analizy danych szkodowych.
-
 ## 1.2 Taryfa Techniczna a Taryfa Komercyjna
 
 ### 1.2.1 Cena Sprzedaży a Koszt Operacyjny
+
 Taryfa techniczna ma na celu jak najdokładniejsze oszacowanie składki czystej dla każdego ubezpieczającego i stanowi punkt odniesienia dla wewnętrznej oceny ryzyka. Uwzględnia ona wszystkie dostępne informacje o ryzyku.
 
 Zamiast rozważać obserwowane koszty szkód, które zawierają duży element losowości, aktuariusze biorą pod uwagę łączny koszt operacyjny dla każdej polisy jako cenę techniczną. Zaletą spojrzenia na modelowany koszt zamiast na koszt rzeczywisty jest usunięcie losowych fluktuacji w obserwowanym doświadczeniu. Ponadto, zdecydowana większość obserwowanych kosztów jest zerowa, ponieważ nie zgłoszono żadnych roszczeń w odniesieniu do odpowiednich polis, ale jasne jest, że cena produktu musi być dodatnia. Należy zauważyć, że modelowany koszt może obejmować korekty z taryfikacji opartej na doświadczeniu/wiarygodności, jeśli historia szkodowa wskazuje na przyszłe koszty.
@@ -50,7 +49,7 @@ W tej książce omawiamy jedynie ustalanie składek technicznych opartych na kos
 
 To tylko trzy przykłady użyteczności śledzenia składek technicznych obok składek komercyjnych.
 
-### 1.2.3 Wycena "od góry do dołu"
+### 1.2.3 Wycena "od góry do dołu" (top-down pricing)
 
 Aktuariusze zazwyczaj łączą dwa podejścia:
 - analizę przeprowadzaną na poziomie indywidualnej polisy
@@ -63,8 +62,6 @@ Ponieważ ubezpieczyciele sprzedają obietnice, działalność ubezpieczeniowa z
 Dokładniej, wycena "od góry do dołu" przebiega następująco. Najpierw na poziomie portfela sporządzana jest prognoza, aby przewidzieć ogólne przyszłe koszty szkód, biorąc pod uwagę cykle rynkowe, inflację specyficzną dla szkód, dynamikę rezerw szkodowych i tak dalej. Za pomocą odpowiedniej miary ryzyka określa się następnie kwotę kapitału ryzyka, co prowadzi do składki portfelowej. Należy zauważyć, że portfel jest w tej analizie traktowany jako zbiorowość, a szczegółowe indywidualne cechy polis zazwyczaj nie są brane pod uwagę.
 
 Następnie przeprowadza się analizę indywidualną w celu zidentyfikowania profili ryzyka. Wynik tego drugiego etapu jest wykorzystywany do alokacji wynikowego całkowitego dochodu ze składek między różne polisy: określa się względne ryzyko każdej polisy (w odniesieniu do pewnej polisy referencyjnej) i stosuje się wynikowy procent do składki portfelowej.
-
-W tej książce rozważamy tylko analizę indywidualną przeprowadzaną na poziomie polisy w celu zidentyfikowania istotnych czynników ryzyka, a nie ocenę odpowiedniego poziomu kapitału potrzebnego do zapewnienia wypłacalności.
 
 ### 1.2.4 Prewencja
 
@@ -82,15 +79,7 @@ Można to łatwo zrozumieć w następujący sposób. Rozważmy niezależne zmien
 
 $$\bar{Y}_n = \frac{1}{n} \sum_{i=1}^{n} Y_i$$
 
-reprezentuje średnią wypłatę na polisę w portfelu o wielkości $n$. 
-
-Niech $F$ będzie wspólną dystrybuantą ryzyk $Y_i$, to znaczy,
-
-$$F(y) = P[Y_1 \le y].$$
-
-Przypomnijmy, że wartość oczekiwaną $Y_1$ oblicza się ze wzoru
-
-$$E[Y_1] = \int_{0}^{\infty} ydF(y).$$
+reprezentuje średnią wypłatę na polisę w portfelu o wielkości $n$.
 
 Zakładamy, że $E[Y_1]$ istnieje i jest skończona. Prawo wielkich liczb zapewnia wówczas, że
 
@@ -100,7 +89,7 @@ W związku z tym, oczekiwana kwota świadczenia $E[Y_1]$ może być postrzegana 
 
 Należy zauważyć, że składki czyste są jedynie redystrybuowane wśród ubezpieczających w celu pokrycia ich roszczeń, bez straty ani zysku średnio. Dlatego nie można ich uważać za ceny ubezpieczenia, ponieważ należy dodać narzuty, aby pokryć koszty operacyjne, zapewnić wypłacalność, pokryć ogólne wydatki, płacić prowizje pośrednikom, generować zysk dla akcjonariuszy, nie wspominając o podatkach nałożonych przez lokalne władze.
 
-### **1.3.2 Dlaczego Klasyfikować Ryzyka?**
+### 1.3.2 Dlaczego Klasyfikować Ryzyka?
 
 W praktyce większość portfeli jest niejednorodna: składają się one z osób o różnym poziomie ryzyka. Niektórzy ubezpieczający mają tendencję do częstszego zgłaszania roszczeń lub zgłaszania roszczeń o wyższej wartości, średnio. W niejednorodnym portfelu z jednolitą listą cen, wynik finansowy towarzystwa ubezpieczeniowego zależy od składu portfela, jak pokazano w następnym przykładzie.
 
@@ -118,7 +107,7 @@ To (częściowo) wyjaśnia, dlaczego firmy ubezpieczeniowe używają tak wielu c
 
 Podsumowując, firma ubezpieczeniowa może naliczać tę samą kwotę składek ubezpieczającym o różnym profilu ryzyka, ale wtedy jest narażona na ryzyko utraty tych przepłaconych. Jest to jeden z powodów, dla których techniczna lista cen musi być jak najdokładniejsza: tylko w ten sposób ubezpieczyciel jest w stanie skutecznie zarządzać swoim portfelem, wiedząc, które profile są przepłacone, a które subsydiują pozostałe. Innymi słowy, ubezpieczyciel zna wartość każdej polisy w portfelu.
 
-### **1.3.3 Potrzeba Modeli Regresyjnych**
+### 1.3.3 Potrzeba Modeli Regresyjnych
 
 Biorąc pod uwagę, że profile ryzyka w portfelach ubezpieczeniowych są zróżnicowane, teoretycznie wystarczyłoby podzielić cały portfel na jednorodne klasy ryzyka, tj. grupy ubezpieczających o tych samych czynnikach ryzyka, i ustalić wysokość składki czystej specyficznej dla każdej klasy ryzyka. Jednakże, jeśli dane są podzielone na klasy ryzyka określone przez wiele czynników, aktuariusze często mają do czynienia z rzadko obsadzonymi grupami kontraktów. Nawet w dużym portfelu, na przykład polis ubezpieczeń komunikacyjnych, staje się jasne, że każdy ubezpieczający staje się w zasadzie unikalny, gdy poszczególne polisy są dzielone za pomocą:
 
@@ -136,7 +125,7 @@ Modele regresyjne przewidują zmienną odpowiedzi na podstawie funkcji czynnikó
 
 Należy zauważyć, że zakwestionowano kwestię istnienia branży ubezpieczeniowej w erze „big data”. Jak zostanie pokazane poniżej, rosnąca dokładność predykcyjna średniej kwoty straty wpływa na różnice w składkach między ubezpieczającymi. Jednak ubezpieczyciel wciąż pokrywa indywidualne wahania wokół tej wartości oczekiwanej, a zmienność indywidualnych ryzyk pozostaje ogromna w większości linii ubezpieczeniowych, nawet jeśli w modelu cenowym zintegrowano wiele informacji. W związku z tym, branża ubezpieczeniowa pozostaje rentowna. Jest to szczególnie prawdziwe, gdy czasami występują duże roszczenia, jak w przypadku ubezpieczeń OC, gdzie obrażenia ciała często powodują bardzo kosztowne straty. Innym aspektem czyniącym branżę ubezpieczeniową atrakcyjną dla ubezpieczających jest to, że towarzystwo ubezpieczeniowe nie tylko wypłaca odszkodowanie, zadośćuczyniając ofiarom w imieniu ubezpieczających, ale także zajmuje się procesem likwidacji szkody. W systemie prawa deliktowego usługa ta jest z pewnością ważną wartością dodaną działalności ubezpieczeniowej. Wreszcie, co nie mniej ważne, ubezpieczyciele świadczą również pomoc swoim ubezpieczającym lub inne usługi (na przykład bezpośrednią naprawę objętych ubezpieczeniem szkód).
 
-### **1.3.4 Obserwowalne a Ukryte Czynniki Ryzyka**
+### 1.3.4 Obserwowalne a Ukryte Czynniki Ryzyka
 
 Niektóre czynniki ryzyka można łatwo zaobserwować, takie jak wiek ubezpieczającego, stan cywilny czy zawód, typ i sposób użytkowania samochodu, czy też miejsce zamieszkania. Inne można zaobserwować, ale wymaga to pewnego wysiłku lub poniesienia kosztów. Jest to typowe w przypadku cech behawioralnych odzwierciedlonych w danych telematycznych lub informacjach zgromadzonych w zewnętrznych bazach danych, do których ubezpieczyciel może uzyskać dostęp za opłatą uiszczoną dostawcy. Jednak oprócz tych obserwowalnych czynników, zawsze pozostają czynniki ryzyka nieznane ubezpieczycielowi. W ubezpieczeniach komunikacyjnych, na przykład, te ukryte czynniki ryzyka zazwyczaj obejmują temperament i umiejętności, agresywność za kierownicą, poszanowanie przepisów drogowych czy szybkość refleksu (nawet jeśli dane telematyczne pomagają teraz ubezpieczycielom w określeniu tych cech behawioralnych, ale dopiero po rozpoczęciu umowy). 
 
@@ -148,7 +137,7 @@ Należy zauważyć, że niektóre składowe $\boldsymbol{X}$ mogą stać się ni
 
 **Przykład 1.3.2** Jako przykład, pomyśl o liczbie dzieci lub stanie cywilnym w ubezpieczeniach komunikacyjnych. Bycie w stałym związku lub posiadanie jednego lub kilkorga dzieci nie poprawia ani nie pogarsza umiejętności prowadzenia pojazdu. Ale generalnie zwiększa to jego lub jej stopień awersji do ryzyka, przez co osoba ta zaczyna prowadzić ostrożniej. Oznacza to, że liczba dzieci wchodzi do $\boldsymbol{X}$ i ponieważ stopień awersji do ryzyka jest zazwyczaj zawarty w $\boldsymbol{X}^+$ i wpływa na $Y$, cecha ta wydaje się być pośrednio związana z $Y$. Tego rodzaju zjawisko należy zawsze mieć na uwadze podczas analizy danych ubezpieczeniowych.
 
-### **1.3.5 Dzielenie Ryzyka w Taryfie Segmentowej: Solidarność Losowa a Subsydiująca**
+### 1.3.5 Dzielenie Ryzyka w Taryfie Segmentowej: Solidarność Losowa a Subsydiująca
 
 Niech $Y$ będzie całkowitą kwotą świadczenia wypłacanego przez ubezpieczyciela w związku z polisą, której cechy to $(\boldsymbol{X}, \boldsymbol{\boldsymbol{X}}^+)$. Składki czyste odpowiadają wartościom oczekiwanym zgodnie z założeniami prawa wielkich liczb, więc muszą być warunkowe względem informacji używanej do wyceny. Zatem składka czysta obliczona przez ubezpieczyciela to $E[Y|\boldsymbol{X}]$, podczas gdy poprawna składka czysta to $E[Y|\boldsymbol{X}, \boldsymbol{X}^+]$. Oprócz ryzyka ubezpieczeniowego, firma podlega również niedoskonałej klasyfikacji ryzyka, ilościowo określonej przez zmienność prawdziwej składki $E[Y|\boldsymbol{X}, \boldsymbol{X}^+]$ niewyjaśnioną przez $\boldsymbol{X}$. Można to zobaczyć, dekomponując wariancję $Y$ w następujący sposób:
 
@@ -179,7 +168,7 @@ $$
 
 ale ta tożsamość wymaga, aby skład portfela pod względem $\boldsymbol{X}$ (czyli rozkład $\boldsymbol{X}$ w rozważanym portfelu) pozostawał stabilny w czasie. Musi to być starannie monitorowane przez ubezpieczyciela. Problemy pojawiają się, gdy ubezpieczający zdobywają wiedzę na temat $\boldsymbol{X}^+$, dzięki czemu zyskują przewagę informacyjną nad ubezpieczycielem, lub gdy konkurent uzyskuje dostęp do $\boldsymbol{X}^+$ i celuje w niektóre segmenty rynku, które są przepłacane przy użyciu tylko $\boldsymbol{X}$.
 
-### **1.3.6 Ustalanie Składek Ubezpieczeniowych a Przewidywanie Szkodowości**
+### 1.3.6 Ustalanie Składek Ubezpieczeniowych a Przewidywanie Szkodowości
 
 Rozważmy odpowiedź $Y$ i zbiór cech $X_1, \dots, X_p$ zebranych w wektorze $\boldsymbol{X}$. Cechy są tutaj traktowane jako zmienne losowe, dlatego oznaczane są wielkimi literami. Oznacza to, że pracujemy z ogólnym ubezpieczającym, wylosowanym (a więc reprezentatywnym) z rozważanego portfela. Kiedy przychodzi do wyceny konkretnej umowy, pracujemy warunkowo do zrealizowanej wartości $\boldsymbol{X}$, czyli przy danym $\boldsymbol{X} = \boldsymbol{x}$.
 
@@ -193,7 +182,7 @@ $$ \pi(\boldsymbol{X}) = h(S) $$
 
 dla pewnej rosnącej funkcji $h$.
 
-### **1.3.7 Zmienne A Priori a A Posteriori**
+### 1.3.7 Zmienne A Priori a A Posteriori
 
 Aktuariusze muszą rozróżniać zmienne a priori i a posteriori wchodzące do ich analizy. Informacje a priori są dostępne przed (lub w momencie) rozpoczęciem rocznego okresu ochrony. Przykłady obejmują wiek i płeć ubezpieczającego lub cechy pojazdu, które są znane z procesu underwritingu w ubezpieczeniach komunikacyjnych. Informacje a posteriori stają się stopniowo dostępne w okresie ochrony, po wystawieniu umowy. Takie zmienne obejmują doświadczenie szkodowe (liczba i koszt roszczeń) oraz cechy behawioralne (ujawnione przez połączone obiekty lub urządzenia telematyczne zainstalowane w ubezpieczonym pojeździe), a także ich wartości z przeszłości.
 
@@ -252,14 +241,6 @@ wszystkie te zmienne losowe są niezależne. Zgodnie z konwencją, pusta suma je
 
 $$ N = 0 \Rightarrow Y = 0. $$
 
-Alternatywnie, $Y$ można przedstawić jako
-
-$$ Y = N \times \bar{C} \text{ z } \bar{C} = \frac{1}{N} \sum_{k=1}^{N} C_k, $$
-
-z konwencją, że
-
-$$ Y = N = 0 \Rightarrow \bar{C} = 0. $$
-
 Składowa częstotliwości $Y$ odnosi się do liczby $N$ roszczeń zgłoszonych przez każdego ubezpieczającego w jednym okresie. Biorąc pod uwagę liczbę roszczeń zgłoszonych przez ubezpieczającego w ubezpieczeniach majątkowych i osobowych, model Poissona i jego rozszerzenia są generalnie przyjmowane jako punkt wyjścia. W ubezpieczeniach na życie model dwumianowy jest przydatny do estymacji ogólnych wskaźników umieralności populacji. Modele te są szczegółowo przedstawione w Rozdz. 2.
 
 Zazwyczaj różne składniki rocznych strat ubezpieczeniowych $Y$ są modelowane oddzielnie. Koszty mogą mieć różną skalę, w zależności od rodzaju roszczenia: standardowe lub małe szkody (attritional claims) o umiarkowanych kosztach w porównaniu z dużymi szkodami o znacznie wyższych kosztach. Jeśli mogą wystąpić duże szkody, to mieszanina tych dwóch rodzajów szkód jest jawnie uwzględniana przez:
@@ -279,13 +260,6 @@ Tego dnia pociąg towarowy zderzył się z samochodem 2CV Citroën na przejeźdz
 Nawet jeśli to zdarzenie przez dziesięciolecia było uważane za prototyp dużej szkody, obecnie towarzystwa ubezpieczeniowe stają w obliczu jeszcze większych szkód o bardziej dramatycznych konsekwencjach. Sposób postępowania z dużymi szkodami opisano w ramach Teorii Wartości Ekstremalnych w Rozdz. 9. Ogólnie rzecz biorąc, szkody zwykłe mają funkcję gęstości prawdopodobieństwa, która maleje wykładniczo do 0, gdy ich argument rośnie, podczas gdy w przypadku dużych szkód maleje ona wielomianowo (tj. w znacznie wolniejszym tempie) do 0. Przykładem tego drugiego zachowania jest rozkład Pareto, który jest często używany w badaniach aktuarialnych.
 
 Ogólnie rzecz biorąc, modelowanie kwot szkód jest trudniejsze niż częstotliwości szkód. Jest na to kilka powodów. Po pierwsze i najważniejsze, szkody czasami wymagają kilku lat na likwidację, jak wyjaśniono wcześniej. W ewidencji ubezpieczyciela pojawiają się tylko szacunki ostatecznego kosztu, dopóki szkoda nie zostanie zamknięta. Co więcej, statystyki dostępne do dopasowania modelu dla dotkliwości szkód są znacznie rzadsze, ponieważ generalnie tylko 5–10% polis w portfelu generuje szkody. Wreszcie, niewyjaśniona niejednorodność jest czasami bardziej wyraźna dla kosztów niż dla częstotliwości. Koszt wypadku drogowego jest na przykład w dużej mierze poza kontrolą ubezpieczającego, ponieważ wypłaty towarzystwa ubezpieczeniowego są determinowane przez cechy osób trzecich. Stopień ostrożności wykazywany przez kierowcę w największym stopniu wpływa na liczbę wypadków, ale w znacznie mniejszym stopniu na koszt tych wypadków.
-
-
-
-
-
-
-
 
 ### 1.4.4 Dane Obserwacyjne
 
