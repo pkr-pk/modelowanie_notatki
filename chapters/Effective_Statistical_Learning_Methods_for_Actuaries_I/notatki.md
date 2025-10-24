@@ -1,4 +1,4 @@
-# Rozdział 1: Klasyfikacja ryzyka ubezpieczeniowego
+# Notatki
 
 ## 1.1 Wprowadzenie
 
@@ -400,3 +400,92 @@ Bazy danych są zazwyczaj oparte na jednym lub kilku okresach rocznych kalendarz
 Traktowanie roku kalendarzowego jako dodatkowej cechy pozwala aktuariuszowi śledzić ewentualne trendy w czasie, gdy rozważane są dłuższe okresy obserwacji. Należy zauważyć, że wskaźnik roku kalendarzowego może również uwzględniać pewne opóźnienia w zgłaszaniu roszczeń: w przypadku, gdy niektóre roszczenia są zgłaszane dopiero później, zazwyczaj będzie to miało większy wpływ na ostatnie okresy obserwacji i zostanie odzwierciedlone we wskaźniku roku kalendarzowego. Warto wspomnieć, że zmienne wskaźnikowe odpowiadające kwartałom lub miesiącom mogą zawierać element sezonowości. Na przykład w ubezpieczeniach komunikacyjnych wypadki zdarzają się częściej w miesiącach zimowych z powodu warunków pogodowych, które mogą się różnić z roku na rok.
 
 Przypomnijmy, że straty poniesione sumują kwoty wypłacone i prognozę przyszłych kwot do zapłacenia w związku z danym roszczeniem. Dlatego właściwe jest odczekanie pewnego czasu po zakończeniu okresu obserwacji, aby umożliwić zgłoszenie roszczeń i rozwinięcie się szacunków. Straty poniesione powinny opierać się na najnowszych szacunkach rezerw, czekając do ostatniego przeglądu szacunków przed zbudowaniem bazy danych. Straty poniesione nie powinny być na tym etapie obcinane według żadnego dużego progu, aby umożliwić aktuariuszowi przeprowadzenie analizy wrażliwości testującej różne progi dużych strat.
+
+## 2.1 Wprowadzenie
+
+Wszystkie modele w tej książce mają na celu analizę związku między zmienną, której wynik należy przewidzieć, a jedną lub kilkoma potencjalnymi zmiennymi objaśniającymi. Interesująca nas zmienna nazywana jest odpowiedzią i oznaczana jest jako $Y$. Analitycy ubezpieczeniowi zazwyczaj spotykają się z odpowiedziami innymi niż rozkład normalny, takimi jak
+
+$$
+Y = \begin{cases} 
+N & \text{liczba roszczeń} \\
+I & \text{skłonność do roszczeń } I[N \ge 1] \\
+C_k & \text{koszt na roszczenie} \\
+C & \text{średni koszt na roszczenie} \\
+S & \text{roczny łączny koszt roszczeń} \\
+T & \text{czas do zdarzenia, taki jak czas życia} \\
+& \text{itd.}
+\end{cases}
+$$
+
+Liczby roszczeń, wielkości roszczeń lub skłonności do roszczeń w ramach jednej polisy nie podlegają rozkładowi normalnemu, nawet w przybliżeniu. Dzieje się tak albo dlatego, że rozkład prawdopodobieństwa jest skoncentrowany na niewielkim zbiorze wartości dodatnich, albo dlatego, że funkcja gęstości prawdopodobieństwa nie jest symetryczna. Ogólnie rzecz biorąc, wariancja wzrasta wraz ze średnią odpowiedzi w zastosowaniach ubezpieczeniowych. Aby uwzględnić te specyfiki danych, aktuariusze często wybierają rozkład odpowiedzi z rodziny wykładniczej dyspersji (lub ED).
+
+## 2.2 Od rozkładów normalnych do rozkładów ED
+
+### 2.2.2 Rozkłady ED
+
+Pozwól nam teraz przepisać funkcję gęstości prawdopodobieństwa $\mathcal{Nor}(\mu, \sigma^2)$, aby zademonstrować, jak rozszerzyć ją na większą klasę rozkładów prawdopodobieństwa o podobnych wygodnych właściwościach: rodzinę ED. Chodzi o to, jak następuje. Parametrem interesującym w cenach ubezpieczeń jest średnia $\mu$ zaangażowana w obliczenia składek czystych. Dlatego izolujemy składniki funkcji gęstości prawdopodobieństwa rozkładu normalnego, w których pojawia się $\mu$. Odbywa się to poprzez rozwinięcie kwadratu pojawiającego się wewnątrz funkcji wykładniczej w (2.1), co daje
+
+$$
+\begin{aligned}
+f_Y(y) &= \frac{1}{\sigma\sqrt{2\pi}} \exp\left(-\frac{1}{2\sigma^2}(y^2 - 2y\mu + \mu^2)\right) \\
+&= \exp\left(\frac{y\mu - \mu^2/2}{\sigma^2}\right) \frac{\exp\left(-\frac{y^2}{2\sigma^2}\right)}{\sigma\sqrt{2\pi}}. \quad (2.2)
+\end{aligned}
+$$
+
+Drugi czynnik pojawiający się w (2.2) nie obejmuje $\mu$, więc ważny składnik jest pierwszy. Widzimy, że ma on bardzo prostą formę, będąc wykładnikiem (stąd przymiotnik „wykładniczy” w ED) stosunku z wariancją $\sigma^2$, tj. parametrem dyspersji, pojawiającym się w mianowniku. Licznik to różnica między iloczynem odpowiedzi $y$ i kanonicznego parametru normalnego $\mu$ a funkcją $\mu$, jedyną. Zauważ, że pochodna tego drugiego członu $\frac{\mu^2}{2}$ jest właśnie średnią $\mu$. Taka dekompozycja pozwala nam zdefiniować całą klasę ED rozkładów w następujący sposób.
+
+## 2.4 Niektóre użyteczne własności
+
+### 2.4.4 Funkcja wariancji
+
+Funkcja wariancji $V(\cdot)$ wskazuje na związek między średnią a wariancją rozkładu z rodziny ED. Zauważmy, że brak związku między średnią a wariancją jest możliwy tylko dla odpowiedzi o wartościach rzeczywistych (takich jak normalnie rozłożone, gdzie wariancja $\sigma^2$ nie zależy od średniej $\mu$). Rzeczywiście, jeśli $Y$ jest nieujemne (tj. $Y \ge 0$), to intuicyjnie wariancja $Y$ dąży do zera, gdy średnia z $Y$ dąży do zera. Oznacza to, że wariancja jest funkcją średniej dla odpowiedzi nieujemnych.
+
+Funkcja wariancji $V(\cdot)$ jest formalnie zdefiniowana jako
+
+$$
+V(\mu) = \frac{d^2}{d\theta^2}a(\theta) = \frac{d}{d\theta}\mu(\theta).
+$$
+
+Funkcja wariancji odpowiada zatem zmianie średniej odpowiedzi $\mu(\theta)$ postrzeganej jako funkcja kanonicznego parametru $\theta$. W przypadku rozkładu normalnego, $\mu(\theta)=\theta$ i $V(\mu)=1$. Inne rozkłady ED mają niestałe funkcje wariancji. Ponownie widzimy, że funkcja kumulanty $a(\cdot)$ determinuje właściwości rozkładu w rodzinie ED.
+
+Wariancję odpowiedzi można zatem zapisać jako
+
+$$
+\text{Var}[Y] = \frac{\phi}{v}V(\mu).
+$$
+
+Ważne jest, aby pamiętać, że funkcja wariancji nie jest wariancją odpowiedzi, ale funkcją średniej wchodzącą w to wyrażenie (do pomnożenia przez $\phi/v$). Funkcja wariancji jest traktowana jako funkcja średniej $\mu$, nawet jeśli pojawia się jako funkcja $\theta$; jest to możliwe przez odwrócenie relacji między $\theta$ a $\mu$, ponieważ wiemy z Własności 2.4.4, że $\mu = E[Y] = a'(\theta)$. Wypukłość $a(\cdot)$ zapewnia, że średnia funkcja $a'$ jest rosnąca, więc jej odwrotność jest dobrze zdefiniowana. Stąd możemy wyrazić kanoniczny parametr w kategoriach średniej odpowiedzi $\mu$ przez relację
+
+$$
+\theta = (a')^{-1}(\mu).
+$$
+
+Funkcje wariancji odpowiadające zwykłym rozkładom ED są wymienione w Tabeli 2.2. Zauważmy, że
+
+$$
+V(\mu) = \mu^\xi \quad \text{z} \quad \xi = 
+\begin{cases}
+0 & \text{dla rozkładu normalnego} \\
+1 & \text{dla rozkładu Poissona} \\
+2 & \text{dla rozkładu Gamma} \\
+3 & \text{dla odwrotnego rozkładu Gaussa}.
+\end{cases}
+$$
+
+Ci członkowie rodziny ED mają więc potęgowe funkcje wariancji. Cała rodzina rozkładów ED z potęgowymi funkcjami wariancji jest określana jako rodzina Tweedie, która zostanie zbadana później w Sekcji 2.5.
+
+## 2.5 Rozkłady Tweedie
+
+### 2.5.1 Potęgowa funkcja wariancji
+
+Modele Tweedie są zdefiniowane w ramach rodziny ED przez potęgową funkcję wariancji postaci
+
+$$
+V(\mu) = \mu^\xi
+$$
+
+gdzie parametr potęgowy $\xi$ kontroluje kształt rozkładu. Rozkłady: normalny ($\xi=0$), Poissona ($\xi=1$), Gamma ($\xi=2$) i odwrotny Gaussa ($\xi=3$) wszystkie należą do podklasy Tweedie w rodzinie ED. Można wykazać, że rozkład ED z taką potęgową funkcją wariancji zawsze istnieje, z wyjątkiem przypadku, gdy $0 < \xi < 1$. Gdy $v=1$, implikuje to wariancję równą
+
+$$
+\text{Var}[Y] = \phi\mu^\xi.
+$$
