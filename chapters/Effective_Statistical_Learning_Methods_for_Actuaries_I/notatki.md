@@ -489,3 +489,45 @@ gdzie parametr potęgowy $\xi$ kontroluje kształt rozkładu. Rozkłady: normaln
 $$
 \text{Var}[Y] = \phi\mu^\xi.
 $$
+
+## 3.7 Bootstrap
+
+W niektórych zastosowaniach, analityczne wyniki są trudne do uzyskania, a metody numeryczne muszą być zastosowane. W tym względzie szczególnie użyteczne wydaje się przedstawione w tej sekcji podejście bootstrap.
+
+### 3.7.3 Estymata Bootstrapowa
+
+Idea nieparametrycznego bootstrapu polega na symulowaniu zbiorów niezależnych zmiennych losowych
+
+$$
+Y_1^{(b)}, Y_2^{(b)}, \dots, Y_n^{(b)}
+$$
+
+podlegających dystrybuancie $\hat{F}_n$, $b=1,2,\dots,B$. Można to zrobić, symulując $U_i \sim \mathcal{Uni}(0,1)$ i ustawiając
+
+$$
+Y_i^{(b)} = y_I \text{ gdzie } I = [nU_i] + 1.
+$$
+
+### 3.7.4 Bootstrap Nieparametryczny a Parametryczny
+
+W ujęciu nieparametrycznym, ponowne próbkowanie jest wykonywane z $\hat{F}_n$, czyli próbkowanie z obserwacji $y_1, \dots, y_n$ z powtórzeniami. Prowadzi to do rozkładu interesującej nas statystyki, z której można oszacować takie wielkości jak błędy standardowe. W bootstrapie parametrycznym, podstawowy rozkład jest szacowany na podstawie danych w modelu parametrycznym, to znaczy,
+
+$$
+F = F_{\theta}.
+$$
+
+Próbki bootstrapowe są następnie generowane przez próbkowanie z $F_{\hat{\theta}}$, a nie z $\hat{F}_n$.
+
+### 3.7.5 Zastosowania
+
+Użyjmy podejścia bootstrapowego, aby uzyskać 95% przedział ufności dla prawdopodobieństwa zgonu w ciągu jednego roku $q$. Przypomnijmy, że obserwacje składają się z 30 zgonów i 70 ocalałych, zebranych w wektorze wskaźników zgonów $Y_i = I[T_i \leq 1]$ (z 1 pojawiającą się 30 razy i 0 pojawiającą się 70 razy). Bez utraty ogólności, możemy uporządkować $Y_1, \dots, Y_{100}$ tak, aby wartości 1 pojawiły się najpierw w wektorze.
+
+Następnie losujemy 10 000 razy z powtórzeniami z tego wektora za pomocą funkcji `sample` dostępnej w oprogramowaniu statystycznym R (losowanie 10 000 razy próbek każda po 100 obserwacji). Dla każdej próbki, obliczamy prawdopodobieństwo sukcesu, uśredniając wartości ponownie próbkowanego wektora i przechowujemy wyniki. Przedział mieszczący się od 2.5% do 97.5% percentyla jest równy [0.21, 0.39]. Otrzymane wyniki okazały się być bardzo zbliżone do tych opartych na aproksymacji rozkładem normalnym dla dużych prób i dokładnym dwumianowym przedziale ufności, o których mowa wcześniej. Zauważmy, że zamiast ponownego próbkowania ze 100 obserwowanych wartości, inną możliwością jest generowanie liczby zgonów z rozkładu dwumianowego z parametrami 100 i $\hat{q} = 0.3$ za pomocą funkcji R `rbinom` i dzielenie wynikowych 10 000 realizacji przez 100. Rysunek 3.3 (górny panel) przedstawia histogram 10 000 wartości bootstrapowych dla rocznego prawdopodobieństwa zgonu, który wydaje się być zgodny z aproksymacją rozkładem normalnym dla dużych prób.
+
+Funkcja `boot` z biblioteki R `boot` pozwala nam uzyskać różne wersje podejścia bootstrapowego. Średnia z dostępnej próby wynosi $\hat{q} = 0.3$. Różnica między $\hat{q}$ a średnią $\hat{q}^b$ z 10 000 próbek bootstrapowych wynosi
+
+$$
+\hat{q} - \frac{1}{10000} \sum_{b=1}^{10000} \hat{q}^b = -0.000279
+$$
+
+podczas gdy odpowiadający błąd standardowy wynosi 0.04546756. Histogram 10 000 wartości jest przedstawiony na dolnym panelu Rys. 3.3. Nawet jeśli funkcja `boot` nie zapewnia różnych wyników w porównaniu z bezpośrednim wykorzystaniem funkcji `sample`, oferuje zaawansowane możliwości bootstrapowe, takie jak przedział ufności oparty na aproksymacji rozkładem normalnym [0.2112, 0.3894], przedział ufności uzyskany z kwantyli 2.5 i 97.5% z 10 000 wartości bootstrapowych [0.21, 0.39] oraz skorygowany o obciążenie i przyspieszony (bias-corrected accelerated) percentylowy przedział ufności [0.21, 0.38], uważany za najdokładniejszy (nawet w tym przykładzie, wszystkie przedziały są bardzo zgodne).
