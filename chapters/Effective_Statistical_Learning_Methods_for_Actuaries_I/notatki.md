@@ -759,7 +759,6 @@ jest często stosowane dla prawdopodobieństw $\mu_i$ w zastosowaniach aktuarial
 
 #### 4.2.4.5 Łącza Kanoniczne
 
----
 **Tabela 4.4** Przykłady kanonicznych funkcji łączących. Zauważ, że kanoniczne łącze to $\mu^\xi$ dla rozkładów Gamma i Odwrotnego Gaussa, ale znak minus jest generalnie usuwany, a także dzielenie przez 2 w przypadku Odwrotnego Gaussa.
 
 | Funkcja łącząca | $g(\mu)$ | Kanoniczne łącze dla |
