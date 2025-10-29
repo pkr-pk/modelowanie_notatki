@@ -531,3 +531,1016 @@ $$
 $$
 
 podczas gdy odpowiadający błąd standardowy wynosi 0.04546756. Histogram 10 000 wartości jest przedstawiony na dolnym panelu Rys. 3.3. Nawet jeśli funkcja `boot` nie zapewnia różnych wyników w porównaniu z bezpośrednim wykorzystaniem funkcji `sample`, oferuje zaawansowane możliwości bootstrapowe, takie jak przedział ufności oparty na aproksymacji rozkładem normalnym [0.2112, 0.3894], przedział ufności uzyskany z kwantyli 2.5 i 97.5% z 10 000 wartości bootstrapowych [0.21, 0.39] oraz skorygowany o obciążenie i przyspieszony (bias-corrected accelerated) percentylowy przedział ufności [0.21, 0.38], uważany za najdokładniejszy (nawet w tym przykładzie, wszystkie przedziały są bardzo zgodne).
+
+## 4.1 Wprowadzenie
+
+GLM jest definiowany przez określenie dwóch komponentów:
+- odpowiedź musi podlegać rozkładowi ED przedstawionemu w Rozdz. 2, oraz
+- funkcja łącząca opisuje, jak średnia odpowiedź jest powiązana z liniową kombinacją dostępnych cech (ogólnie nazywaną oceną (score) w zastosowaniach ubezpieczeniowych, nie mylić z oceną Fishera w statystyce przywołaną w Rozdz. 3).
+
+GLM-y zostały pierwotnie wprowadzone w praktyce aktuarialnej jako metoda poprawy dokładności wyceny ubezpieczeń komunikacyjnych. Ich zastosowanie zostało następnie gwałtownie rozszerzone na większość linii biznesowych. Dziś są rutynowo stosowane w underwritingu, wycenie lub zarządzaniu szkodami. Oto kilka typowych zastosowań GLM-ów w ubezpieczeniach:
+
+- **Modelowanie liczby szkód.** Doświadczenie związane z konkretną umową ubezpieczeniową jest generalnie rozkładane na liczbę szkód wraz z odpowiednimi kosztami tych szkód. Rozkład Poissona jest naturalnym kandydatem do modelowania liczby szkód zgłaszanych przez ubezpieczających. Typowe założenie w tych okolicznościach jest takie, że warunkowa średnia częstotliwość szkód może być zapisana jako funkcja wykładnicza liniowej oceny estymowanej na podstawie danych.
+- **Modelowanie wysokości szkód.** Ponieważ koszty szkód są nieujemne i dodatnio skośne, rozkłady Gamma i Odwrotny Gaussowski są naturalnymi kandydatami do ich modelowania. Tutaj również aktuariusze generalnie zakładają, że warunkowa średnia wysokość szkody może być zapisana jako wykładnicza funkcja liniowej oceny.
+- **Graduacja umieralności i chorobowości.** Aktuariusze są świadomi, że w przeżywalności ubezpieczających występuje duża heterogeniczność. Czynniki ryzyka wpływające na śmiertelność obejmują wiek, płeć, wykształcenie, dochód, zawód, stan cywilny i zachowania zdrowotne. Ogólnie rzecz biorąc, osoby o wyższym statusie społeczno-ekonomicznym mają tendencję do życia dłużej niż te z niższych grup społeczno-ekonomicznych. GLM-y dwumianowe i Poissona pozwalają aktuariuszowi na przeprowadzanie tego rodzaju klasyfikacji ryzyka w ubezpieczeniach na życie i zdrowotnych. Podejście zależy od rodzaju dostępnych danych: grupa otwarta lub zamknięta, dane indywidualne lub dane pogrupowane w przedziały według niektórych cech (takich jak np. suma ubezpieczenia).
+- **Modelowanie elastyczności.** Modele elastyczności dla nowych i wznowionych transakcji pomagają firmom ubezpieczeniowym przewidywać wpływ różnych działań (i podwyżek składek) na udział w rynku. Rentowność i modele elastyczności można następnie połączyć w celu podjęcia optymalnych decyzji cenowych.
+- **Rezerwacja strat.** Oprócz nadmiernie dyspersyjnego GLM Poissona odpowiadającego zagregowanej metodzie rezerwacji Chain-Ladder, GLM-y mogą być również stosowane w indywidualnej rezerwacji szkód w celu przewidywania czasu do rozliczenia w zależności od niektórych cech szkody, a także ostatecznej kwoty szkody. Pozwala to likwidatorom szkód na tworzenie bardziej odpowiednich rezerw i wczesną identyfikację roszczeń, które mogą być oszukańcze lub najprawdopodobniej zakończą się procesem sądowym.
+- **Analiza konkurencji.** GLM-y mogą być wykorzystane do odtworzenia komercyjnych cenników stosowanych przez konkurentów. Odbywa się to poprzez inżynierię wsteczną ich cennika. Pozwala to aktuariuszom na ekstrapolację składek premium na inne profile ryzyka poza te, dla których dostępne są oferty.
+
+Jak wspomniano powyżej, GLM-y opierają się na wyborze rozkładu (wyborze członka rodziny ED do modelowania losowych odchyleń od średniej), liniowej ocenie obejmującej dostępne cechy oraz założonej funkcji łączącej oczekiwaną odpowiedź i ocenę. Gdy aktuariusz wybierze te składniki zgodnie z rozważanymi danymi, wnioskowanie statystyczne jest przeprowadzane za pomocą przeglądanej w Rozdz. 3 zasady największej wiarygodności. Miary diagnostyczne pozwalają następnie aktuariuszowi zbadać względne zalety rozważanych modeli w celu wybrania optymalnego dla rozważanych danych ubezpieczeniowych. Całą analizę można przeprowadzić przy użyciu istniejącego oprogramowania, w tym swobodnie dostępnego, otwartego oprogramowania R.
+
+## 4.2 Struktura GLM-ów
+
+Podejście GLM jest przykładem modelowania regresyjnego lub nadzorowanego uczenia się. Model regresyjny ma na celu wyjaśnienie niektórych cech odpowiedzi, z pomocą cech działających jako zmienne objaśniające. W zastosowaniach ubezpieczeniowych aktuariusze zazwyczaj chcą wyjaśnić średnią wartość odpowiedzi wchodzącą w skład czystych składek: na przykład oczekiwaną liczbę szkód i odpowiadającą jej oczekiwaną składkę za szkodę.
+
+GLM-y oddzielają systematyczne cechy danych od losowych wariacji, które muszą być kompensowane przez ubezpieczenie. Cechy systematyczne są reprezentowane przez funkcję regresji, podczas gdy losowe wariacje są reprezentowane przez rozkład prawdopodobieństwa w rodzinie ED. Dokładniej, GLM składa się z trzech komponentów:
+- rozkładu odpowiedzi (losowy komponent) wybranego z rodziny ED,
+- liniowej oceny (komponent systematyczny), oraz
+- funkcji łączącej, która wiąże średnią odpowiedź z oceną obejmującą dostępne cechy.
+
+Komponent systematyczny podaje czystą składkę odpowiadającą obserwowalnym profilom ubezpieczających, podczas gdy komponent losowy reprezentuje zmienność, która ma być skompensowana przez ubezpieczyciela na mocy wzajemności lub solidarności losowej. Używając GLM, aktuariusz domyślnie zakłada, że wszystkie niezbędne informacje są dostępne (to znaczy, że wektory losowe $\boldsymbol{X}$ i $\boldsymbol{X}^{+}$ pokrywają się, zobacz notację w Sekcji 1.3.4). Jeśli tak nie jest, należy zamiast tego użyć modeli mieszanych (takich jak te badane w Rozdz. 5).
+
+### 4.2.1 Rozkład Odpowiedzi
+
+Rozważmy odpowiedzi $Y_1, Y_2, \dots, Y_n$ mierzone na $n$ osobach. Dla każdej odpowiedzi, aktuariusz ma informacje podsumowane w wektorze $\boldsymbol{x}_i = (1, x_{i1}, \dots, x_{ip})^\top$ wymiaru $p+1$ zawierającym odpowiadające mu cechy (uzupełnione o 1 z przodu, gdy w ocenie uwzględniony jest wyraz wolny, jak w większości zastosowań ubezpieczeniowych). Cechy zazwyczaj składają się z terminów polisy lub cech ubezpieczającego. Pomyśl o rodzaju typu pojazdu, wieku lub zakresie ubezpieczenia w ubezpieczeniach komunikacyjnych, lub rodzaju konstrukcji, dacie budowy lub kwocie ubezpieczenia w ubezpieczeniach domów. Ubezpieczyciele mają teraz dostęp do wielu zmiennych klasyfikacyjnych, które są oparte na warunkach polisy lub informacjach dostarczonych przez ubezpieczających, lub które zawarte są w zewnętrznych bazach danych. Czasami aktuariusz musi uzupełnić ubezpieczenie o dane bankowe lub telematyczne, znacznie rozszerzając dostępne informacje. Odtąd zakładamy, że cechy $x_{ij}$ zostały zarejestrowane bez błędów i brakujących wartości.
+
+Oprócz odpowiedzi, mamy cel, tj. interesującą nas wielkość. W taryfikacji celem jest czysta składka
+
+$$
+\mu(\boldsymbol{x}) = \mathrm{E}[Y | \boldsymbol{X} = \boldsymbol{x}],
+$$
+
+zwana także funkcją regresji. Zauważ, że celem nie jest odpowiedź $Y$ sama w sobie (jak byłoby w przypadku predykcji). Dzieje się tak, ponieważ aktuariusz chce określić czyste składki, czyli oczekiwane straty. Do celów taryfikacji aktuariusz nie jest zainteresowany przewidywaniem rzeczywistych strat jakiegokolwiek ubezpieczającego, ale raczej średnimi stratami dla jednorodnej grupy ubezpieczonych osób.
+
+Aktuariusze generalnie mają do czynienia z danymi obserwacyjnymi, tak że same cechy są zmiennymi losowymi. Analiza jest następnie przeprowadzana na próbie $(y_i, \boldsymbol{x}_i)$ obserwacji, które można rozumieć jako realizacje wektora losowego łączącego odpowiedź z wektorem cech. Jednak nie próbujemy modelować łącznego rozkładu tego wektora losowego. Zamiast tego, biorąc pod uwagę informacje zawarte w $\boldsymbol{x}_i$, odpowiedzi $Y_i$ zakłada się, że są niezależne z rozkładem warunkowym w rodzinie ED. Warto zauważyć, że odpowiedzi nie muszą mieć identycznych rozkładów.
+
+Można uwzględnić określone wagi $\nu_i$ w celu uwzględnienia różnych ilości informacji, np. gdy $Y_i$ reprezentuje średnią wyników dla grupy jednorodnych ryzyk, a nie wynik pojedynczych ryzyk. Na przykład, odpowiedź może być średnią kwotą straty dla kilku roszczeń, wszystkie z tymi samymi cechami. Waga $\nu_i$ jest wtedy przyjmowana jako liczba strat wchodzących w skład średniej, w zastosowaniu Właściwości 2.4.2. Pomimo tej niezwykłej właściwości GLM-ów, pozwalającej aktuariuszowi na przeprowadzanie analiz na danych pogrupowanych, ważne jest, aby pamiętać, że zawsze jest preferowane nie agregowanie danych i zachowywanie jak największej liczby indywidualnych rekordów.
+
+W praktyce aktuarialnej wagi czasami odzwierciedlają również wiarygodność przypisaną danej obserwacji. Wagi pozwalają aktuariuszowi zidentyfikować odpowiedzi niosące więcej informacji. Ponieważ obserwacje o wyższych wagach mają mniejszą wariancję, dopasowanie modelu będzie bardziej pod wpływem tych punktów danych.
+
+### 4.2.2 Ocena Liniowa
+
+Ocena GLM dla odpowiedzi $Y_i$ jest zdefiniowana jako
+
+$$
+\text{score}_i = \boldsymbol{x}_i^\top \boldsymbol{\beta} = \beta_0 + \sum_{j=1}^p \beta_j x_{ij}, \quad i=1, 2, \dots, n,
+$$
+
+gdzie $\boldsymbol{\beta} = (\beta_0, \beta_1, \dots, \beta_p)^\top$ jest wektorem wymiaru $p+1$ zawierającym nieznane współczynniki regresji. Zatem $\beta_j$ są parametrami do estymacji na podstawie danych. Jak wskazano w Rozdz. 3, ocena odnosi się do liniowej kombinacji $\boldsymbol{x}_i^\top \boldsymbol{\beta}$ cech, a nie do oceny Fishera.
+
+Ilość $\beta_0$ odpowiada wszystkim wynikom. Nazywa się to wyrazem wolnym, ponieważ odpowiada ocenie dla osoby, dla której $x_{ij} = 0$ dla wszystkich $j=1, \dots, p$. Następnie, każda wielkość $\beta_j$ kwantyfikuje wpływ na ocenę wzrostu o jedną jednostkę w odpowiadającej jej cesze $x_{ij}$. Obecność wyrazu wolnego $\beta_0$ wyjaśnia, dlaczego pierwszy wpis wektora $\boldsymbol{x}_i$ to 1.
+
+Wyjaśnijmy znaczenie liniowości oceny. Słowo „liniowy” w GLM oznacza, że zmienne objaśniające są łączone liniowo, aby przewidzieć (funkcję) średniej. Liniowość w GLM-ach odnosi się do liniowości w współczynnikach $\beta_j$, a nie w cechach. Na przykład, oceny
+
+$$
+\text{score}_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i1}^2 \quad \text{i} \quad \text{score}_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_3 x_{i1}x_{i3}
+$$
+
+są obie „liniowe” w sensie GLM, pomimo kwadratu $x_{i1}^2$ i iloczynu $x_{i1}x_{i3}$. W rzeczywistości w GLM zawsze dozwolone jest przekształcanie cech $x_{ij}$, tworząc nowe, przekształcone cechy, takie jak $x_{ij}^2$ lub $x_{ij}x_{ik}$ (chociaż GAM-y oferują lepsze podejście do radzenia sobie z nieliniowymi efektami w skali oceny, jak zobaczymy w Rozdz. 6). Jednak ocena
+
+$$
+\text{score}_i = \beta_0 + \beta_1 x_{i1} + \exp(\beta_2 x_{i2})
+$$
+
+nie jest liniowa (i nie może być brana pod uwagę w ustawieniu GLM).
+
+### 4.2.3 Macierz Projektowa
+
+Wprowadźmy macierz $\boldsymbol{X}$, często nazywaną macierzą projektową w statystyce, otrzymaną przez powiązanie $\boldsymbol{x}_i$, wiersz po wierszu. Dokładniej, $i$-ty wiersz $\boldsymbol{X}$ jest $\boldsymbol{x}_i^\top$, tak że
+
+$$
+\boldsymbol{X} = \begin{pmatrix} \boldsymbol{x}_1^\top \\ \boldsymbol{x}_2^\top \\ \vdots \\ \boldsymbol{x}_n^\top \end{pmatrix} = \begin{pmatrix} 1 & x_{11} & \dots & x_{1p} \\ 1 & x_{21} & \dots & x_{2p} \\ \vdots & \vdots & \ddots & \vdots \\ 1 & x_{n1} & \dots & x_{np} \end{pmatrix}.
+$$
+
+Gdy model regresji zawiera wyraz wolny, macierz projektowa $\boldsymbol{X}$ zawiera kolumnę jedynek. Wektor $\boldsymbol{s}$ zbierający wyniki $s_1, \dots, s_n$ dla wszystkich $n$ odpowiedzi jest następnie otrzymywany z
+
+$$
+\boldsymbol{s} = (s_1, \dots, s_n)^\top = \boldsymbol{X}\boldsymbol{\beta}.
+$$
+
+W całym tym rozdziale zawsze zakładamy, że macierz projektowa $\boldsymbol{X}$ ma pełny rząd. To założenie jest naruszone, jeśli jedna z cech jest liniową kombinacją niektórych innych cech, co implikuje nadmiarowość informacji. Wrócimy do tego zagadnienia, omawiając współliniowość.
+
+---
+**Tabela 4.1** Obserwowana liczba szkód wraz z odpowiadającymi jej ekspozycjami na ryzyko (w osobolatach) pojawiającymi się w nawiasach. Ubezpieczenia komunikacyjne, dane hipotetyczne.
+
+| | Tylko TPL | Ograniczone szkody | Kompleksowe |
+|---|---|---|---|
+| **Mężczyźni** | 1 683 | 3 403 | 626 |
+|               | (10 000) | (30 000) | (5 000) |
+| **Kobiety**   | 873 | 2 423 | 766 |
+|               | (6 000) | (24 000) | (7 000) |
+
+Jako przykład, rozważmy zbiór danych wyświetlony w Tabeli 4.1 sklasyfikowany krzyżowo według płci posiadaczy polis (z dwoma poziomami, mężczyzna i kobieta) oraz zakresu ubezpieczenia (z trzema poziomami, obowiązkowe ubezpieczenie od odpowiedzialności cywilnej (zwane dalej TPL), ograniczone szkody i kompleksowe). Gdy cechy $x_{ij}$ są numeryczne, całkowite lub ciągłe, mogą one bezpośrednio wejść do oceny: ich wkład jest wtedy otrzymywany przez pomnożenie $x_{ij}$ przez odpowiadający mu współczynnik $\beta_j$. Jednakże, jakościowe lub kategoryczne dane muszą być najpierw przetworzone przed wejściem do obliczenia oceny. GLM-y efektywnie uwzględniają efekty cech kategorycznych przez „dummyfikację” włączenia do oceny.
+
+Dwie cechy w Tabeli 4.1 są kategoryczne. Można je zakodować za pomocą cech binarnych. Dokładniej, każdego ubezpieczającego można reprezentować za pomocą wektora $\boldsymbol{x}_i = (1, x_{i1}, x_{i2}, x_{i3})^\top$ z trzema cechami binarnymi:
+
+$$
+\begin{aligned}
+x_{i1} &= \begin{cases} 1 & \text{jeśli posiadacz polisy } i \text{ jest kobietą} \\ 0 & \text{w przeciwnym razie} \end{cases} \\
+x_{i2} &= \begin{cases} 1 & \text{jeśli posiadacz polisy } i \text{ ma tylko TPL} \\ 0 & \text{w przeciwnym razie} \end{cases} \\
+x_{i3} &= \begin{cases} 1 & \text{jeśli posiadacz polisy } i \text{ ma ubezpieczenie kompleksowe} \\ 0 & \text{w przeciwnym razie}. \end{cases}
+\end{aligned}
+$$
+
+Tutaj wybraliśmy poziomy bazowe odpowiadające najbardziej zaludnionym kategoriom, a dokładniej kategorii o największej całkowitej ekspozycji: mężczyzna dla płci ($x_{i1} = 0$) i ograniczony zakres ubezpieczenia ($x_{i2} = x_{i3} = 0$). Powody tego wyboru staną się jaśniejsze później.
+
+---
+**Tabela 4.2** Dane z Tabeli 4.1 ułożone w formacie wejściowym do analizy GLM za pomocą oprogramowania statystycznego, takiego jak R.
+
+| $X_1$ | $X_2$ | $X_3$ | # szkód | Ekspozycja |
+|-------|-------|-------|---------|------------|
+| 0     | 1     | 0     | 1,683   | 10,000     |
+| 0     | 0     | 0     | 3,403   | 30,000     |
+| 0     | 0     | 1     | 626     | 5,000      |
+| 1     | 1     | 0     | 873     | 6,000      |
+| 1     | 0     | 0     | 2,423   | 24,000     |
+| 1     | 0     | 1     | 766     | 7,000      |
+
+Dane można następnie wyświetlić w formacie używanym do analizy statystycznej, jak pokazano w Tabeli 4.2. Zobaczymy w Sekcji 4.3.5, dlaczego analiza GLM może być przeprowadzona na danych zagregowanych w formie tabelarycznej zamiast na indywidualnych rekordach, bez utraty informacji. Dlatego indeks $i$ może odnosić się do pojedynczej polisy lub całej klasy ryzyka (jak to ma miejsce tutaj).
+
+Macierz projektowa dla danych wyświetlonych w Tabeli 4.1 to
+
+$$
+\boldsymbol{X} = \begin{pmatrix}
+1 & 0 & 1 & 0 \\
+1 & 0 & 0 & 0 \\
+1 & 0 & 0 & 1 \\
+1 & 1 & 1 & 0 \\
+1 & 1 & 0 & 0 \\
+1 & 1 & 0 & 1
+\end{pmatrix}.
+$$
+
+Odpowiadający wektor obserwacji to
+
+$$
+\boldsymbol{Y} = \begin{pmatrix}
+1,683 \\
+3,403 \\
+626 \\
+873 \\
+2,423 \\
+766
+\end{pmatrix}.
+$$
+
+### 4.2.4 Funkcja Łącząca
+
+#### 4.2.4.1 Łączenie Średniej z Oceną Liniową
+
+Zamiast utożsamiać średnią odpowiedź z oceną, jak w modelu regresji normalnej, istnieje jednoznaczne, różniczkowalne odwzorowanie mapujące średnią na ocenę liniową, zwane w żargonie GLM funkcją łączącą. W szczególności, średnia
+
+$$
+\mu_i = \mu(\boldsymbol{x}_i)
+$$
+
+odpowiedzi $Y_i, i = 1, 2, \dots, n$, jest powiązana z oceną obejmującą zmienne objaśniające za pomocą gładkiej i odwracalnej transformacji linearyzującej, to jest,
+
+$$
+g(\mu_i) = \text{score}_i.
+$$
+
+Funkcja $g$ jest monotoniczna, różniczkowalna i nazywana jest funkcją łączącą. Ponieważ funkcja łącząca $g$ jest jednoznaczna, możemy ją odwrócić, aby uzyskać
+
+$$
+g(\mu_i) = \text{score}_i \iff \mu_i = g^{-1}(\text{score}_i).
+$$
+
+Zauważ, że GLM jest modelem warunkowym, który określa rozkład odpowiedzi $Y_i$ przy danym wektorze cech $\boldsymbol{X}_i = (X_{i1}, X_{i2}, \dots, X_{ip})$. W szczególności, $Y_i$ przy danym $\boldsymbol{X}_i = \boldsymbol{x}_i$ podlega rozkładowi z rodziny ED z
+
+$$
+\mu(\boldsymbol{x}_i) = g^{-1}\left(\beta_0 + \sum_{j=1}^p \beta_j x_{ij}\right).
+$$
+
+Niemniej jednak ważne jest, aby zdać sobie sprawę, że losowy wektor $\boldsymbol{X}_i^\top = (X_{i1}, X_{i2}, \dots, X_{ip})$ może mieć złożoną strukturę zależności, która wpływa na oszacowanie $\boldsymbol{\beta}$, jak zobaczymy później. Ważne jest również, aby pamiętać, że bezwarunkowo, $Y_i$ nie podlega temu samemu rozkładowi. Na przykład, jeśli $Y_i$ przy danym $\boldsymbol{X}_i = \boldsymbol{x}_i$ podlega $\mathcal{Poi}(\exp(\boldsymbol{\beta}^\top \boldsymbol{x}_i))$, to bezwarunkowo, $Y_i$ oznacza losową zmienną $\exp(\boldsymbol{\beta}^\top \boldsymbol{X}_i)$ i mamy do czynienia z mieszanym rozkładem Poissona.
+
+#### 4.2.4.2 Typowe Funkcje Łączące
+
+Oczywiście, nie chodzi o to, aby wybór funkcji łączącej był całkowicie determinowany przez zakres zmiennej odpowiedzi. Wybór funkcji łączącej musi być również oparty na danych. Podejście SIM pozwala aktuariuszowi oszacować $g$ na podstawie danych, bez wcześniejszego określania go. Ta nieparametryczna estymacja może służyć jako punkt odniesienia do wyboru odpowiedniej formy funkcjonalnej. Alternatywnie, niektóre wykresy diagnostyczne mogą być użyte do sprawdzenia adekwatności wybranej funkcji łączącej po dopasowaniu modelu. Oznacza to, że wybór $g$ nie jest czysto arbitralny i że w tym zakresie mogą pomóc niektóre procedury oparte na danych.
+
+---
+**Tabela 4.3** Typowe funkcje łączące i ich odwrotności. Tutaj $\mu_i$ to oczekiwana wartość odpowiedzi, $s_i$ to ocena, a $\Phi(\cdot)$ to dystrybuanta standardowego rozkładu normalnego $\mathcal{Nor}(0, 1)$.
+
+| Funkcja łącząca | $s_i = g(\mu_i)$ | $\mu_i = g^{-1}(s_i)$ |
+|----|----|----|
+| Tożsamościowa (Identity) | $\mu_i$ | $s_i$ |
+| Logarytmiczna (Log) | $\ln \mu_i$ | $\exp(s_i)$ |
+| Odwrotność (Inverse) | $\mu_i^{-1}$ | $s_i^{-1}$ |
+| Odwrotność kwadratu (Inverse-square) | $\mu_i^{-2}$ | $s_i^{-1/2}$ |
+| Pierwiastek kwadratowy (Square-root) | $\sqrt{\mu_i}$ | $s_i^2$ |
+| Logit | $\ln \frac{\mu_i}{1-\mu_i}$ | $\frac{\exp(s_i)}{1+\exp(s_i)}$ |
+| Probit | $\Phi^{-1}(\mu_i)$ | $\Phi(s_i)$ |
+| Log-log | $-\ln(-\ln \mu_i)$ | $\exp(-\exp(-s_i))$ |
+| Komplementarna log-log | $\ln(-\ln(1-\mu_i))$ | $1 - \exp(-\exp(s_i))$ |
+
+Tabela 4.3 wymienia zwykłe funkcje łączące i ich odwrotności. Te funkcje łączące narzucają warunki na średnią $\mu_i$, a tym samym na zakres odpowiedzi $Y$. Na przykład, funkcje łączące kwadrat, pierwiastek kwadratowy i logarytm stosuje się tylko do wartości nieujemnych i dodatnich, odpowiednio. Ostatnie cztery funkcje łączące wymienione w Tabeli 4.3 są przeznaczone dla danych dwumianowych, gdzie $\mu_i$ reprezentuje prawdopodobieństwo sukcesu, a zatem należy do przedziału jednostkowego $[0, 1]$.
+
+#### 4.2.4.3 Łącze Logarytmiczne
+
+Jak wyjaśniono wcześniej, obiecujący link usuwa ograniczenie na zakres oczekiwanej odpowiedzi. Na przykład, odpowiedź jest nieujemna w wielu zastosowaniach ubezpieczeniowych, gdzie reprezentuje częstotliwość szkód lub ciężkość szkody, tak że $\mu_i \ge 0$. Funkcja łącząca logarytmiczna usuwa wtedy to ograniczenie, ponieważ specyfikacja
+
+$$
+\ln \mu_i = \text{score}_i \iff \mu_i = \exp(\text{score}_i)
+$$
+
+zapewnia, że warunek ten jest zawsze spełniony.
+
+#### 4.2.4.4 Łącza Logit, Probit i Log-Log
+
+Dla proporcji dwumianowych, średnia odpowiedź odpowiada prawdopodobieństwu sukcesu, tak że $\mu_i$ jest ograniczona do przedziału jednostkowego $[0, 1]$. Funkcje rozkładu są naturalnymi kandydatami do transformacji wyniku o wartościach rzeczywistych na średnią odpowiedź. Często stosowano rozkłady logistyczne i normalne, co dało początek tak zwanym funkcjom łączącym logit i probit. Komplementarna funkcja łącząca log-log jest dziedziczona z rozkładu Ekstremalnej Wartości.
+
+Funkcje łączące logit, probit i komplementarna log-log odwzorowują przedział jednostkowy $[0, 1]$ na całą oś rzeczywistą, usuwając ograniczenie na średnią odpowiedź. Łącze logit
+
+$$
+\ln \frac{\mu_i}{1-\mu_i} = \text{score}_i \iff \mu_i = \frac{\exp(\text{score}_i)}{1+\exp(\text{score}_i)} = \frac{1}{1+\exp(-\text{score}_i)}
+$$
+
+jest często stosowane dla prawdopodobieństw $\mu_i$ w zastosowaniach aktuarialnych.
+
+#### 4.2.4.5 Łącza Kanoniczne
+
+---
+**Tabela 4.4** Przykłady kanonicznych funkcji łączących. Zauważ, że kanoniczne łącze to $\mu^\xi$ dla rozkładów Gamma i Odwrotnego Gaussa, ale znak minus jest generalnie usuwany, a także dzielenie przez 2 w przypadku Odwrotnego Gaussa.
+
+| Funkcja łącząca | $g(\mu)$ | Kanoniczne łącze dla |
+|---|---|---|
+| Tożsamościowa | $\mu$ | Normalny |
+| Logarytmiczna | $\ln \mu$ | Poisson |
+| Potęgowa | $\mu^\xi$ | Gamma ($\xi = -1$) |
+| | | Odwrotny Gauss ($\xi = -2$) |
+| Logit | $\ln \frac{\mu}{1-\mu}$ | Dwumianowy |
+
+Kanoniczny parametr znacznie upraszcza analizę opartą na GLM, ale inne funkcje łączące mogą być również używane. Jest to właśnie wielka siła podejścia GLM. Często w przeszłości aktuariusze przekształcali odpowiedź przed normalną analizą regresji liniowej (taką jak modelowanie logarytmiczno-normalne).
+
+### 4.2.5 Interakcje
+
+Interakcja powstaje, gdy wpływ określonego czynnika ryzyka zależy od wartości innego. Przykładem w ubezpieczeniach komunikacyjnych jest zależność wieku kierowcy od płci: często młode kobiety-kierowcy powodują mniej roszczeń w porównaniu z młodymi mężczyznami, podczas gdy ta różnica płci zanika (a czasem nawet odwraca się) w starszym wieku. Stąd wpływ wieku zależy od płci. W przeciwieństwie do technik regresji rozważanych w kolejnych tomach, takich jak metody oparte na drzewach, GLM-y nie uwzględniają automatycznie interakcji, a takie efekty muszą być ręcznie wprowadzane do oceny.
+
+Rozważmy model z dwiema ciągłymi cechami i oceną postaci
+
+$$
+\text{score}_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_3 x_{i1} x_{i2}.
+$$
+
+Ocena liniowa obejmuje trzecią cechę $x_{i3} = x_{i1} x_{i2}$, zwaną terminem interakcji, zbudowaną z dwóch pierwszych. Włączenie iloczynu $x_{i1} x_{i2}$ do oceny indukuje interakcje, ponieważ wzrost o jednostkę $x_{i1}$ zwiększa ocenę liniową o $\beta_1 + \beta_3 x_{i2}$, a zatem wpływ pierwszej cechy zależy od drugiej. Podobnie, wpływ wzrostu o jednostkę $x_{i2}$ wynosi $\beta_2 + \beta_3 x_{i1}$, co zależy od $x_{i1}$. Te dwie cechy oddziałują na siebie. Zmienne $x_{i1}$ i $x_{i2}$ nazywane są efektami głównymi i odróżnia się je od terminu interakcji $x_{i3} = x_{i1} x_{i2}$.
+
+Interakcja zwykłej cechy ilościowej z cechą binarną jest również często przydatna w zastosowaniach ubezpieczeniowych. Załóżmy, że $x_{i1}$ jest ciągła, a $x_{i2}$ jest wskaźnikiem przyjmującym wartości 0 i 1. Wtedy ocena jest dana przez
+
+$$
+\begin{aligned}
+\text{score}_i &= \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_3 x_{i1} x_{i2} \\
+&= \begin{cases} \beta_0 + \beta_1 x_{i1} & \text{jeśli } x_{i2} = 0 \\ \beta_0 + \beta_2 + (\beta_1 + \beta_3) x_{i1} & \text{jeśli } x_{i2} = 1. \end{cases}
+\end{aligned}
+$$
+
+Wpływ $x_{i1}$ (to jest, wyraz wolny i nachylenie) zależy od grupy wskazanej przez $x_{i2}$.
+
+### 4.2.6 Podsumowanie Założeń dla Regresji z GLM-ami
+
+Podsumowując, podejście GLM do modelowania danych ubezpieczeniowych wychodzi z następujących założeń:
+
+- **Odpowiedź $Y_i$ podlegająca rozkładowi ED** z funkcją masy prawdopodobieństwa lub funkcją gęstości prawdopodobieństwa postaci
+    $$
+    f_{\theta_i}(y) = \exp\left(\frac{y\theta_i - a(\theta_i)}{\phi/v_i}\right) c(y, \phi/v_i)
+    $$
+
+    ze wspólnym parametrem dyspersji $\phi$ i określonymi wagami $v_i$.
+
+- **Ocena liniowa**
+    $$
+    \text{score}_i = \text{score}(\boldsymbol{x}_i) = \boldsymbol{x}_i^\top \boldsymbol{\beta} = \beta_0 + \sum_{j=1}^p \beta_j x_{ij}.
+    $$
+
+- **Modelowanie średniej:** oczekiwana odpowiedź $\mu_i = \mu(\boldsymbol{x}_i)$ postaci
+    $$
+    \begin{aligned}
+    a'(\theta_i) &= \mu_i \\
+    g(\mu_i) &= \text{score}_i \iff \mu_i = g^{-1}(\text{score}_i) \\
+    g &\in \{\text{ln, logit, \dots}\}.
+    \end{aligned}
+    $$
+
+- **Monotoniczna funkcja łącząca $g$** jest określana przez aktuariusza, a nie estymowana na podstawie danych.
+
+## 4.3 Równania Wiarygodności w GLM
+
+### 4.3.1 Postać Ogólna
+
+Gdy GLM zostanie określony pod względem funkcji łączącej i rozkładu ED, lub równoważnie, gdy funkcja wariancji zostanie wybrana przez aktuariusza, estymowane parametry są uzyskiwane metodą największej wiarygodności (przypomnianą w Rozdz. 3). Dostarcza to aktuariuszowi nie tylko estymat współczynników regresji $\beta_j$, ale także estymowanych błędów standardowych dla dużych prób. W istocie, to podejście dąży do estymacji GLM, który ma najwyższe prawdopodobieństwo wygenerowania rzeczywistych danych.
+
+Niektóre z rozkładów ED, na których opierają się GLM, zawierają nieznany parametr dyspersji $\phi$. Chociaż ten parametr mógłby być również estymowany metodą największej wiarygodności, zamiast tego generalnie stosuje się estymator momentów, w drugim kroku, gdy $\boldsymbol{\beta}$ zostanie już oszacowane. W rzeczywistości okaże się, że znajomość $\phi$ nie jest potrzebna do oszacowania $\boldsymbol{\beta}$, więc te dwa zbiory parametrów można traktować oddzielnie. Dlatego tutaj postrzegamy funkcję wiarygodności jako funkcję tylko $\boldsymbol{\beta}$.
+
+Funkcja wiarygodności jest iloczynem prawdopodobieństw zaobserwowania wartości każdej odpowiedzi, z funkcją gęstości prawdopodobieństwa używaną w miejsce funkcji masy prawdopodobieństwa dla odpowiedzi ciągłych. Jak wyjaśniono w Rozdz. 3, zwykle przełącza się na logarytm wiarygodności, ponieważ obejmuje on sumę, a nie iloczyn (a dowolna wartość parametru maksymalizująca logarytm wiarygodności maksymalizuje również samą wiarygodność).
+
+### 4.3.3 Wpływ Funkcji Wariancji
+
+Rozważając równanie wiarygodności GLM (4.1), ważne jest, aby zdać sobie sprawę, jak wybór funkcji wariancji $V(\cdot)$ wpływa na dopasowanie modelu. Widzimy, że im większa wariancja $V(\mu_i)$, tym mniejszy wkład obserwacji $i$ do sumy pojawiającej się w równaniach wiarygodności. Innymi słowy, dopuszczalne są większe różnice $y_i - \mu_i$, gdy $\mu_i$ jest duże.
+
+Z Rozdziału 2 wiemy, że typowe funkcje wariancji mają postać Tweediego $V(\mu) = \mu^\xi$. W rodzinie Tweediego:
+- Dla $\xi=0$ (przypadek normalny), każda obserwacja ma taką samą ustaloną wariancję niezależnie od jej średniej, a dopasowane wartości są jednakowo przyciągane do obserwowanych punktów danych.
+- Dla $\xi=1$ (przypadek Poissona), wariancja jest proporcjonalna do oczekiwanej wartości każdej obserwacji: obserwacje z mniejszą oczekiwaną wartością będą miały mniejszą założoną wariancję, co skutkuje większą wagą (lub wiarygodnością) przy estymacji parametrów. Dopasowanie modelu jest zatem bardziej pod wpływem obserwacji o mniejszej oczekiwanej wartości niż o większej oczekiwanej wartości (a więc większej założonej wariancji).
+- Gdy $\xi=2$ (przypadek Gamma) i $\xi=3$ (przypadek odwrotny Gaussa), dopasowanie GLM jest jeszcze bardziej pod wpływem obserwacji o mniejszych oczekiwanych wartościach, tolerując większe błędy dla obserwacji o większych oczekiwanych wartościach.
+
+Wagi a priori $v_i$ również działają na wariancję i skutkują tym, że punkty danych mają mniejszy wpływ na dopasowanie modelu. Rzeczywiście, zwiększenie wagi zmniejsza wariancję, a odpowiadająca jej obserwacja odgrywa ważniejszą rolę w dopasowaniu modelu.
+
+Wybór funkcji wariancji jest zatem sprawą najwyższej wagi, aby uzyskać dokładne dopasowanie modelu. Jak zobaczymy, stosując techniki quasi-wiarygodności, techniki oparte na GLM wydają się być dość odporne na błędy w rozkładzie, o ile funkcja wariancji została poprawnie określona.
+
+### 4.3.7 Przesunięcia (Offsets)
+
+#### 4.3.7.1 Definicja
+
+Przesunięcia są używane w zdecydowanej większości badań aktuarialnych. Nie należy ich mylić z wagami, przesunięcia wchodzą do oceny addytywnie, bez mnożenia przez współczynnik regresji do oszacowania na podstawie danych. Przesunięcia reprezentują zatem znane wkłady i a priori informacje do oceny addytywnej. W przeciwieństwie do wyrazu wolnego $\beta_0$ wchodzącego do wszystkich ocen, przesunięcia zwykle różnią się w zależności od osoby.
+
+W szczególności, przesunięcie jest wielkością dodawaną do oceny, bez mnożenia przez znany lub wstępnie określony współczynnik, który nie jest estymowany na podstawie danych. Zatem, przesunięcie można postrzegać jako dodatkową cechę, której współczynnik jest ograniczony, powiedzmy, do 1. Ocena staje się wtedy
+
+$$
+\text{score}_i = \text{offset}_i + \boldsymbol{x}_i^\top \boldsymbol{\beta}
+$$
+
+gdzie $\text{offset}_i$ oznacza przesunięcie specyficzne dla $i$-tej osoby.
+
+#### 4.3.7.2 Zliczenia Poissona i Wskaźniki Poissona
+
+Typowym zastosowaniem przesunięcia jest włączenie miary ekspozycji przy modelowaniu stawek. Na przykład, jeśli niektóre rekordy w ubezpieczeniach komunikacyjnych odpowiadają polisom obowiązującym przez 6 miesięcy, podczas gdy inne odpowiadają polisom obowiązującym przez cały rok, właściwe jest użycie z łączem logarytmicznym logarytmu okresu ubezpieczenia jako przesunięcia, jak wyjaśniono dalej. W modelu regresji Poissona, ekspozycja jest generalnie liczbą pojazdo-lat ubezpieczonych, a odpowiedzią jest liczba $Y_i$ zgłoszonych roszczeń. Biorąc pod uwagę proces Poissona z Rozdziału 2, wiemy, że ta ekspozycja mnoży roczną stopę szkód. Ponieważ ten przesunięcie musi być dodane w skali oceny, logarytm ekspozycji jest używany jako przesunięcie: oznaczając ekspozycję jako $e_i$,
+
+$$
+\ln \mu_i(\boldsymbol{x}_i) = \ln e_i + \boldsymbol{x}_i^\top \boldsymbol{\beta} \implies \text{offset}_i = \ln e_i.
+\quad\quad\text{(4.7)}
+$$
+
+#### 4.3.7.3 Inne Zastosowania Przesunięć
+
+Innym przydatnym zastosowaniem przesunięcia jest ograniczenie niektórych czynników ratingowych do wartości wstępnie określonych przy przechodzeniu z technicznego na komercyjny cennik. Takie ograniczenia są często motywowane konkurencją i względami marketingowymi, pozwalając na optymalne dostosowanie współczynników pozostałych czynników ratingowych do tych ograniczeń.
+
+Przesunięcie może nawet pomóc w przejrzeniu lub udoskonaleniu istniejącego cennika. Ten ostatni jest wtedy umieszczany w przesunięciu, a oszacowane współczynniki regresji wskazują wtedy korekty potrzebne do poprawy obecnego cennika.
+
+W ubezpieczeniach na życie, ekspozycje portfela są czasami ograniczone do rynku (lub innego odniesienia) tablicy życia. Sugeruje to pracę w kategoriach względnych, w odniesieniu do znaczącej referencyjnej tablicy życia. Odbywa się to poprzez wprowadzenie do wyniku regresji Poissona logarytmu oczekiwanej liczby zgonów zgodnie z tą tablicą życia, aby wyjaśnić specyficzną dla portfela siłę śmiertelności. To samo podejście dotyczy stawek chorobowości w ubezpieczeniach zdrowotnych.
+
+## 4.4 Rozwiązywanie Równań Wiarygodności w GLM
+
+### 4.4.2 Algorytm IRLS
+
+Równanie wiarygodności (4.1) nie dopuszcza jawnych rozwiązań (z wyjątkiem przypadku normalnego, jak pokazano powyżej) i dlatego musi być rozwiązywane iteracyjnie. Jedną z przyczyn, które przyczyniły się do sukcesu GLM, jest możliwość użycia jednego algorytmu do rozwiązywania równania wiarygodności (4.1) we wszystkich przypadkach. Zaczynając od odpowiedniej wartości początkowej dla $\boldsymbol{\beta}$, do uzyskania rozwiązań można użyć algorytmu Newtona-Raphsona. Algorytm Newtona-Raphsona wykorzystuje macierz Hessego, czyli drugie pochodne funkcji celu. W odniesieniu do maksymalizacji funkcji log-wiarygodności, hesjan odpowiada obserwowanej informacji Fishera, ze zmianą znaku (jak przypomniano w Rozdz. 3). W porównaniu z algorytmem Newtona-Raphsona, algorytm scoringu Fishera zastępuje obserwowaną macierz informacyjną jej oczekiwanym odpowiednikiem, czyli informacją Fishera. Gdy obie macierze informacyjne pokrywają się, scoring Fishera odpowiada metodzie Newtona-Raphsona. Oczekiwane i obserwowane macierze informacyjne są równe, gdy używane są kanoniczne funkcje łączące (pamiętaj, że funkcja log-wiarygodności jest zawsze wklęsła w tym przypadku, więc estymator największej wiarygodności jest zawsze unikalny, jeśli istnieje). Zazwyczaj potrzeba tylko kilku kroków, aby uzyskać $\boldsymbol{\beta}$, gdy używane są łącza kanoniczne. Każdą iterację algorytmu Newtona-Raphsona można zinterpretować jako dopasowanie normalnego modelu regresji liniowej na odpowiedziach roboczych, co daje początek podejściu iteracyjnie ważonych najmniejszych kwadratów (IRLS) wyjaśnionemu dalej. IRLS działa zatem poprzez sekwencję problemów najmniejszych kwadratów, dla których dostępne są dobrze zbadane techniki numeryczne.
+
+W GLM średnia odpowiedź jest powiązana z oceną liniową przez funkcję łączącą.
+
+W większości przypadków zbieżność algorytmu IRLS jest bardzo szybka. Jednak czasami pojawiają się trudności. Gdy zbieżność nie występuje, może to być spowodowane problemem z rozważanymi danymi. Na przykład, gdy dwie grupy są liniowo rozdzielalne w przestrzeni cech z odpowiedziami binarnymi, dane mogą być dopasowane idealnie, a niestabilne estymaty parametrów z wysokimi błędami standardowymi są typowo uzyskiwane. Powoduje to problemy ze zbieżnością w algorytmie IRLS.
+
+### 4.4.3 Wybór Poziomu Bazowego dla Cech Kategorycznych
+
+Oprogramowanie GLM automatycznie zastępuje każdą cechę kategoryczną zbiorem wskaźników, po jednym dla każdego poziomu innego niż poziom bazowy. Ten ostatni musi być wybrany z rozwagą, ponieważ cała analiza jest wykonywana w kategoriach względnych, w odniesieniu do wybranego poziomu bazowego.
+
+Rozważmy Przykład 1.4.3, gdzie obszar zamieszkania posiadacza polisy jest uważany za potencjalną zmienną objaśniającą dla częstotliwości szkód $Y$. Istnieją trzy obszary, A, B i C, zakodowane za pomocą dwóch wskaźników (zmiennych zero-jedynkowych) $x_{i1}$ (równe 1, jeśli posiadacz polisy mieszka w obszarze A, a 0 w przeciwnym razie) i $x_{i2}$ (równe 1, jeśli posiadacz polisy mieszka w obszarze B, a 0 w przeciwnym razie). Nie jest potrzebny żaden wskaźnik dla poziomu referencyjnego C. Wtedy, wyraz wolny $\beta_0$ odpowiada za efekt poziomu referencyjnego, tutaj obszaru C. Następnie, $\beta_1$ kwantyfikuje różnicę między obszarami A i C, podczas gdy $\beta_2$ kwantyfikuje różnicę między obszarami B i C. Zauważ, że aktuariusz nie jest ograniczony do porównywania tylko z poziomem bazowym: różnice między obszarami A i B są kwantyfikowane przez $\beta_1 - \beta_2$.
+
+Wybór poziomu bazowego należy do aktuariusza, ale nie powinien on być rzadki. Załóżmy na przykład, że nie ma posiadaczy polis w obszarze C. Wtedy dla każdego posiadacza polisy albo $x_{i1}$ lub $x_{i2}$ jest równe 1, a drugi jest równy 0. To z kolei oznacza, że $x_{i1} + x_{i2} = 1$ dla wszystkich $i$ i stąd macierz projektowa $\boldsymbol{X}$ jest osobliwa: suma dwóch ostatnich kolumn jest równa pierwszej (kolumna jedynek odpowiadająca wyrazowi wolnemu). To sprawia, że oszacowanie $\boldsymbol{\beta}$ jest niemożliwe, ponieważ algorytm IRLS musi odwrócić macierz $\boldsymbol{X}^\top \boldsymbol{X}$. Intuicyjnie, jedna z dwóch cech binarnych w takiej sytuacji jest redundantna, a model nie może rozwikłać ich odpowiednich współczynników regresji $\beta_1$ i $\beta_2$: każda modyfikacja w $\beta_1$ może być skompensowana przez odpowiednią zmianę w $\beta_2$ i odwrotnie.
+
+Bardziej realistycznie, jeśli poziom bazowy ma bardzo mało przypadków, wtedy kolumny $\boldsymbol{X}$ są prawie zależne, co sprawia, że obliczenie $\boldsymbol{\beta}$ jest numerycznie niestabilne. Nie zawsze jest to brane pod uwagę w zautomatyzowanym kodowaniu implementowanym w oprogramowaniu, więc domyślny wybór musi być czasami modyfikowany przez aktuariusza.
+
+Zauważ, że nie jest sensowne definiowanie cechy
+
+$$
+\text{area}_i = \begin{cases}
+2 & \text{jeśli posiadacz polisy } i \text{ mieszka w obszarze A} \\
+1 & \text{jeśli posiadacz polisy } i \text{ mieszka w obszarze B} \\
+0 & \text{jeśli posiadacz polisy } i \text{ mieszka w obszarze C.}
+\end{cases}
+$$
+
+Odpowiadający wynik GLM jest wtedy równy
+
+$$
+\beta_0 + \beta_{\text{area}}\text{area}_i = \begin{cases}
+\beta_0 + 2\beta_{\text{area}} & \text{jeśli posiadacz polisy } i \text{ mieszka w obszarze A,} \\
+\beta_0 + \beta_{\text{area}} & \text{jeśli posiadacz polisy } i \text{ mieszka w obszarze B,} \\
+\beta_0 & \text{jeśli posiadacz polisy } i \text{ mieszka w obszarze C,}
+\end{cases}
+$$
+
+więc ta specyfikacja implikuje równe „odstępy” między A, B i C: wynik $\beta_0 + \beta_{\text{area}}\text{area}_i$ daje różnicę $\beta_{\text{area}}$ między obszarami A i B, i taką samą różnicę $\beta_{\text{area}}$ między obszarami B i C. Niekoniecznie jest to zgodne z danymi i może obciążać analizę.
+
+Nawet jeśli analiza GLM jest przeprowadzana warunkowo na wartościach $x_{ij}$ cech $X_{ij}$, struktura korelacji wektorów losowych $(X_{i1}, \dots, X_{ip})$ może wpłynąć na oszacowanie współczynników regresji. Korelacja między losowymi zmiennymi $X_{ij}$ oznacza, że niektóre cechy mogą służyć jako substytuty dla innych w obliczaniu wyniku.
+
+### 4.4.4 Skorelowane Cechy, Współliniowość
+
+Większość czasu, cechy $X_{ij}$ są skorelowane w badaniach obserwacyjnych. Gdy te korelacje są umiarkowane, GLM są w stanie wyizolować wpływ każdego czynnika ryzyka na średnią odpowiedź. Jest to jedna z wielkich zalet GLM w porównaniu z analizami jednowymiarowymi lub wielowymiarowymi, które są często zniekształcone, ponieważ ten sam efekt jest liczony wielokrotnie. Jednakże, gdy korelacja między niektórymi cechami staje się duża, GLM mogą napotkać problemy. Takie wysokie korelacje oznaczają, że ta sama informacja jest zakodowana w kilku cechach, co prowadzi do nadmiarowości informacji, jak wyjaśniono dalej.
+
+Aliasing występuje, gdy istnieje liniowa zależność między cechami. Na przykład, jedna cecha może być identyczna z jakąś liniową kombinacją niektórych innych. Rozważmy następujące zmienne objaśniające:
+
+$x_{i1}$ = wiek, w którym rozpoczęto prowadzenie pojazdu
+
+$x_{i2}$ = staż prawa jazdy
+
+$x_{i3}$ = obecny wiek posiadacza polisy $i$.
+
+Oczywiście, tożsamość
+
+$$
+x_{i3} = x_{i1} + x_{i2}
+$$
+
+zachodzi dla wszystkich $i$, więc $x_{i3}$ jest redundantny w wyjaśnianiu odpowiedzi. Wynik można zapisać jako funkcję tylko dwóch cech. Na przykład, możemy napisać
+
+$$
+\beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_3 x_{i3} = \beta_0 + (\beta_1 + \beta_3) x_{i1} + (\beta_2 + \beta_3) x_{i2}.
+$$
+
+Stąd, trzy zmienne $x_{i1}, x_{i2}$ i $x_{i3}$ wyjaśniają to samo co dowolne dwie z tych zmiennych. Zatem, indywidualne efekty każdej z trzech zmiennych nie mogą być ocenione.
+
+Takie zmienne są doskonale współliniowe lub aliasowane. Aliasing odpowiada zatem liniowej zależności między kolumnami macierzy projektowej $\boldsymbol{X}$. Gdy dwie cechy są doskonale skorelowane, mówi się, że są aliasowane, a estymaty parametrów nie są unikalne. W tych przypadkach, macierz projektowa $\boldsymbol{X}$ ma dokładną zależność liniową między swoimi kolumnami i stąd $\boldsymbol{X}^\top \boldsymbol{X}$ jest osobliwa, co unieważnia podejście IRLS.
+
+Oprócz dokładnej współliniowości zilustrowanej powyżej, częściej spotyka się sytuacje bliskiej współliniowości (lub prawie aliasowania). Na przykład, w zbiorze danych, w którym obszar zamieszkania, poziom dochodów i poziom wykształcenia posiadacza polisy są silnie skorelowane, włączenie trzech zmiennych objaśniających sprawia, że $\boldsymbol{X}^\top \boldsymbol{X}$ jest bliska osobliwości i powoduje trudności w obliczaniu odwrotności $(\boldsymbol{X}^\top \boldsymbol{X})^{-1}$.
+
+Jeśli odwrotność jest obliczalna, zazwyczaj będzie miała duże wpisy diagonalne, co implikuje duże błędy standardowe dla jednego lub więcej współczynników regresji (z powodów wyjaśnionych w następnej sekcji). Współliniowość może również wprowadzać w błąd analityka w wyborze predykcyjnych zmiennych: jeśli 2 zmienne objaśniające są silnie skorelowane i obie są predykcyjne dla odpowiedzi, to każda z nich, przy obecności drugiej, nie wniesie wiele dodatkowych informacji do odpowiedzi. Testy hipotez dla każdej zmiennej, przy założeniu, że druga jest w modelu, pokażą brak istotności. Rozwiązaniem jest włączenie tylko jednej z tych dwóch zmiennych objaśniających do modelu. To wyjaśnia, dlaczego wstępne badanie struktury korelacji cech jest przydatne przed rozpoczęciem analizy GLM.
+
+**Uwaga 4.4.1** (Współliniowość a Interakcja). Współliniowość pochodzi z korelacji między czynnikami ryzyka, z których kilka koduje te same informacje. Interakcja nie ma nic wspólnego ze współliniowością/korelacją. Na przykład, rozważmy portfel ubezpieczeń komunikacyjnych z taką samą strukturą wiekową dla mężczyzn i kobiet (tak, że czynniki ryzyka wiek i płeć są wzajemnie niezależne). Jeśli młodzi mężczyźni są bardziej niebezpieczni w porównaniu z młodymi kobietami, podczas gdy ta różnica zanika lub odwraca się w starszym wieku, to wiek i płeć oddziałują na siebie pomimo bycia niezależnymi.
+
+### 4.4.5 V Craméra
+
+Siłę zależności między dwiema zmiennymi ciągłymi można ocenić za pomocą współczynnika korelacji liniowej Pearsona (tj. kowariancji podzielonej przez iloczyn odchyleń standardowych) lub, preferencyjnie, za pomocą współczynników korelacji rang, takich jak rho Spearmana lub tau Kendalla. Jednak te klasyczne miary zależności nie są odpowiednie do oceny korelacji między cechami nieciągłymi. Biorąc pod uwagę różne formaty cech wchodzących do GLM (binarne, kategoryczne, dyskretne lub ciągłe), istnieje potrzeba miary korelacji mającej zastosowanie do wszystkich tych przypadków. Dlatego V Craméra jest często używane do mierzenia siły powiązania między cechami w badaniach ubezpieczeniowych. To podejście opiera się na danych wyświetlanych w formie tabelarycznej, tak że cechy dyskretne lub kategoryczne mogą być traktowane bezpośrednio. Cechy ciągłe muszą być skutecznie traktowane (lub grupowane) przez podział ich dziedziny na rozłączne przedziały i stąd traktowane jako dyskretne.
+
+Rozważmy na przykład wiek i płeć posiadacza polisy. Wiek jest najpierw kategoryzowany w kilku klasach: na przykład, kategoria „młody kierowca” grupująca posiadaczy polis w wieku poniżej 25 lat, kategoria „w średnim wieku” grupująca posiadaczy polis w wieku od 26 do 50 lat i kategoria „senior” grupująca posiadaczy polis w wieku 51 lat i starszych. Portfel można następnie podzielić na 6 klas, krzyżując 3 wspomniane kategorie wiekowe z 2 płciami. W każdej komórce aktuariusz rejestruje obserwowane odpowiedzi i związaną z nimi ekspozycję. Jednak takie wstępne grupowanie zmiennej ciągłej (jak wiek w naszym przykładzie) jest subiektywne (wybór punktów odcięcia jest generalnie nieco arbitralny przez analityka) i może prowadzić do możliwej utraty informacji. Nie są dostępne ogólne optymalne punkty odcięcia.
+
+V Craméra opiera się na tablicy kontyngencji klasyfikującej krzyżowo dane według pary cech w badaniu. Przypomnijmy, że statystyka Chi-Kwadrat dla testowania niezależności między dwiema cechami w tablicy kontyngencji, oznaczona jako $\chi^2$, jest otrzymywana przez zsumowanie kwadratów różnic między obserwowaną częstotliwością a oczekiwaną częstotliwością w każdej komórce tabeli, podzielonych przez oczekiwaną częstotliwość. Oczekiwana częstotliwość w każdej komórce odpowiada niezależności między dwiema cechami. Jest ona otrzymywana przez pomnożenie sumy wiersza przez sumę kolumny, podzieloną przez sumę całkowitą. Zauważ, że ekspozycje muszą być uwzględnione w obliczeniach.
+
+Teraz, biorąc pod uwagę dwie cechy $X_{ij_1}$ i $X_{ij_2}$ przyjmujące odpowiednio $k_1$ i $k_2$ wartości dyskretnych, V Craméra jest zdefiniowane jako
+
+$$
+V = \sqrt{\frac{\chi^2/n}{\min\{k_1-1, k_2-1\}}} \in [0, 1]
+$$
+
+gdzie $\chi^2$ jest statystyką testu Chi-Kwadrat Pearsona dla niezależności cech $X_{ij_1}$ i $X_{ij_2}$. Dzielenie $\chi^2$ przez liczbę obserwacji sprawia, że statystyka jest niezależna od liczby obserwacji, tj. mnożenie każdej komórki tablicy kontyngencji przez dodatnią liczbę całkowitą nie zmienia wartości V Craméra. Co więcej, V Craméra przyjmuje wartości w przedziale jednostkowym [0, 1], przy czym 0 i 1 odpowiadają niezależności i doskonałej zależności. Będąc opartym na danych wyświetlanych w formie tabelarycznej, V Craméra jest szeroko stosowane.
+
+Co więcej, maksimum $\chi^2/n$ jest osiągane, gdy istnieje całkowita zależność, tj. każdy wiersz (lub kolumna, w zależności od tego, na której stronie tabeli) wykazuje tylko jeden ściśle dodatni wiersz. Oznacza to, że wartość $X_{ij_1}$ determinuje wartości $X_{ij_2}$. Ta maksymalna wartość $\chi^2/n$ jest równa najmniejszemu wymiarowi minus 1. Zatem, dzielenie $\chi^2/n$ przez $\min\{k_1-1, k_2-1\}$ zapewnia, że V przyjmuje wartości w przedziale jednostkowym [0, 1]. Wyciągnięcie pierwiastka kwadratowego gwarantuje, że V Craméra i współczynnik korelacji liniowej Pearsona pokrywają się w tabelach 2x2 (tj. dla dwóch cech binarnych, z $k_1=k_2=2$).
+
+**Przykład 4.4.2** Rozważmy ponownie dane wyświetlone w Tabeli 4.5. Ten hipotetyczny zbiór danych jest sklasyfikowany krzyżowo według dwóch zmiennych kategorycznych (z dwoma kategoriami zdefiniowanymi w odniesieniu do progu 20 000 km). V Craméra jest równe 0.533, co wskazuje na dość silną dodatnią korelację między płcią a przejechanym dystansem, mężczyźni posiadający polisy mają tendencję do przejeżdżania dłuższych dystansów. Dla danych w Tabeli 4.1, stwierdzamy, że V Craméra jest równe 0.123, więc powiązanie jest słabsze.
+
+### 4.4.6 Błąd Pominiętej Zmiennej
+
+Z Rozdziału 2 wiemy, że aktuariusz nie może pominąć ważnych informacji o ryzyku posiadaczy polis. Jeśli ukryte czynniki ryzyka są skorelowane zarówno z odpowiedzią, jak i z jedną lub więcej dostępnymi cechami, będą one obciążać estymatę odpowiedniego współczynnika regresji. Zjawisko to jest powszechnie znane jako błąd pominiętej zmiennej i można je wyjaśnić w następujący sposób.
+
+Zilustrujmy teraz efekt pominiętej zmiennej na prostym przykładzie. Rozważmy ponownie zbiór danych wyświetlony w Tabeli 4.5 sklasyfikowany krzyżowo według płci i rocznego przebiegu (z punktem odcięcia 20 000 km). Ponieważ obie cechy są kategoryczne z dwoma poziomami, można je zakodować za pomocą dwóch cech binarnych. Dokładniej, $x_{i1}$ rejestruje roczny przebieg, z
+
+$$
+x_{i1} = \begin{cases}
+0 & \text{jeśli posiadacz polisy } i \text{ przejeżdża więcej niż 20,000 km rocznie} \\
+1 & \text{w przeciwnym razie}.
+\end{cases}
+$$
+
+Podobnie, $x_{i2}$ rejestruje płeć, z
+
+$$
+x_{i2} = \begin{cases}
+0 & \text{jeśli posiadacz polisy } i \text{ jest mężczyzną} \\
+1 & \text{w przeciwnym razie}.
+\end{cases}
+$$
+
+Tutaj wybraliśmy poziomy bazowe odpowiadające najbardziej zaludnionym kategoriom: mężczyzna dla płci i ponad 20 000 km rocznie dla przejechanego dystansu.
+
+Włączając obie binarne cechy kodujące informacje w odniesieniu do tej polisy ($x_{i1}$ dla płci i $x_{i2}$ dla rocznego przebiegu), IRLS daje następujące wyniki po trzech iteracjach:
+
+$$
+\begin{aligned}
+\hat{\beta}_0 &= -2.20597 \\
+\hat{\beta}_1 &= -0.54753 \\
+\hat{\beta}_2 &= -0.26383.
+\end{aligned}
+$$
+
+Teraz, jeśli płeć zostanie usunięta z oceny, zachowując tylko przejechany dystans, otrzymujemy po trzech iteracjach:
+
+$$
+\begin{aligned}
+\hat{\beta}_0 &= -2.24904 \\
+\hat{\beta}_1 &= -0.69552.
+\end{aligned}
+$$
+
+Zatem widzimy, że oszacowane współczynniki regresji są modyfikowane w porównaniu z oszacowaniami uzyskanymi z płcią w modelu. W szczególności, oszacowany współczynnik regresji $\hat{\beta}_1$ związany z przejechanym dystansem staje się bardziej ujemny, zmieniając się z -0.55 na -0.70. Można to wyjaśnić korelacją istniejącą między dwiema cechami. Wiemy, że korelacja jest dodatnia, na co wskazuje stosunkowo wysoka wartość V Craméra uzyskana w Przykładzie 4.4.2. Słownie, mężczyźni posiadający polisy mają tendencję do przejeżdżania więcej niż 20 000 km rocznie, podczas gdy kobiety posiadające polisy mają tendencję do przejeżdżania mniej. Stąd, jeśli wiemy, że posiadacz polisy przejeżdża mniej niż 20 000 km rocznie, jest prawdopodobne, że jest to kobieta. Formalnie,
+
+$$
+\text{P}[\text{kobieta} | < 20,000 \text{ km}] = \frac{6,000}{6,000+2,000} = \frac{3}{4}.
+$$
+
+Stąd, $\hat{\beta}_1$ staje się bardziej ujemny, gdy płeć jest pominięta w ocenie, ponieważ przejmuje negatywny wpływ bycia kobietą na ocenę.
+
+Wstępne badanie powiązań istniejących między dostępnymi cechami wskazuje, że włączenie lub przesunięcie (offsetting) jednej z nich będzie miało największy wpływ na te cechy, które są silnie skorelowane z pominiętą.
+
+## 4.5 Dewiancja
+
+### 4.5.1 Model Zerowy
+
+Model zerowy odpowiada przypadkowi, w którym cechy nie wnoszą żadnych informacji o odpowiedzi. Wobec braku związku między cechami a odpowiedzią, dopasowujemy wspólną średnią $\mu$ do wszystkich obserwacji. Jest to więc pojedynczy parametr $\beta_0$ dla wszystkich obserwacji, taki że
+
+$$
+a'(\theta_i) = \bar{y} \iff \hat{\mu}_i = \bar{y} \text{ dla } i=1, 2, \dots, n \iff \hat{\beta}_0 = g^{-1}(\bar{y}).
+$$
+
+Wynik ten bezpośrednio wynika z właściwości estymat największej wiarygodności dla rozkładów ED ustalonych w Rozdz. 3.
+
+W modelu zerowym dane są reprezentowane w całości jako losowe wahania wokół wspólnej średniej $\mu$. Jeśli model zerowy ma dobre dopasowanie, dane są jednorodne i nie ma powodu, aby naliczać różne składki premium podgrupom ubezpieczonych.
+
+### 4.5.2 Model Pełny, czyli Nasycony
+
+Dla wybranego rozkładu ED, model o najlepszym możliwym dopasowaniu liczy tyle samo parametrów co obserwacji. Dopasowanie jest więc idealne, a model estymuje $\mu_i$ dla średniej odpowiedzi jako odpowiadającą jej obserwację $y_i$. Ten model nazywany jest modelem pełnym lub nasyconym. Jest on używany jako odniesienie do oceny dobroci dopasowania dowolnego GLM opartego na tym samym rozkładzie ED.
+
+Model pełny zapewnia całkowitą elastyczność w dopasowaniu, tak że odpowiadająca estymata największej wiarygodności $\hat{\theta}_i$ rozwiązuje
+
+$$
+a'(\tilde{\theta}_i) = y_i \iff \tilde{\mu}_i = y_i \text{ dla } i=1, 2, \dots, n,
+$$
+
+jak ustalono w Rozdz. 2. Rozwiązanie jest oznaczone jako
+
+$$
+\tilde{\theta}_i = (a')^{-1}(y_i), \quad i=1, 2, \dots, n.
+$$
+
+Zatem każda dopasowana wartość jest równa obserwacji, a model pełny idealnie pasuje. Jednakże model ten nie wydobywa z danych żadnej struktury, a jedynie powtarza dostępne obserwacje, nie kondensując ich.
+
+### 4.5.3 Dewiancja
+
+#### 4.5.3.1 Statystyka Ilorazu Wiarygodności
+
+Model statystyczny opisuje, jak aktuariusz dzieli zmienność obecną w danych na strukturę systematyczną (reprezentowaną w wyniku GLM) i losowe odchylenia od wartości oczekiwanych (wahania wywołane przez założony rozkład ED, lub relację średnia-wariancja). Model zerowy reprezentuje jedną skrajność, gdzie dane są czysto losowe, podczas gdy model nasycony lub pełny reprezentuje dane jako całkowicie systematyczne. Model pełny zapewnia aktuariuszowi miarę tego, jak dobrze jakikolwiek model oparty na rozważanym rozkładzie ED może dopasować dane. Ponieważ model pełny daje najwyższą osiągalną log-wiarygodność z rozkładem ED w ramach rozważań, różnica między log-wiarygodnością $L_{\text{full}}$ modelu pełnego a log-wiarygodnością $L(\hat{\boldsymbol{\beta}})$ uzyskaną z tego GLM mierzy dobroć dopasowania. Prowadzi to do statystyki ilorazu wiarygodności odpowiadającej dwukrotności tej różnicy.
+
+#### 4.5.3.2 Dewiancja
+
+Podczas pracy z GLM, przydatne jest posiadanie wielkości, którą można interpretować jako sumę kwadratów błędów (lub reszt) w modelu regresji normalnej. Ta wielkość nazywana jest dewiancją, czyli dewiancją resztową modelu i jest zdefiniowana jako
+
+$$
+\begin{aligned}
+D(\boldsymbol{y}, \boldsymbol{\hat{\mu}}) &= \phi LR \\
+&= 2\phi(L_{\text{full}} - L(\hat{\boldsymbol{\beta}}))
+\end{aligned}
+$$
+
+Jest to miara odległości między konkretnym modelem a obserwowanymi danymi zdefiniowanymi za pomocą modelu nasyconego. Podobnie do sumy kwadratów błędów, kwantyfikuje ona wahania w danych, które nie są wyjaśnione przez rozważany model.
+
+---
+**Tabela 4.7** Dewiancja związana z GLM opartymi na niektórych członkach rodziny rozkładów ED.
+
+| Rozkład | Dewiancja |
+| :--- | :--- |
+| Poissona | $2 \sum_{i=1}^n (y_i \ln \frac{y_i}{\hat{\mu}_i})$ gdzie $y \ln y = 0$ jeśli $y=0$ |
+| Normalny | $\sum_{i=1}^n (y_i - \hat{\mu}_i)^2$ |
+---
+
+Ponieważ model nasycony musi pasować do danych co najmniej tak samo dobrze jak każdy inny model, dewiancja resztowa nigdy nie jest ujemna. Im większa dewiancja, tym większe różnice między rzeczywistymi danymi a dopasowanymi wartościami. Dewiancja modelu zerowego nazywana jest dewiancją zerową.
+
+Tabela 4.7 przedstawia dewiancję związaną z GLM opartymi na niektórych członkach rodziny rozkładów ED. Drugi składnik $\sum_{i=1}^n (y_i - \hat{\mu}_i)$ w dewiancji Poissona jest zwykle równy 0, gdy w ocenie uwzględniony jest wyraz wolny, więc dewiancja Poissona redukuje się do $2\sum_{i=1}^n y_i \ln \frac{y_i}{\hat{\mu}_i}$. W przypadku Poissona, dewiancja jest również nazywana statystyką G.
+
+#### 4.5.3.3 Dewiancja Skalowana
+
+Dla rodzin z znanym parametrem dyspersji $\phi$, takich jak dwumianowy lub Poissona, dla których $\phi=1$, dewiancja stanowi podstawę do testowania braku dopasowania modelu lub do porównywania zagnieżdżonych modeli. Jeśli $\phi$ musi być oszacowane na podstawie danych, wtedy należy użyć dewiancji skalowanej. Dokładniej, dewiancja skalowana jest dana przez
+
+$$
+\tilde{D}(\boldsymbol{y}, \boldsymbol{\hat{\mu}}) = \frac{1}{\phi} D(\boldsymbol{y}, \boldsymbol{\hat{\mu}}).
+$$
+
+Zauważ, że dewiancja skalowana zależy od parametru dyspersji $\phi$. Gdy $\phi=1$ (podobnie jak w przypadkach dwumianowym i Poissona), dewiancja i dewiancja skalowana są takie same. Powszechną praktyką jest po prostu podłączenie oszacowania $\hat{\phi}$ w celu obliczenia $\tilde{D}$.
+
+#### 4.5.3.4 Rozkład Próbkowy Dewiancji Skalowanej
+
+Koncepcja dewiancji rozciąga się na wszystkich członków rodziny ED znaną sumę kwadratów reszt używaną w regresji liniowej normalnej. Liczba stopni swobody związana z dewiancją skalowaną jest równa liczbie $n$ obserwacji minus liczba $p+1$ parametrów regresji $\beta_0, \beta_1, \dots, \beta_p$ do oszacowania. W dużych próbach, dewiancja skalowana ma w przybliżeniu rozkład Chi-kwadrat z $n-(p+1)$ stopniami swobody, tj.
+
+$$
+\tilde{D} \approx \chi^2_{n-p-1} \text{ pod warunkiem, że } n \text{ jest wystarczająco duże.}
+\quad\quad\text{(4.16)}
+$$
+
+Duża dewiancja wskazuje na źle dopasowany model. Dokładniej, jeśli GLM pasuje do danych rozsądnie dobrze, to skalowana dewiancja $\tilde{D}$ powinna być bliska liczbie resztowych stopni swobody, tj. $n-p-1$.
+
+Zauważ, że do aproksymacji Chi-kwadrat w (4.16) należy podchodzić z pewną ostrożnością. Istnieją sytuacje, w których nie jest ona w ogóle zachowana, na przykład w przypadku odpowiedzi binarnych (jak pokazano w następnej sekcji).
+
+### 4.5.4 Przypadek Bernoulliego
+
+Maksymalizacja log-wiarygodności lub minimalizacja dewiancji jest równoważna z punktu widzenia numerycznego, z wyjątkiem niektórych szczególnych przypadków, jak pokazano dalej. Załóżmy, że $Y_i \sim \mathcal{Ber}(q_i)$. 
+
+$$
+D = -2 \sum_{i=1}^n (\hat{q}_i \text{logit}(\hat{q}_i) + \ln(1 - \hat{q}_i)).
+$$
+
+Widzimy, że dewiancja $D$ zależy tylko od dopasowanych wartości $\hat{q}_i$ z $q_i$, a nie od rzeczywistych obserwacji $y_i$. Dla dewiancji, aby zmierzyć dobroć dopasowania, musi ona porównywać dopasowane wartości $\hat{q}_i$ z danymi $y_i$, ale tutaj mamy tylko funkcję $\hat{q}_i$. To pokazuje, że dewiancja nie wnosi żadnych informacji o dobroci dopasowania, gdy $Y_i \sim \mathcal{Ber}(q_i)$ i używana jest funkcja łącząca logit. Stąd nie można jej użyć do pomiaru adekwatności modelu w takim przypadku.
+
+### 4.5.5 Kary Kowariancyjne i AIC
+
+#### 4.5.5.1 Pomiar Dobroci Dopasowania
+
+Zagnieżdżone modele można porównywać za pomocą dewiancji. Jednakże, gdy modele nie są zagnieżdżone lub postulują różne rozkłady dla odpowiedzi, bezpośrednie porównanie staje się problematyczne. W takim przypadku, kryteria informacyjne pozwalają aktuariuszowi na porównywanie różnych modeli. Klasyczne kryteria obejmują Kryterium Informacyjne Akaikego
+
+$$
+AIC = -2L + 2\#\text{parametrów},
+$$
+
+i Bayesowskie Kryterium Informacyjne
+
+$$
+BIC = -2L + \ln(n)\#\text{parametrów}.
+$$
+
+Zauważ, że liczba parametrów uwzględnia wszystkie parametry zawarte w modelu (parametr dyspersji $\phi$ jest również liczony jako parametr w oparciu o log-wiarygodność $L$ i odpowiada za miarę złożoności modelu). Preferowane są mniejsze wartości AIC lub BIC.
+
+Powszechną praktyką jest odrzucanie części wiarygodności, które nie są funkcjami parametrów. To jest wspólne do porównywania modeli zakładających ten sam rozkład dla odpowiedzi, ponieważ odrzucone części są równe w takim przypadku. Dla odpowiedzi o różnych rozkładach, istotne jest jednak, aby wszystkie części wiarygodności zostały zachowane.
+
+Skorygowana wersja AIC (oznaczona jako AICC) została opracowana do użytku w małych próbach lub gdy liczba parametrów $p+1$ jest umiarkowaną do dużej częścią wielkości próby $n$.
+
+## 4.6 Estymacja Parametru Dyspersji
+
+Niektóre rozkłady z rodziny ED zawierają nieznany parametr dyspersji $\phi$. Dzieje się tak na przykład w przypadku rozkładów Gamma lub Odwrotnego Gaussa. Równania wiarygodności dla $\boldsymbol{\beta}$ nie zawierają parametru dyspersji $\phi$, więc nie jest konieczne szacowanie $\phi$, aby uzyskać $\boldsymbol{\hat{\beta}}$. Jednakże, oszacowany parametr dyspersji jest potrzebny do przeprowadzenia wnioskowania na temat współczynników regresji. Chociaż $\phi$ w zasadzie może być oszacowane metodą największej wiarygodności, częściej stosuje się alternatywny estymator wyprowadzony z metody momentów, który jest zdefiniowany w następujący sposób.
+
+Gdy algorytm IRLS wygeneruje $\boldsymbol{\hat{\beta}}$, parametr dyspersji $\phi$ można oszacować, dzieląc statystykę dobroci dopasowania Pearsona
+
+$$
+X^2 = \sum_{i=1}^n \frac{(y_i - \hat{\mu}_i)^2}{V(\hat{\mu}_i)/v_i}
+$$
+
+przez resztowe stopnie swobody modelu, to jest,
+
+$$
+\hat{\phi} = \frac{1}{n-p-1} \sum_{i=1}^n \frac{v_i(y_i - \hat{\mu}_i)^2}{V(\hat{\mu}_i)} = \frac{X^2}{n-p-1}.
+$$
+
+Estymator ten wykorzystuje fakt, że $X^2$ Pearsona ma asymptotycznie rozkład Chi-kwadrat z $n-p-1$ stopniami swobody. Jest on znacznie prostszy do obliczenia i w niektórych przypadkach oferuje większą stabilność numeryczną niż estymata największej wiarygodności.
+
+Dewiancja dostarcza alternatywnego estymatora dla $\phi$. Biorąc pod uwagę (4.16), widzimy, że średnia $D$ jest w przybliżeniu równa $n-p-1$. To sugeruje użycie estymaty dla dużych prób
+
+$$
+\hat{\phi} = \frac{D}{n-p-1}.
+$$
+
+## 4.7 Rozkład z próby oszacowanych współczynników regresji
+
+### 4.7.4 Przedziały ufności Walda
+
+Podejście Walda opiera się na normalnej aproksymacji rozkładu $\boldsymbol{\hat{\beta}}$. Błąd standardowy jest pierwiastkiem kwadratowym z oszacowanej wariancji $\text{Var}[\hat{\beta}_j]$. Tę wielkość należy rozumieć w następujący sposób. Gdyby pobrano nowe próbki, odchylenie standardowe wynikowych oszacowań $\hat{\beta}_j$ byłoby w przybliżeniu oszacowanym błędem standardowym. Dlatego mały błąd standardowy wskazuje, że $\hat{\beta}_j$ powinien być bliski prawdziwemu $\beta_j$, podczas gdy duży błąd standardowy sugeruje, że szeroki zakres oszacowań można by osiągnąć przez losowość.
+
+Przedział ufności można uznać za rozsądny zakres oszacowań dla współczynnika interesującego. Przedziały ufności Walda opierają się na rozkładzie $\hat{\beta}_j$ dla dużej próby, to jest,
+
+$$\hat{\beta}_j - \beta_j \approx \mathcal{Nor}(0, \hat{\sigma}_{jj}^2)$$
+
+gdzie $\hat{\sigma}_{jj}$ jest elementem $(j, j)$ macierzy $\hat{\boldsymbol{\Sigma}}(\boldsymbol{\hat{\beta}})$, to jest oszacowaną wariancją $\hat{\beta}_j$. Przybliżony przedział ufności na poziomie $1 - \alpha$ jest następnie uzyskiwany w następujący sposób:
+
+$$\begin{align*}
+1 - \alpha &\approx \text{P} \left[ -z_{\alpha/2} \sqrt{\hat{\sigma}_{jj}} \leq \hat{\beta}_j - \beta_j \leq z_{\alpha/2} \sqrt{\hat{\sigma}_{jj}} \right] \\
+&= \text{P} \left[ \hat{\beta}_j - z_{\alpha/2} \sqrt{\hat{\sigma}_{jj}} \leq \beta_j \leq \hat{\beta}_j + z_{\alpha/2} \sqrt{\hat{\sigma}_{jj}} \right]
+\end{align*}$$
+
+tak, że przedział
+
+$$\text{IC}_{1-\alpha}(\beta_j) = \left[ \hat{\beta}_j \pm z_{\alpha/2} \sqrt{\hat{\sigma}_{jj}} \right]$$
+
+oczekuje się, że będzie zawierał prawdziwą wartość parametru z prawdopodobieństwem w przybliżeniu równym $1-\alpha$. Tutaj, prawdopodobieństwo $1-\alpha$ jest (przybliżonym) poziomem ufności, lub pokryciem prawdopodobieństwa odpowiadającego przedziału ufności.
+
+### 4.7.5 Współczynnik inflacji wariancji
+
+Współliniowość odnosi się do sytuacji, w której dwie lub więcej cech jest silnie predykcyjnych względem trzeciej. Jednak ta ostatnia może nie być silnie skorelowana z żadną z poprzednich, więc zjawisko to nie pojawia się w macierzy korelacji lub macierzy V Craméra w przypadku cech o różnych formatach. Dzieje się tak, ponieważ taka macierz uwzględnia tylko pary cech, a nie większe podzbiory dostępnych cech. W konsekwencji współliniowość jest znacznie trudniejsza do wykrycia.
+
+Gdy istnieją silne zależności liniowe między cechami w analizie regresji, dokładność estymacji dla $\beta_j$ maleje w porównaniu z przypadkiem, w którym cechy są niezależne. Głównym powodem jest to, że macierz $\boldsymbol{X}^T \boldsymbol{W} \boldsymbol{X}$ zaangażowana w każdy krok algorytmu IRLS jest źle uwarunkowana, a zatem prawie nieodwracalna.
+Użyteczną statystyką do wykrywania współliniowości jest współczynnik inflacji wariancji (VIF). VIF dla dowolnej cechy mierzy wzrost kwadratu błędu standardowego dla współczynnika regresji z powodu obecności współliniowości w danych. Niech $\rho_j$ oznacza współczynnik determinacji z regresji $j$-tej cechy na pozostałych $p-1$ cechach. Jest on określany przez uruchomienie modelu liniowego dla każdej z pozostałych cech przy użyciu wszystkich innych cech jako danych wejściowych i pomiar jego dokładności predykcyjnej.
+
+Współczynnik inflacji wariancji zdefiniowany jako
+
+$$\text{VIF} = \frac{1}{1 - \hat{\rho}_j^2}$$
+
+określa ilościowo wzrost wariancji $\hat{\beta}_j$ z powodu zależności liniowej $j$-tej cechy od pozostałych $p-1$. VIF jest najprostszym i najbardziej bezpośrednim wskaźnikiem szkód wyrządzonych przez współliniowość. W szczególności pierwiastek kwadratowy z VIF wskazuje, o ile większy jest przedział ufności dla $\hat{\beta}_j$ w porównaniu z podobnymi nieskorelowanymi danymi (takie dane mogą być czysto koncepcyjne). Silne zależności liniowe odpowiadają cechom o dużym VIF. Jako punkt odniesienia, poważny problem współliniowości istnieje, gdy VIF jest większy niż 10. VIF nie stosuje się do zestawów współczynników regresji (odpowiadających różnym poziomom cech kategorialnych, na przykład), ale w tym przypadku dostępne są uogólnione VIF, lub GVIF.
+
+Pomimo ich oczywistego znaczenia w badaniach GLM, obliczanie miar VIF wydaje się być intensywne obliczeniowo w wielu analizach obejmujących wiele cech, biorąc pod uwagę obecną moc obliczeniową. To nieco ogranicza praktyczne zastosowanie tej koncepcji.
+
+### 4.7.6 Testowanie hipotez dotyczących parametrów
+
+#### 4.7.6.1 Hipotezy dotyczące pojedynczego współczynnika regresji
+
+Aby przetestować, czy założenie $\beta_j = b$ jest rozsądne, dla pewnej stałej $b$, możemy obliczyć statystykę Walda
+
+$$z = \frac{\hat{\beta}_j - b}{\sqrt{\widehat{\text{Var}}[\hat{\beta}_j]}}.$$
+
+Przyjęcie tej procedury oznacza, że wybrany $\alpha$ kwantyfikuje ryzyko odrzucenia założenia $\beta_j = b$, podczas gdy w rzeczywistości jest ono prawdziwe (nazywane błędem typu 1 w statystyce). Zgodnie z tym założeniem, statystyka testowa $z$ jest w przybliżeniu rozłożona $\mathcal{Nor}(0, 1)$, tak że istnieje prawdopodobieństwo $\alpha$, że $|z|$ przekroczy $\Phi^{-1}(1-\alpha/2)$, prowadząc do odrzucenia. Takie przypadki odpowiadają sytuacjom, w których założenie nie powinno być odrzucane. Stąd $\alpha$ reprezentuje poziom bezpieczeństwa wybrany przez aktuariusza przy odrzucaniu rozważanego założenia. Poziom $\alpha=5\%$ jest rutynowo stosowany w praktyce. Prowadzi to do 1 błędnego wniosku na 20 testów prowadzących do odrzucenia, średnio (pod warunkiem, że testy są przeprowadzane niezależnie). W zależności od wagi wniosku wyciągniętego z analizy, aktuariusz może zmniejszyć ryzyko błędu (do 1%, na przykład), lub być mniej konserwatywny (zwiększając $\alpha$ do 10%, powiedzmy).
+
+Oprogramowanie statystyczne, w tym R, generalnie zgłasza wyniki procedur testowych w postaci p-wartości, aby uniknąć proszenia użytkowników o podanie poziomu ufności $\alpha$, który ma być zastosowany. Na podstawie obliczonej p-wartości, aktuariusz następnie odrzuca założenie, gdy spada ono poniżej wybranego $\alpha$, i zachowuje je jako założenie robocze w przeciwnym razie. Formalnie jednak aktuariusz nigdy nie może zaakceptować założenia (stąd subtelna różnica między akceptacją a nieodrzuceniem). Dzieje się tak dlatego, że inne źródło błędu, zwane błędem typu 2 w statystyce, polegające na akceptowaniu założenia, gdy w rzeczywistości jest ono fałszywe, na ogół nie jest kontrolowane przez procedurę testową.
+
+Zauważ, że standardowe testy dla hipotezy zerowej $H_0: \beta_j = 0$ są automatycznie dostarczane przez oprogramowanie statystyczne. Gdy cechy kategorialne są zaangażowane, $\beta_j = 0$ oznacza, że odpowiedni poziom jest identyczny z poziomem bazowym lub referencyjnym dla tej cechy (która jest uwzględniona w wyrazie wolnym $\beta_0$). Nieodrzucenie $H_0$ sugeruje, że poziom powinien zostać połączony z poziomem bazowym. Ale inne grupowania mogą być sensowne i mogą być wykryte przez testowanie hipotez postaci
+
+$$H_0: \beta_j = \beta_k \Leftrightarrow \hat{\beta}_j - \boldsymbol{\hat{\beta}}_k = 0.$$
+
+Gdy w ocenie uwzględniony jest wyraz wolny, procedura analizy GLM przetwarza zmienne ryzyka w odniesieniu do poziomu odniesienia (którego efekt odpowiada wyrazowi wolnemu). Przełączanie z jednego poziomu odniesienia na inny nie modyfikuje przewidywań modelu (pomimo różnych oszacowanych współczynników regresji uzyskanych, ponieważ poziomy są teraz w odniesieniu do innego poziomu bazowego). Jednak p-wartości się zmieniają, ponieważ kwestionują różnicę danego poziomu w porównaniu z poziomem bazowym: zmiana poziomu bazowego modyfikuje testowaną hipotezę. Dlatego ważne jest, aby sprawdzić, czy poziom bazowy ma znaczną ekspozycję i nie przyjmować domyślnego poziomu bazowego przypisanego przez oprogramowanie. To jest właśnie wybór dokonany we wszystkich przykładach w tej książce.
+
+**Uwaga 4.7.1** Znaczenie każdej zmiennej jest wyrażone przez wielkość jej wkładu w ocenę. W GLM jest to zasadniczo odzwierciedlone przez wielkość powiązanego $\beta_j$ (zakładając, że wszystkie predyktory zostały znormalizowane). Istotność $j$-tej cechy można następnie przetestować za pomocą hipotezy zerowej $H_0: \beta_j=0$.
+Innym sposobem postępowania, który rozszerza się na bardziej wyszukane podejścia do uczenia statystycznego, jest wybranie losowej frakcji $\pi$ oryginalnych danych i wykorzystanie ich do dopasowania GLM. Aktuariusz następnie używa dopasowanego modelu do przewidywania odpowiedzi w pozostałej $1-\pi$ części bazy danych i oblicza dokładność tej predykcji. Wartości $j$-tej cechy są następnie losowo permutowane, a odpowiedź jest ponownie przewidywana na tej podstawie. Chodzi o to, aby porównać dokładność predykcji z i bez permutacji: im ważniejsza cecha, tym większa różnica w tych dwóch miarach, permutacja $j$-tej cechy powodująca duży spadek dokładności predykcji.
+
+#### 4.7.6.2 Hipotezy dotyczące kilku współczynników regresji
+
+Oprócz prostych hipotez dotyczących pojedynczego parametru, można również rozważyć bardziej rozbudowane. Rozważmy model bazowy
+
+$$\mathcal{M}_0: \boldsymbol{\beta} = \boldsymbol{\beta}_0 = (\beta_1, \beta_2, \ldots, \beta_q)^T$$
+
+i model alternatywny
+
+$$\mathcal{M}_1: \boldsymbol{\beta} = \boldsymbol{\beta}_1 = (\beta_1, \beta_2, \ldots, \beta_q, \beta_{q+1}, \ldots, \beta_p)^T$$
+
+zawierający dodatkowe zmienne objaśniające. W ramach $\mathcal{M}_0$ cechy $x_{i, q+1}, \ldots, x_{i,p}$ nie mają wpływu na oczekiwane odpowiedzi. Oznacza to, że $\mathcal{M}_0$ odpowiada hipotezie zerowej
+
+$$H_0: \beta_{q+1} = \ldots = \beta_p = 0$$
+
+podczas gdy hipoteza alternatywna jest taka, że co najmniej jeden współczynnik regresji wśród $\beta_{q+1}, \ldots, \beta_p$ jest niezerowy.
+Gdy GLM używa podzbioru cech większego modelu, mniejszy model mówi się, że jest zagnieżdżony w większym. W przypadku $\mathcal{M}_0$ zagnieżdżonego w $\mathcal{M}_1$. Dla GLM bez parametru dyspersji (tj. $\phi = 1$ jak w przypadkach dwumianowym i Poissona), statystyka testu ilorazu wiarygodności jest po prostu różnicą w dewiancjach dla zagnieżdżonych modeli $\mathcal{M}_0$ i $\mathcal{M}_1$. Oznaczając $D_0$ i $D_1$ odpowiednie dewiancje związane z $\mathcal{M}_0$ i $\mathcal{M}_1$, statystyka testowa jest
+
+$$\Delta = D_0 - D_1 = 2(L(\boldsymbol{\hat{\beta}}_1) - L(\boldsymbol{\hat{\beta}}_0))$$
+
+gdzie $\boldsymbol{\hat{\beta}}_0$ i $\boldsymbol{\hat{\beta}}_1$ są estymatorami największej wiarygodności dla $\boldsymbol{\beta}$ w ramach odpowiednio $\mathcal{M}_0$ i $\mathcal{M}_1$. Jeśli ograniczenia nałożone na model $\mathcal{M}_1$ reprezentowane przez $\mathcal{M}_0$ są prawdziwe, to jest, jeśli $H_0$ jest prawdziwe, to statystyka testowa $\Delta$ jest w przybliżeniu rozłożona chi-kwadrat, to jest, $\Delta \approx \chi_{p-q}^2$ pod warunkiem, że wielkość próby jest wystarczająco duża.
+Musimy jednak pamiętać, że dodanie cech do modelu zawsze zmniejsza dewiancję (nawet jeśli dodana cecha nie jest związana z odpowiedzią), po prostu dlatego, że w większym modelu zaangażowanych jest więcej parametrów, który może tylko lepiej dopasować dane. Sensownym pytaniem jest zatem, czy dodatkowe cechy znacznie zmniejszają dewiancję, tj. czy nie były one związane z odpowiedzią. Przybliżony rozkład chi-kwadrat $\chi_{p-q}^2$ rządzący $D_0 - D_1$ definiuje próg, powyżej którego różnica w obserwowanych dewiancjach jest wystarczająco duża, aby uzasadnić włączenie dodatkowych cech. Formalnie, jeśli model $\mathcal{M}_1$ jest prawdziwym modelem, to będzie miał tendencję do posiadania znacznie wyższej wiarygodności w porównaniu z modelem $\mathcal{M}_0$, tak że różnica w log-wiarygodnościach będzie zbyt duża. Zatem $H_0$ jest odrzucane, jeśli $\Delta_{obs}$ przekracza statystykę testową $\Delta$ jest "za duża". W dużych próbach $H_0$ jest odrzucane na poziomie prawdopodobieństwa $1-\alpha$, gdzie $\chi_{p-q; 1-\alpha}^2$ oznacza kwantyl rozkładu $\chi_{p-q}^2$.
+
+Dla GLM, w których występuje parametr dyspersji do oszacowania (jak w przypadkach normalnym, gamma i odwrotnym gaussowskim), możemy porównać zagnieżdżone modele za pomocą testu F, opartego na statystyce testowej
+
+$$F = \frac{\frac{D_0-D_1}{p-q}}{\hat{\phi}}$$
+
+obejmując odpowiednie przeskalowane dewiancje $\frac{D_0}{\hat{\phi}}$ i $\frac{D_1}{\hat{\phi}}$. Tutaj, oszacowany parametr dyspersji $\hat{\phi}$ jest pobierany z największego dopasowanego modelu do danych (który niekoniecznie jest modelem $\mathcal{M}_1$). Jeśli największy model ma $k+1$ współczynników regresji, to przy założeniu, że ograniczenia nałożone na model $\mathcal{M}_1$ przez model $\mathcal{M}_0$ są poprawne, $F$ w przybliżeniu podlega rozkładowi Fishera z $p-q$ i $n-k-1$ stopniami swobody.
+
+### 4.7.7 Ilustracje numeryczne
+
+#### 4.7.7.1 Graduacja rocznych prawdopodobieństw zgonu
+
+Wróćmy do problemu graduacji rocznych prawdopodobieństw zgonu przy użyciu formuły (4.15). Przypomnijmy, że odpowiedzią jest liczba zgonów $D_x$ zarejestrowanych wśród $l_x$ osób w wieku $x$ w dniu 1 stycznia. Parametrem zainteresowania jest roczne prawdopodobieństwo zgonu $q_x$. Stosowany jest dwumianowy GLM z kanonicznym łączem, z oceną obejmującą wiek $x$ i jego kwadrat, to jest,
+
+$$\text{logit}(q_x) = \beta_0 + \beta_1 x + \beta_2 x^2.$$
+
+**Tabela 4.8** Wynik funkcji `glm` z R dla dopasowania kwadratowej formuły Perks do danych o śmiertelności wyświetlonych na Rys. 4.1. Liczba iteracji Fisher Scoring: 3
+
+| Współczynnik | Oszacowanie | Bł. stand. | Wartość $z$ | $Pr(>\mid z \mid )$ | |
+| --- | --- | --- | --- | --- | --- |
+| Wyraz wolny | -3.340 | $4.808 \times 10^{-1}$ | -6.947 | $3.73 \times 10^{-12}$ | \*\*\* |
+| Wiek x | -0.1038 | $1.213 \times 10^{-2}$ | -8.558 | $<2 \times 10^{-16}$ | \*\*\* |
+| Wiek do kwadratu x² | $1.384 \times 10^{-3}$ | $7.597 \times 10^{-5}$ | 18.214 | $<2 \times 10^{-16}$ | \*\*\* |
+
+Alternatywnie, model można dopasować do obserwowanych surowych prawdopodobieństw zgonu $\tilde{q}_x = D_x / l_x$, pod warunkiem, że wagi $l_x / \text{Var}[\tilde{q}_x]$ są używane jako waga. Oszacowania punktowe $\boldsymbol{\hat{\beta}}$ uzyskane za pomocą algorytmu IRLS zostały już podane wcześniej w tym rozdziale. Teraz możemy uzupełnić szczegółowe wyniki funkcji `glm` o oszacowania i p-wartości dla hipotez zerowych $H_0: \beta_j=0$. Wyniki są podsumowane w Tabeli 4.8.
+
+Widzimy w drugiej kolumnie Tabeli 4.8 (zatytułowanej "Oszacowanie") oszacowania punktowe uzyskane za pomocą algorytmu IRLS. Odpowiednie błędy standardowe, oparte na właściwościach estymacji największej wiarygodności dla dużych prób, są podane w następnej kolumnie. Wartość $z$ jest statystyką Walda do testowania $\beta_j = 0$, otrzymaną jako stosunek wartości pojawiających się w dwóch poprzednich kolumnach. Odpowiednie p-wartości są wyświetlane dalej. Ostatnia kolumna w Tabeli 4.8 ilustruje wnioski wyciągnięte z testu statystycznego za pomocą prostego kodowania. Przypomnijmy, że im mniejsza p-wartość, tym większa statystyka testowa, a tym bardziej wątpliwe jest założenie $\beta_j = 0$. Wtedy prawdopodobne jest, że odpowiednia cecha powinna być zachowana w modelu (ponieważ jej wkład w ocenę GLM jest niezerowy). Jest to reprezentowane przez gwiazdki: trzy gwiazdki (\*\*\*) dla p-wartości mniejszych niż 0.1%, dwie gwiazdki (\*\*) dla p-wartości między 0.1 a 1%, i jedna gwiazdka (\*) dla p-wartości między 1 a 5%. Kropka jest używana dla p-wartości w szarej strefie 5-10%, gdzie aktuariusz jest niepewny co do istotności odpowiedniej cechy. Nic nie pojawia się w ostatniej kolumnie dla p-wartości większych niż 10%, które prawidłowo prowadzą do nieodrzucenia.
+
+Dla właściwej interpretacji ważne jest, aby zdać sobie sprawę, że te gwiazdki odnoszą się do statystycznej istotności, a nie do faktycznego wpływu cechy na oczekiwaną odpowiedź. Możemy mieć większy $\hat{\beta}_j$ związany z większą p-wartością (pomimo pozostałych istotnych). $j$-ta cecha następnie indukuje bardziej premium różnice, nawet jeśli jest mniej istotna w R. Zatem ranking cech oparty na p-wartościach nie jest zatem sensowny bez uwzględnienia oszacowań.
+Widzimy w Tabeli 4.8, że wszystkie p-wartości dla testu hipotezy zerowej $H_0: \beta_j = 0$ są mniejsze niż $10^{-6}$, więc istnieją silne dowody przeciwko $H_0: \beta_j=0$ dla każdego parametru (co jest reprezentowane przez trzy gwiazdki w ostatniej kolumnie, jak wyjaśniono powyżej). Dewiancja zerowa wynosi 32.760.878 na 35 stopniach swobody, podczas gdy dewiancja resztowa wynosi 42.942 na 33 stopniach swobody. Odpowiednie AIC wynosi 354.33.
+
+Graficznie, dopasowanie uzyskane za pomocą kwadratowej formuły Perks było wyraźnie lepsze od tego uzyskanego z liniowym odpowiednikiem. Jest to już widoczne z małej p-wartości uzyskanej dla współczynnika regresji związanego ze składnikiem wieku do kwadratu raportowanym w Tabeli 4.8. Formalny test można przeprowadzić przy użyciu funkcji anova, która zwraca analizę tabeli dewiancji. Różnica w odpowiednich dewiancjach modelu liniowego i kwadratowego Perks wynosi 325.62 z 1 stopniem swobody. Wynikowa p-wartość jest mniejsza niż $10^{-6}$, więc hipoteza zerowa, że specyfikacja liniowa oceny jest równoważna kwadratowej, jest wyraźnie odrzucona. Widzimy zatem, że kwadratowa formuła (4.15) znacznie przewyższa swój liniowy odpowiednik (uzyskany przez umieszczenie $\beta_2=0$).
+
+#### 4.7.7.2 Rezerwacja strat
+
+Przejdźmy teraz do modelowania średnich płatności zgodnie z rokiem wypadku AY i rokiem rozwoju DY, rozważanych wcześniej w tym rozdziale. Współczynniki regresji wyświetlone na Rys. 4.6 sugerują ustrukturyzowanie efektów AY i DY w celu zmniejszenia liczby parametrów i zwiększenia stabilności modelu. Biorąc pod uwagę współczynniki regresji związane z DY, widzimy, że wydają się być wyraźnie liniowe do DY = 7, a następnie łamią, wykazując liniowy trend poza nim. Sugeruje to, aby przedstawić efekt roku rozwoju dwiema cechami DY i I[DY > 7] wchodzącymi w ocenę w sposób liniowy. Biorąc pod uwagę tę specyfikację, różnica w dewiancji wynosi 0.030928 z 8 stopniami swobody. Odpowiednia wartość F wynosi 0.8603, dając p-wartość 55.63%. Nie ma zatem istotnej różnicy między modelami z i bez ustrukturyzowanych efektów DY.
+
+Oszacowane parametry regresji $\hat{\beta}_j$ związane z AY pozostają w dużej mierze niezmienione przez efekty DY. Jest to widoczne, gdy kontynuujemy strukturyzację współczynników regresji $\beta_j$ związanych z 11 latami wypadków. Widzimy, że do AY = 6, są prawie stałe, podczas gdy wykazują liniowy trend poza nim. Sugeruje to zastąpienie nieustrukturyzowanego efektu roku wypadkowego nową cechą AY $\times$ I[AY > 6] wchodzącą w ocenę w sposób liniowy, pozwalając na wyraz wolny. To dalsze uproszczenie nie pogarsza znacząco dopasowania. Dokładniej, w porównaniu z modelem początkowym, różnica w dewiancjach jest równa 0.068996 z 17 stopniami swobody. Wartość F wynosi 0.9032, a odpowiadająca jej p-wartość wynosi 57.85%, więc nie wykryto istotnej różnicy. Porównując z poprzednim modelem, otrzymujemy różnicę w dewiancjach 0.038068, 9 stopni swobody, wartość F 0.8155 i p-wartość 60.43%, co potwierdza poprzednie wyniki. Ponieważ model ustrukturyzowany testowany w stosunku do modelu początkowego przy użyciu analizy tabeli dewiancji i w stosunku do modelu pośredniego nie wykazuje istotnej różnicy (wykrytej testem F), preferowany jest prosty model ustrukturyzowany.
+
+Dopasowanie modelu jest podsumowane w Tabeli 4.9. Ostateczny model obejmuje przekształcone cechy AY $\times$ I[AY > 6], DY i I[DY > 7] wynikające ze strukturyzacji efektów uzyskanych przez traktowanie AY i DY jako cech kategorialnych. Parametr dyspersji dla rodziny odwrotnej-gaussowskiej jest oszacowany na $\hat{\phi} = 0.0051574$. Dewiancja zerowa wynosi 5.48273 na 65 stopniach swobody, podczas gdy dewiancja resztowa jest równa 0.25771 na 62 stopniach swobody. Odpowiednie AIC wynosi 712,569.
+
+**Tabela 4.9** Wynik funkcji `glm` z R dla dopasowania danych rezerwacji strat wyświetlonych w Tabeli 4.6 z ustrukturyzowanymi efektami AY i DY. Liczba iteracji Fisher scoring: 7
+
+| Współczynnik | Oszacowanie | Bł. stand. | Wartość z | $Pr(>\mid z\mid )$ | |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Wyraz wolny | 6.622377 | 0.030958 | 213.912 | $<2 \times 10^{-16}$ | \*\*\* |
+| AYI[AY > 6] | 0.035638 | 0.002832 | 12.586 | $<2 \times 10^{-16}$ | \*\*\* |
+| DY | 0.427926 | 0.020153 | 21.234 | $<2 \times 10^{-16}$ | \*\*\* |
+| I[DY > 7] | -1.126561 | 0.648119 | -1.738 | 0.0871 | . |
+
+## 4.8 Miary Wpływu
+
+### 4.8.1 Definicja Ogólna
+
+Obserwacja wpływowa to taka, która, jeśli zostanie nieznacznie zmieniona lub pominięta, w istotny sposób zmodyfikuje estymowane parametry modelu. Miary wpływu mają na celu ocenę wpływu konkretnej obserwacji na estymowane parametry lub dopasowane wartości. Dźwignia jest jedną z oznak tego, jak duży wpływ ma obserwacja. Ogólną definicją dźwigni $j$-tej obserwacji jest wielkość pochodnej $i$-tej dopasowanej wartości względem $j$-tej wartości odpowiedzi.
+
+### 4.8.2 Miary diagnostyczne oparte na macierzy kapeluszowej (hat matrix)
+
+W przypadku rozkładu normalnego wiemy z (4.11) do (4.12), że dopasowane wartości uzyskuje się poprzez pomnożenie obserwowanych odpowiedzi przez macierz kapeluszową $\boldsymbol{H}$. Zatem element diagonalny $h_{ii}$ macierzy $\boldsymbol{H}$ mierzy wpływ $Y_i$ na $\hat{Y}_i$
+
+$$
+\hat{Y_i} = \sum_{j=1}^{n} h_{ij}Y_j = h_{ii}Y_i + \sum_{j \ne i}^{n} h_{ij}Y_j, \quad i=1, 2, \dots, n.
+$$
+
+Jest to zgodne z ogólną definicją dźwigni przytoczoną wcześniej. Ponadto, $h_{ii}$ mierzy wpływ $Y_i$ na każdą dopasowaną wartość $\hat{Y}_j$, ponieważ
+
+$$
+h_{ii} = \sum_{j=1}^{n} h_{ij}^2, \quad \text{i} \quad h_{ij} = h_{ji}.
+$$
+
+Jeśli $h_{ii} = 1$, to $\hat{Y}_i$ jest wyznaczane wyłącznie przez $Y_i$. Jeśli $h_{ii} = 0$, to $y_i$ nie ma wpływu na $\hat{y}_i$.
+
+Biorąc pod uwagę ślad macierzy kapeluszowej $\boldsymbol{H}$ podany w (4.18), średnia wartość $h_{ii}$ jest równa $\bar{h} = (p + 1)/n$. Obserwacje wpływowe często mają $h_{ii} > 2\bar{h}$; w małych próbkach, często używa się większego progu $3\bar{h}$.
+
+### 4.8.3 Estymatory typu "Leave-One-Out" i Odległość Cooka
+
+Innym podejściem do pomiaru wpływu jest zbadanie oszacowanych współczynników regresji uzyskanych poprzez pominięcie każdej obserwacji po kolei. Indeks dolny "$(-i)$" jest używany do wskazania, że odpowiednia wielkość została obliczona na zredukowanym zestawie danych uzyskanym przez usunięcie obserwacji $(y_i, \boldsymbol{x}_i)$ ze zbioru uczącego. Tak więc, $\boldsymbol{\hat{\beta}}_{(-i)}$ daje oszacowane współczynniki regresji na podstawie $(y_1, \boldsymbol{x}_1), \dots, (y_{i-1}, \boldsymbol{x}_{i-1}), (y_{i+1}, \boldsymbol{x}_{i+1}), \dots, (y_n, \boldsymbol{x}_n)$. Nazywa się to estymatorem typu "leave-one-out".
+
+To pokazuje, że w przypadku rozkładu normalnego, estymacja typu "leave-one-out" nie wymaga ponownego dopasowywania modelu $n$ razy, bez $i$-tej obserwacji. Niestety, nie jest to już prawdą w przypadku innych GLM, ale opracowano aproksymacje w celu skrócenia czasu obliczeń dla nienormalnych GLM.
+
+Odległość Cooka mierzy odległość między $\boldsymbol{\hat{\beta}}$ a $\boldsymbol{\hat{\beta}}_{(-i)}$, przy czym duże wartości wskazują na obserwacje, które mają wpływ na oszacowane współczynniki regresji. Odległość Cooka służy do badania, w jaki sposób każda obserwacja wpływa na cały wektor $\boldsymbol{\hat{\beta}}$ oszacowań parametrów. Mierzy ona różnicę $\boldsymbol{\hat{\beta}} - \boldsymbol{\hat{\beta}}_{(-i)}$ we wszystkich $p + 1$ współczynnikach regresji. Inna miara wpływu opiera się na różnicy dopasowanych wartości $\hat{\mu}_i$ przy użyciu wszystkich danych i $\hat{\mu}_{(-i)}$ z pominięciem obserwacji $i$.
+
+Gdy $n$ jest duże (co jest ogólnie prawdą w zastosowaniach ubezpieczeniowych), pominięcie pojedynczej obserwacji $i$ nie ma tak naprawdę wpływu na oszacowane współczynniki regresji, co czyni podejście "leave-one-out" nieatrakcyjnym. Jednakże, gdy jest ono stosowane na danych zgrupowanych lub na problemach o małej skali (takich jak trójkąty run-off w rezerwach szkodowych), podejście to jest mimo wszystko pouczające.
+
+## 4.9 Reszty Surowe, Standaryzowane i Studentyzowane
+
+W tej sekcji omówiono różne rodzaje reszt, które służą do identyfikacji niedoskonałości modelu.
+
+### 4.9.1 Powrót do Normalnego Liniowego Modelu Regresji
+
+Reszty reprezentują różnicę między danymi a wartościami dopasowanymi, wytworzonymi przez rozważany model. Są one zatem ważne do sprawdzania adekwatności założenia GLM. W normalnym liniowym modelu regresji reszty surowe $R_i$ są zdefiniowane jako różnica między odpowiedzią $Y_i$ a wartościami dopasowanymi $\boldsymbol{x}_i^\top \boldsymbol{\hat{\beta}}$, tj.
+
+$$
+R_i = Y_i - \boldsymbol{x}_i^\top \boldsymbol{\hat{\beta}}.
+$$
+
+Mamy wówczas
+
+$$
+\text{E}[R_i] = 0, \quad \text{Var}[R_i] = \sigma^2(1 - h_{ii}) \quad \text{i} \quad \text{Cov}[R_i, R_j] = -\sigma^2 h_{ij}
+$$
+
+gdzie $h_{ij}$ jest $(i, j)$-tym elementem macierzy kapeluszowej $\boldsymbol{H}$ zdefiniowanej w (4.12).
+
+Reszty surowe dla obserwacji o dużej dźwigni (tj. dużym $h_{ii}$) mają mniejsze wariancje. Aby skorygować niestałą wariancję, możemy podzielić $R_i$ przez estymację jej odchylenia standardowego. Reszty standaryzowane definiuje się jako
+
+$$
+T_i = \frac{y_i - \hat{y}_i}{\hat{\sigma}\sqrt{1 - h_{ii}}} = \frac{R_i}{\hat{\sigma}\sqrt{1 - h_{ii}}}.
+$$
+
+Reszty standaryzowane mierzą, o ile odchyleń standardowych obserwacja jest oddalona od dopasowanego modelu. Jednakże, licznik i mianownik w $T_i$ nie są niezależne, co uniemożliwia mu podążanie za rozkładem t-Studenta. Mają one wariancję jednostkową, ale ich rozkład jest nieznany, ponieważ licznik i mianownik są skorelowane ($i$-ta obserwacja wchodzi w skład obu). Z tego powodu zamiast nich często używa się reszt studentyzowanych.
+
+Aby obejść problem zależności, uciekamy się do estymatorów typu "leave-one-out" $\hat{\beta}_{(-i)}$ i $\hat{\sigma}_{(-i)}$, które są oparte na wszystkich obserwacjach z wyjątkiem $i$-tej. Reszty studentyzowane są wówczas dane wzorem
+
+$$
+T_i^* = \frac{R_i}{\hat{\sigma}_{(-i)}\sqrt{1 - h_{ii}}}, \quad i = 1, 2, \dots, n.
+$$
+
+Reszty studentyzowane $T_i^*$ podążają za rozkładem t-Studenta z $n - p - 2$ stopniami swobody. Często $T_i^*$ jest preferowane nad $T_i$, ponieważ efektywniej identyfikuje obserwacje problematyczne.
+
+Wykresy reszt mogą ujawnić problemy z dopasowaniem modelu. Istnieje wiele sposobów wyświetlania reszt i powiązanych wielkości. Wykresy reszt względem dopasowanych wartości i każdej cechy zawartej w wyniku należą do najbardziej klasycznych wykresów diagnostycznych. Każda systematyczna zmienność lub wyizolowany punkt odkryty na wykresie na ogół wskazuje na naruszenie jednego lub więcej założeń leżących u podstaw rozważanego modelu.
+
+### 4.9.2 Reszty w GLM
+
+W nienormalnych GLM można zdefiniować kilka typów reszt w analogii do normalnego liniowego modelu regresji. Często odwołują się one do normalnego liniowego modelu regresji używanego w ostatnim kroku algorytmu IRLS. Surowa reszta $r_i$ jest po prostu różnicą $y_i - \hat{\mu}_i$ między obserwowaną odpowiedzią a oszacowaną średnią $\hat{\mu}_i = g^{-1}(\boldsymbol{x}_i^\top \boldsymbol{\hat{\beta}})$. Nazywa się je resztami odpowiedzi dla GLM.
+
+Często aktuariusze dopuszczają większe odchylenia między obserwacjami $y_i$ a dopasowanymi wartościami $\hat{\mu}_i$, gdy średnia wzrasta, ponieważ wariancja jest na ogół rosnącą funkcją średniej. To sprawia, że wykres surowych reszt jest mniej informatywny. Aby obejść ten problem, reszty surowe są normalizowane przez pierwiastek kwadratowy wariancji odpowiedzi. Prowadzi to do reszt Pearsona zdefiniowanych jako
+
+$$
+r_i^P = \frac{y_i - \hat{\mu}_i}{\sqrt{V(\hat{\mu}_i)/v_i}}.
+$$
+
+Reszty Pearsona są dziedziczone z modeli liniowych i nie uwzględniają kształtu rozkładu. Ponieważ dewiacja koryguje skośność odpowiedzi, w GLM zaproponowano do użycia inny resztę. Reszty dewiacyjne $r_i^D$ są zdefiniowane jako pierwiastek kwadratowy ze znakiem wkładu $i$-tej obserwacji do dewiacji. Pomaga to wykryć obserwacje, które w dużym stopniu zwiększają dewiację, a tym samym unieważniają model. W szczególności, rozłóżmy dewiację na
+
+$$
+D(\boldsymbol{y}, \hat{\boldsymbol{\mu}}) = 2 \sum_{i=1}^n (y_i(\tilde{\theta}_i - \hat{\theta}_i) - a(\tilde{\theta}_i) + a(\hat{\theta}_i)) = \sum_{i=1}^n d_i
+$$
+
+gdzie $d_i = d(y_i, \hat{\theta}_i)$ zostało wprowadzone w (4.19). Reszty dewiacyjne są wtedy zdefiniowane jako
+
+$$
+r_i^D = \text{sign}(y_i - \hat{\mu}_i)\sqrt{d_i}.
+$$
+
+Tutaj notacja "sign" oznacza znak wielkości w nawiasach:
+
+$$
+\text{sign}(y_i - \hat{\mu}_i) = \begin{cases} 1 & \text{if } y_i > \hat{\mu}_i \\ -1 & \text{w przeciwnym razie}. \end{cases}
+$$
+
+Reszty dewiacyjne są bardziej odpowiednie w otoczeniu GLM i często są preferowaną formą reszt. W przypadku rozkładu normalnego reszty Pearsona i dewiacyjne są identyczne. Należy jednak zauważyć, że analityk nie szuka normalności w resztach dewiacyjnych, ponieważ ich rozkład próbkowy pozostaje nieznany. Chodzi o brak dopasowania i szukanie wzorców widocznych na resztach: jeśli aktuariusz wykryje jakiś wzorzec na resztach wykreślonych względem
+
+- dopasowanych wartości,
+- cech zawartych w scoringu lub
+- cech nieujętych w modelu
+
+wtedy coś jest nie tak i należy podjąć jakieś działania. Na przykład, jeśli aktuariusz wykryje pewną strukturę w resztach wykreślonych względem nieujętej cechy, wówczas cecha ta powinna zostać zintegrowana ze scoringiem. Jeśli istnieją wzorce w resztach względem każdej cechy zawartej w scoringu, wówczas odpowiednia cecha nie jest prawidłowo zintegrowana ze scoringiem (powinna zostać przekształcona, lub aktuariusz powinien porzucić GLM na rzecz modelu addytywnego). Czasami interesujące jest również wykreślenie reszt względem współrzędnych przestrzennych lub czasowych, dla których mogą istnieć wzorce. Wzorce w rozrzucie (wykryte przez wykreślenie reszt względem dopasowanych wartości) mogą wskazywać na naddyspersję lub, bardziej ogólnie, na użycie niewłaściwej relacji średnia-wariancja.
+
+Reszty standaryzowane uwzględniają różne dźwignie. Rozważmy macierz kapeluszową (4.12) pochodzącą z ostatniej iteracji algorytmu IRLS. Wartości dźwigni $h_{ii}$ mierzą dźwignię, czyli potencjał obserwacji do wpływania na dopasowane wartości. Duża wartość $h_{ii}$ wskazuje, że $i$-ta obserwacja jest wrażliwa na odpowiedź $y_i$. Duże dźwignie zazwyczaj oznaczają, że odpowiednie cechy są w jakiś sposób nietypowe. Standaryzowane reszty, zwane również resztami odpowiadającymi, są wtedy dane przez
+
+$$
+t_i^P = \frac{r_i^P}{\sqrt{\phi(1 - h_{ii})}} \quad \text{i} \quad t_i^D = \frac{r_i^D}{\sqrt{\phi(1 - h_{ii})}}.
+$$
+
+W przeciwieństwie do normalnego liniowego modelu regresji, gdzie standaryzowane reszty mają rozkład normalny, rozkład reszt w GLM jest ogólnie nieznany. Dlatego zakres reszt jest trudny do oceny, ale można je badać pod kątem struktury i dyspersji, wykreślając je względem dopasowanych wartości lub niektórych cech. Dźwignia mierzy tylko potencjał wpływu na dopasowanie, podczas gdy miary wpływu bardziej bezpośrednio mierzą efekt każdej obserwacji na dopasowanie. Odbywa się to zazwyczaj poprzez badanie zmiany w dopasowaniu po pominięciu tej obserwacji. W GLM można to zrobić, patrząc na zmiany w oszacowaniach współczynników regresji. Statystyka Cooka mierzy odległość między $\boldsymbol{\hat{\beta}}$ a $\boldsymbol{\hat{\beta}}_{(-i)}$ uzyskaną przez pominięcie $i$-tego punktu danych $(y_i, \boldsymbol{x}_i)$ ze zbioru uczącego.
+
+### 4.9.3 Reszty Indywidualne lub Grupowe
+
+Obliczenie wkładu każdej obserwacji do dewiacji może dostosować się do kształtu, ale nie do dyskrecji obserwacji. Często reszty indywidualne dla odpowiedzi dyskretnych są trudne do zinterpretowania, ponieważ dziedziczą strukturę wartości odpowiedzi. Na przykład, dla odpowiedzi binarnych reszty często skupiają się wokół dwóch krzywych, jednej dla obserwacji "0" i drugiej dla obserwacji "1". Dla zliczeń, reszty indywidualne koncentrują się wokół obserwacji "0", obserwacji "1", obserwacji "2" itd. 
+
+Poprzez agregację reszt indywidualnych na duże grupy podobnych ryzyk, aktuariusz unika pozornej struktury wytworzonej przez całkowitoliczbową naturę odpowiedzi. Dzieje się tak, ponieważ wiemy z Rozdz. 2, że odpowiedzi podążające za rozkładem Poissona z dużą średnią lub rozkładem dwumianowym z dużą liczebnością są w przybliżeniu normalne. Reszty dewiacyjne obliczone na danych zagregowanych dają znacznie lepsze wskazania co do adekwatności modelu dla odpowiedzi.
+
+Przypomnijmy również, że GLM służą do obliczania czystych premii. Stąd analityk jest zainteresowany estymacją wartości oczekiwanych, a nie przewidywaniem konkretnego wyniku. Dlatego dane można grupować przed oceną wyników modelu.
+
+## 4.10 Klasyfikacja Ryzyka w Ubezpieczeniach Komunikacyjnych
+
+Aby podsumować wszystkie dotychczas przedstawione pojęcia, przeanalizujmy teraz większy zbiór danych związany z ubezpieczeniami komunikacyjnymi. Odpowiedzią jest tutaj liczba szkód zgłoszonych przez ubezpieczonego kierowcę w ramach ubezpieczenia od odpowiedzialności cywilnej.
+
+### 4.10.1 Opis Zbioru Danych
+
+#### 4.10.1.1 Dostępne Cechy i Odpowiedzi
+
+Przedstawmy pokrótce dane użyte do zilustrowania technik opisanych w tym rozdziale. Zbiór danych odnosi się do portfela belgijskich ubezpieczeń komunikacyjnych OC obserwowanego pod koniec lat 90. Obejmuje on 14 504 umowy z łączną ekspozycją wynoszącą 11 183.68 poliso-lat. Są to pojazdo-lata, ponieważ każda polisa obejmuje pojedynczy pojazd, ale niektóre umowy obowiązują tylko przez część roku.
+
+Zmienne zawarte w pliku są następujące:
+
+*   **AgePh**: Wiek ubezpieczającego w ostatnie urodziny (na 1 stycznia), w 5 grupach od G1 do G5 o rosnącym starszeństwie.
+*   **Gender**: Płeć ubezpieczającego, mężczyzna lub kobieta.
+*   **PowerCat**: Moc samochodu, w czterech kategoriach od C1 do C4 o rosnącej mocy.
+*   **Expor**: Liczba dni obowiązywania polisy w okresie obserwacji.
+*   **CitySize**: Wielkość miasta, w którym mieszka ubezpieczający, z trzema kategoriami: duże, średnie lub małe.
+
+Oprócz tych cech, zarejestrowano liczbę szkód **Nclaim** zgłoszonych przez każdego ubezpieczającego w okresie obserwacji. Jest to odpowiedź badana w tej sekcji.
+
+#### 4.10.1.2 Skład Portfela w Odniesieniu do Cech
+
+Górny lewy panel na Rys. 4.11 przedstawia rozkład ekspozycji na ryzyko w portfelu. Około 60% polis było obserwowanych przez cały rok. Biorąc pod uwagę rozkład ekspozycji na ryzyko, widzimy, że wznowienia i wygaśnięcia polis są rozłożone w ciągu roku. Należy zauważyć, że firmy ubezpieczeniowe często tworzą nowy rekord za każdym razem, gdy następuje zmiana cech (na przykład ubezpieczający kupuje nowy samochód lub przeprowadza się w inne miejsce). To wyjaśnia stosunkowo dużą liczbę umów z ekspozycją znacznie mniejszą niż jeden. Struktura wiekowa portfela jest również opisana na Rys. 4.11 (tamże górny prawy panel), podobnie jak skład zbioru danych pod względem płci, wielkości miasta, w którym mieszka ubezpieczający, oraz mocy samochodu. Widzimy, że większość ubezpieczonych kierowców należy do grupy wiekowej G2, około dwie trzecie umów obejmuje kierowcę płci męskiej, rozkład mocy wykazuje kształt litery U, a umowy są równomiernie rozłożone na trzy typy miast.
+
+Dolny prawy panel na Rys. 4.11 przedstawia histogram zaobserwowanych liczby szkód na polisę. Widzimy, że większość polis (dokładnie 12 458) nie wygenerowała żadnej szkody. Około 10% portfela wygenerowało jedną szkodę (1 820 umów). Następnie, 206 umów wygenerowało 2 szkody, 17 umów wygenerowało 3 szkody, 2 umowy 4 szkody i była jedna polisa z 5 szkodami. Daje to globalną częstość szkód równą 20,53% na poziomie portfela (co jest dość wysokie w porównaniu z dzisiejszymi częstościami szkód na poziomie 6-7% na rynku belgijskim).
+
+#### 4.10.1.3 Związek Między Cechami
+
+Użyjmy współczynnika V Craméra do wykrycia cech, które są ze sobą powiązane. Rysunek 4.12 przedstawia wartości V Craméra między cechami, a także między odpowiedzią a cechami. Widzimy, że powiązania są raczej słabe, z wyjątkiem związku między Mocą a Płcią. Ale pozostaje on stosunkowo umiarkowany w każdym przypadku. Ponadto, odpowiedź wydaje się być słabo powiązana z poszczególnymi cechami. Jest to typowe dla danych dotyczących liczby szkód w ubezpieczeniach ze względu na heterogeniczność obecną w danych i dyskretność odpowiedzi.
+
+### 4.10.2 Marginalny Wpływ Cech na Liczbę Szkód
+
+Badania ubezpieczeniowe generalnie zaczynają się od analiz jednoczynnikowych, czyli marginalnych, podsumowujących dane odpowiedzi dla każdej wartości cechy, ale bez uwzględniania wpływu innych cech. Efekty marginalne czterech ciągłych cech na roczne częstości szkód są przedstawione na Rys. 4.13. Widzimy, że oszacowana częstość szkód dla każdego poziomu cech kategorycznych. Najlepsze oszacowania (odpowiadające okręgom) są otoczone przedziałami ufności. Wyniki te można uzyskać za pomocą analizy GLM Poissona obejmującej pojedynczą cechę, dzięki czemu przedziały ufności są łatwo wyprowadzane z rozkładu próby oszacowanych współczynników regresji.
+
+Pomimo stosunkowo niskich wartości V Craméra, widzimy, że częstości szkód wydają się zależeć od cech w zwykły sposób, malejąc wraz z wiekiem ubezpieczającego, większe dla kierowców płci męskiej, rosnące wraz z wielkością miasta, podczas gdy wpływ mocy jest na tym etapie trudniejszy do zinterpretowania. Oczywiście, są to tylko efekty marginalne, które mogą być zniekształcone przez korelację istniejącą między cechami, dlatego potrzebujemy analizy GLM uwzględniającej wszystkie cechy, aby prawidłowo ocenić wpływ każdej cechy na oczekiwaną liczbę szkód.
+
+### 4.10.3 Analiza GLM Poissona dla Liczby Szkód
+
+Rozkład Poissona jest naturalnym kandydatem do modelowania liczby szkód zgłaszanych przez ubezpieczających. Typowym założeniem w tych okolicznościach jest to, że warunkowa średnia częstość szkód może być zapisana jako funkcja wykładnicza wyniku liniowego ze współczynnikami do oszacowania na podstawie danych.
+
+Zaczynamy od modelu uwzględniającego wszystkie cechy. Poziomy odniesienia dla cech binarnych to te najliczniej występujące, zgodnie z wyjaśnionymi powyżej wytycznymi. Używamy
+
+$$
+\text{offset}_i = \ln(\text{ExpoR}_i / 365).
+$$
+
+Wyniki uzyskane za pomocą funkcji `glm` oprogramowania R są wyświetlone w Tabeli 4.10.
+
+**Tabela 4.10** Wynik funkcji `glm` w R dla dopasowania modelu do danych TPL. Liczba iteracji scoringu Fishera: 6
+
+| Współczynnik    | Oszacowanie | Błąd stand. | wartość z | Pr(>\|z\|)           |   |
+|:----------------|:------------|:------------|:----------|:---------------------|:--|
+| Intercept       | -1.46605    | 0.05625     | -26.063   | < 2 x 10<sup>-16</sup> | *** |
+| Female          | -0.12532    | 0.05567     | -2.209    | 0.02714              | * |
+| Age G2          | 0.25232     | 0.08865     | 2.846     | 0.00442              | ** |
+| Age G3          | -0.30633    | 0.05999     | -5.106    | 3.29 x 10<sup>-7</sup> | *** |
+| Age G4          | -0.32670    | 0.05854     | -5.581    | 2.40 x 10<sup>-8</sup> | *** |
+| Age G5          | -0.46584    | 0.06215     | -7.495    | 6.62 x 10<sup>-14</sup>| *** |
+| Power C2        | 0.08483     | 0.05430     | 1.562     | 0.11819              |   |
+| Power C3        | 0.07052     | 0.06211     | 1.135     | 0.25622              |   |
+| Power C4        | 0.07930     | 0.06082     | 1.304     | 0.19230              |   |
+| CitySize Large  | 0.24548     | 0.04955     | 4.954     | 7.25 x 10<sup>-7</sup> | *** |
+| CitySize Small  | -0.09414    | 0.05340     | -1.763    | 0.07790              |  |
+
+Widzimy, że wpływ wieku, płci i wielkości miasta jest zgodny z wstępną analizą marginalną. Moc nie wydaje się istotnie wpływać na oczekiwaną częstość szkód. Jednak wyniki przedstawione w Tabeli 4.10 nie są wystarczające, aby stwierdzić, że moc nie jest potrzebna w GLM. Powodem jest to, że ta cecha kategoryczna została zakodowana za pomocą trzech zmiennych zero-jedynkowych, więc w Tabeli 4.10 przeprowadzane są trzy testy, po jednym dla każdego poziomu różnego od kategorii odniesienia C1. Ponieważ nie kontrolujemy całkowitego błędu związanego z wykorzystaniem wniosków z tych trzech testów jednocześnie, wartości p-wartości wyświetlane w Tabeli 4.10 nie dają aktuariuszowi odpowiedniego narzędzia do podjęcia decyzji, czy moc można usunąć ze scoringu.
+
+Dewiacja zerowa wynosi 9 508.6 na 14 503 stopniach swobody, a dewiacja resztkowa 9 363.5 na 14 493 stopniach swobody. To pokazuje, że model regresji Poissona wyjaśnia tylko niewielką część dewiacji. AIC wynosi 13 625. Jak omówiono wcześniej, Tabela 4.10 sugeruje, że moc nie wydaje się być czynnikiem ryzyka. Aby formalnie sprawdzić, czy moc można wykluczyć z modelu GLM, porównujemy modele z i bez tej cechy za pomocą tabeli analizy dewiacji. Różnica w dewiacjach modeli z i bez mocy wynosi 3.0654 z 3 stopniami swobody. Odpowiadająca p-wartość wynosi 38.17%, co potwierdza, że moc nie jest istotna dla wyjaśnienia liczby szkód.
+
+Co więcej, wydaje się, że dwa ostatnie poziomy CitySize można połączyć. Sprawdzamy, czy to uproszczenie modelu znacząco pogarsza dopasowanie za pomocą tabeli analizy dewiacji. Różnica w dewiacjach między początkowym modelem uwzględniającym wszystkie cechy a modelem bez Mocy i z dwoma ostatnimi poziomami CitySize połączonymi wynosi 6.2137 z 4 stopniami swobody. Odpowiadająca p-wartość 18.37% wskazuje, że grupowanie nie pogarsza znacząco dopasowania. Po ponownym dopasowaniu modelu odkrywamy, że oszacowane współczynniki regresji dla kategorii wiekowych G3 i G4 są odpowiednio równe -0.30054 i -0.31933, przy błędach standardowych odpowiednio równych 0.05984 i 0.05801. To sugeruje, że poziomy G3 i G4 Wieku można połączyć. Potwierdzono to za pomocą tabeli analizy dewiacji, ponieważ różnica w dewiacjach wynosi 6.2867 z 5 stopniami swobody dla modelu początkowego w porównaniu z uproszczonym.
+
+**Tabela 4.11** Wynik funkcji `glm` w R dla ostatecznego modelu regresji Poissona dla danych TPL. Liczba iteracji scoringu Fishera: 6
+
+| Współczynnik   | Oszacowanie | Błąd stand. | wartość z | Pr(>\|z\|)            |   |
+|:---------------|:------------|:------------|:----------|:----------------------|:--|
+| Intercept      | -1.76608    | 0.04183     | -42.216   | < 2 x 10<sup>-16</sup>  | *** |
+| Female         | -0.11779    | 0.04435     | -2.656    | 0.00791               | ** |
+| Age G1         | 0.54798     | 0.08933     | 6.134     | 8.55 x 10<sup>-10</sup> | *** |
+| Age G2         | 0.31040     | 0.04756     | 6.527     | 6.71 x 10<sup>-11</sup> | *** |
+| Age G5         | -0.14506    | 0.06276     | -2.311    | 0.02081               | * |
+| CitySize Large | 0.29026     | 0.04300     | 6.751     | 1.47 x 10<sup>-11</sup> | *** |
+
+P-wartość 27.93% pokazuje, że dalsze grupowanie jest zgodne z danymi. Ponieważ ekspozycja jest teraz w połączonej grupie wiekowej G3-G4, ta ostatnia staje się nowym poziomem odniesienia.
+
+Po tych krokach mamy teraz ostateczny model podsumowany w Tabeli 4.11. Dewiacja zerowa 9 508.6 na 14 503 stopniach swobody jest teraz porównywana z dewiacją resztkową 9 369.8 na 14 498 stopniach swobody. Ta ostatnia jest wyższa niż odpowiadająca wartość dla początkowego modelu obejmującego wszystkie cechy. Uproszczony model mimo to oferuje lepsze dopasowanie, co wskazuje wartość AIC, która zmniejszyła się z 13 625 do 13 621.
+
+Widzimy, że reszty oparte na obserwacjach indywidualnych dziedziczą strukturę odpowiedzi, z dolną krzywą odpowiadającą polisom bez szkód, następną dla polis, które zgłosiły 1 szkodę, 2 szkody itd. Reszty obliczone na podstawie danych zgrupowanych pozwalają uniknąć tej pułapki. Dokładniej, dane indywidualne są grupowane zgodnie z cechami wchodzącymi do ostatecznego modelu (płeć, wiek z 4 poziomami i wielkość miasta) i dodawane są ekspozycje. To tworzy podsumowany zbiór danych z 16 grupami. Oszacowane współczynniki regresji pozostają niezmienione przez grupowanie, ale reszty można teraz ponownie obliczyć (zauważ, że reszty dewiacyjne nie są addytywne). Wynikowe zgrupowane reszty są wyświetlane na dolnym panelu Rys. 4.14. Po wykreśleniu względem wartości kapeluszowych i uzupełnieniu odległościami Cooka na Rys. 4.15, uzyskane reszty wydają się wspierać dopasowanie modelu, ponieważ żadna klasa ryzyka nie wykazuje jednocześnie dużych odległości Cooka i dźwigni. Widzimy na Rys. 4.16, że prognozy modelu są w dużej mierze zgodne z doświadczeniem portfela: klasy ryzyka plasują się bardzo blisko linii 45 stopni, zwłaszcza te najliczniej występujące.
+
+## 4.11 Quasi-Wiarygodność, M-Estymacja i Pseudo-Wiarygodność
+
+### 4.11.1 Estymacja Quasi-Wiarygodności
+
+Wiemy, że wybór rozkładu do przeprowadzenia analizy GLM jest równoznaczny z wyborem funkcji wariancji, która wiąże wariancję odpowiedzi ze średnią. Algorytm IRLS (iteracyjnie ważonych najmniejszych kwadratów) uwzględnia jedynie warunkową średnią i wariancję odpowiedzi $Y_i$, biorąc pod uwagę cechy $x_i$. Dokładniej, o ile możemy wyrazić transformowaną średnią odpowiedzi $Y_i$ jako funkcję liniową cech $x_i$ i zapisać funkcję wariancji dla $Y_i$ (wyrażając warunkową wariancję $Y_i$ jako funkcję jej średniej $\mu_i$ i parametru dyspersji $\phi$), możemy zastosować algorytm IRLS i uzyskać oszacowane współczynniki regresji. Możemy to zrobić nawet bez pełnego specyfikowania rozkładu dla $Y_i$.
+
+Podejście to jest określane jako estymacja quasi-wiarygodności i zachowuje wiele dobrych właściwości estymacji największej wiarygodności, pod warunkiem, że próba jest wystarczająco duża (co jest generalnie prawdą w zastosowaniach ubezpieczeniowych). Chociaż estymatory quasi-wiarygodności mogą nie być asymptotycznie nieobciążone, są one zgodne (consistent) i asymptotycznie normalne, z macierzą wariancji-kowariancji, którą można oszacować na podstawie danych. Quasi-wiarygodność jest analogiczna do estymacji metodą najmniejszych kwadratów z potencjalnie nienormalnymi odpowiedziami: o ile zależność między odpowiedzią a zmiennymi objaśniającymi jest liniowa, wariancja jest stała, a obserwacje są wzajemnie niezależne, estymacja metodą najmniejszych kwadratów ma zastosowanie. Wnioskowanie jest dość odporne na brak normalności, o ile próba jest duża. Biorąc pod uwagę ramy GLM, ważną częścią specyfikacji modelu jest funkcja łącząca i funkcje wariancji, podczas gdy wnioski analizy regresji są mniej wrażliwe na faktyczny rozkład odpowiedzi w dużych próbach.
+
+Istnieje zaleta stosowania podejścia quasi-wiarygodności dla modeli z funkcjami wariancji odpowiadającymi rozkładom dwumianowemu i Poissona. Zwykłe GLM dwumianowe i Poissona zakładają $\phi = 1$, podczas gdy odpowiadające im GLM quasi-dwumianowe i quasi-Poissona pozwalają, aby dyspersja $\phi$ była wolnym parametrem. Jest to szczególnie przydatne w modelowaniu naddyspersji (overdispersion), która jest powszechnie obecna w danych dotyczących liczby szkód ubezpieczeniowych, a także niedodyspersji (underdispersion) wynikającej z sumowania wskaźników Bernoulliego o różnych prawdopodobieństwach sukcesu.
+
+Naddyspersja odnosi się do sytuacji, w której warunkowa wariancja odpowiedzi jest większa niż wariancja implikowana przez rozkład ED (Exponential Dispersion) użyty do dopasowania modelu. Oznacza to, że $\text{Var}[Y|\boldsymbol{X}=\boldsymbol{x}] > \text{E}[Y|\boldsymbol{X}=\boldsymbol{x}]$ w przypadku Poissona. Istnieje kilka powodów, dla których w danych pojawia się naddyspersja, w tym:
+
+-   odpowiedzi $Y_{i1}$ i $Y_{i2}$ nie mają tego samego rozkładu, mimo że dzielą te same cechy $\boldsymbol{x}_{i1} = \boldsymbol{x}_{i2}$. Dzieje się tak, ponieważ brakuje pewnych informacji i istnieje pewna resztkowa, niemodelowana heterogeniczność.
+-   obserwacje mogą być skorelowane lub sklastrowane, podczas gdy określona struktura kowariancji błędnie zakłada dane niezależne.
+
+Model quasi-Poissona jest przykładem podejścia quasi-wiarygodności, estymującego średnią odpowiedź z wariancją równą $\phi\mu$ (rozszerzając model Poissona, dla którego $\phi=1$). Naddyspersyjny Poisson, czyli ODP (overdispersed Poisson), odnosi się do konkretnego przypadku, w którym $\phi>1$. W rezerwach szkodowych ODP jest często używany.
+
+## 4.12 Podsumowanie na temat GLM
+
+Podejście GLM do modelowania danych posiada wiele dogodnych właściwości, które czynią je szczególnie atrakcyjnym do prowadzenia badań ubezpieczeniowych. Wymieńmy kilka z tych właściwości, które zostały omówione w tym rozdziale:
+
+*   dyskretna lub skośna natura odpowiedzi jest uwzględniana bez konieczności wcześniejszej transformacji danych szkodowych;
+*   liniowy scoring jest łatwo interpretowalny i komunikowalny, co czyni go idealnym dla komercyjnych taryf składek (przejrzystość, ograniczenia marketingowe itp.);
+*   GLM są łatwo dopasowywane do danych ubezpieczeniowych za pomocą metody największej wiarygodności, z pomocą algorytmu IRLS, który wydaje się być ogólnie skuteczny z numerycznego punktu widzenia;
+*   GLM rozszerzają metodę MMT (metodę sum brzegowych) zapoczątkowaną przez amerykańskich aktuariuszy w latach 60., co ułatwiło jej przyjęcie przez społeczność aktuarialną w latach 90., dostarczając analitykom odpowiednich interpretacji dla równań wiarygodności przy kanonicznej funkcji łączącej.
+
+Oprócz tych zalet, GLM mają również kilka poważnych ograniczeń:
+
+*   liniowa struktura scoringu jest zbyt prymitywna dla technicznej taryfy składek, gdzie nieliniowe, przestrzenne lub wielopoziomowe czynniki ryzyka muszą być odpowiednio zintegrowane w skali scoringu;
+*   GLM nie uwzględniają automatycznie interakcji;
+*   współliniowość jest problemem;
+*   jak również przypadki „dużego $p$”, co sprawia, że ręczna procedura selekcji zmiennych zilustrowana w tym rozdziale jest nieosiągalna.
+
+Należy również pamiętać, że cała historia dotyczy korelacji i że nie można wyciągać stanowczych wniosków na temat możliwego związku przyczynowo-skutkowego między cechami a odpowiedzią.
