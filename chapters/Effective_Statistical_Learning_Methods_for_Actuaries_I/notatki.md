@@ -1543,3 +1543,80 @@ Oprócz tych zalet, GLM mają również kilka poważnych ograniczeń:
 *   jak również przypadki „dużego $p$”, co sprawia, że ręczna procedura selekcji zmiennych zilustrowana w tym rozdziale jest nieosiągalna.
 
 Należy również pamiętać, że cała historia dotyczy korelacji i że nie można wyciągać stanowczych wniosków na temat możliwego związku przyczynowo-skutkowego między cechami a odpowiedzią.
+
+## 5.1 Wprowadzenie
+
+Z Rozdziału 4 wiemy, że GLM (Uogólnione Modele Liniowe) unifikują metody regresji dla różnorodnych dyskretnych i ciągłych wyników typowo spotykanych w badaniach ubezpieczeniowych. Podstawą GLM jest założenie, że dane pochodzą z prób z rozkładu ED (Exponential Dispersion) oraz że scoring jest liniową kombinacją obserwowanych cech, powiązaną ze średnią odpowiedzią za pomocą monotonicznej transformacji.
+
+Jednakże GLM przypisują pełną wiarygodność (credibility) obserwacjom w tym sensie, że scoring (lub równoważnie, średnia odpowiedź) jest zakładany jako znany dokładnie, z dokładnością do błędu estymacji. W praktyce, z Rozdziału 1 wiemy, że istnieje wiele informacji, do których ubezpieczyciel nie ma dostępu. Oznacza to, że część scoringu pozostaje ogólnie nieznana dla aktuariusza, a to typowo powoduje:
+
+(i) naddyspersję (overdispersion) w danych przekrojowych (czyli danych obserwowanych w jednym okresie) oraz
+(ii) korelację szeregową w danych podłużnych lub panelowych (czyli gdy jednostki są obserwowane przez kilka okresów, a odpowiedź jest obserwowana w wielu momentach).
+
+Formalnie, wróćmy do dekompozycji informacji na dostępne cechy $\boldsymbol{X}_i$ i ukryte $\boldsymbol{X}_i^+$ zaproponowanej w Rozdz. 1. Biorąc pod uwagę $\boldsymbol{X}_i=\boldsymbol{x}_i$ oraz $\boldsymbol{X}_i^+=\boldsymbol{x}_i^+$, prawdziwy scoring powinien wynosić
+
+$$
+\text{prawdziwy scoring}_i = \boldsymbol{\beta}^T \boldsymbol{x}_i + \boldsymbol{\gamma}^T \boldsymbol{x}_i^+,
+$$
+
+przy czym niektóre składowe $\boldsymbol{\beta}$ mogą być równe zero (podobnie jak obserwowalne cechy mogą stać się nieistotne, gdy ukryta informacja staje się dostępna). Oznacza to, że GLM uwzględniają tylko scoring $\boldsymbol{\beta}^T \boldsymbol{x}_i$ oparty na dostępnych czynnikach ryzyka $\boldsymbol{X}_i=\boldsymbol{x}_i$, podczas gdy brakuje części $\boldsymbol{\gamma}^T \boldsymbol{x}_i^+$. Aby uwzględnić brakującą część, jawnie przyznajemy, że istnieje błąd, gdy używamy scoringu $\boldsymbol{\beta}^T \boldsymbol{x}_i$, a model regresji opiera się na scoringu roboczym zdefiniowanym jako
+
+$$
+\text{scoring roboczy}_i = \boldsymbol{\beta}^T \boldsymbol{x}_i + \mathcal{E}_i,
+$$
+
+gdzie składnik losowy $\mathcal{E}_i$ odpowiada za brakującą część $\gamma^T \boldsymbol{X}_i^+$. Jednakże, i jest to kluczowe dla właściwej interpretacji wyników, uważamy, że $\mathcal{E}_i$ jest tylko resztkowym efektem, tak że oszacowana wartość $\boldsymbol{\beta}$ przy użyciu scoringu roboczego może różnić się od swojej oszacowanej wartości w prawdziwym scoringu, z powodu błędu pominiętej zmiennej (jak wyjaśniono w Rozdz. 4). Zatem GLMM (Uogólnione Liniowe Modele Mieszane) dzielą scoring na dwie części:
+
+* (i) pierwsza $\boldsymbol{x}_i^T \boldsymbol{\beta}$ odpowiada za obserwowalne cechy, jak w Rozdz. 4. Tutaj, $\boldsymbol{x}_i^T \boldsymbol{\beta}$ reprezentuje efekty stałe w scoringu.
+* (ii) druga, zwana efektem losowym $\mathcal{E}_i$, reprezentuje brakujący komponent z powodu częściowej informacji.
+
+Prowadzi to do modelu efektów mieszanych, obejmującego zarówno efekty stałe, jak i losowe. Zatem w GLMM występują dwa typy komponentów: efekty stałe i losowe. Efekt stały jest nieznaną stałą, którą chcemy estymować na podstawie dostępnych danych. Jest to przypadek dla wektora $\boldsymbol{\beta}$ współczynników regresji w GLM. W przeciwieństwie do tego, efekt losowy jest zmienną losową. Dlatego nie ma sensu estymować efektu losowego. Zamiast tego, dążymy do estymacji parametrów rządzących rozkładem efektu losowego oraz do rewizji jego rozkładu po zaobserwowaniu odpowiedzi (korekty a posteriori dające rozkład predykcyjny).
+
+Efekty losowe mogą również wychwytywać zależności w czasie, przestrzeni lub pomiędzy różnymi grupami utworzonymi w portfelu (dzielącymi podobne charakterystyki). Na przykład, jeśli odpowiedź jest mierzona wielokrotnie dla tego samego ubezpieczającego, wówczas składnik losowy $\mathcal{E}_i$ dodany do liniowego scoringu odpowiada za zależność szeregową obserwacji związanych z tą samą umową, obserwowaną w czasie. Ta sama konstrukcja może być również użyta do modelowania zależności przestrzennej w ubezpieczeniach katastroficznych lub do radzenia sobie z wielopoziomowymi czynnikami z rzadko obsadzonymi kategoriami. Przykłady cech kategorycznych z wieloma poziomami obejmują klasyfikację modeli samochodów w ubezpieczeniach komunikacyjnych lub sektor działalności w ubezpieczeniach od odpowiedzialności cywilnej pracodawcy, z dużą ilością danych dla niektórych poziomów i ograniczoną ekspozycją dla innych. Bezpośrednie uwzględnienie takiej cechy w GLM jest generalnie niemożliwe, więc są one skutecznie traktowane za pomocą efektów losowych w tym rozdziale. Prowadzi to do GLMM, otwierając drogę do modelowania zależności i korekt wiarygodności (credibility) opartych na przeszłej historii szkodowej.
+
+Warto zauważyć, że modele przedstawione w tym rozdziale oferują potężne narzędzia do implementacji szerokiej gamy modeli wiarygodności. Na przykład, scoring może być uzyskany z innych technik, takich jak metody oparte na drzewach (Trufin i in. 2019) lub sieciach neuronowych (Hainaut i in. 2019). Model mieszany następnie nakłada efekty losowe na te scoringi, które są traktowane jako znane stałe i włączane do offsetu. Rozkład predykcyjny efektów losowych następnie wychwytuje część doświadczenia szkodowego, której nie da się wyjaśnić dostępnymi cechami, i uwzględnia ten efekt przy obliczaniu przyszłych składek.
+
+Jako zastosowanie modeli mieszanych przedstawionych w tym rozdziale, rozważamy systemy Pay-How-You-Drive (PHYD) lub Usage-Based (UB) dla ubezpieczeń komunikacyjnych, które dostarczają aktuariuszom danych behawioralnych czynników ryzyka, takich jak pora dnia, średnie prędkości i inne nawyki jazdy. Dane te są zbierane, gdy umowa jest w mocy, za pomocą urządzeń telematycznych zainstalowanych w pojeździe. Zatem należą one do kategorii informacji a posteriori, które stają się dostępne po zawarciu umowy. Z tego powodu muszą być one włączone do taryfy aktuarialnej za pomocą mechanizmów aktualizacyjnych, zamiast być włączane do scoringu jako zwykłe, obserwowalne a priori cechy. W tym rozdziale pokazujemy, że wielowymiarowe modele mieszane mogą być używane do opisu wspólnej dynamiki danych telematycznych i częstotliwości szkód. Przyszłe składki, uwzględniające przeszłe doświadczenie, mogą być następnie określone przy użyciu predykcyjnego rozkładu charakterystyk szkodowych, biorąc pod uwagę przeszłą historię. Takie podejście pozwala aktuariuszowi radzić sobie z różnorodnymi sytuacjami spotykanymi w praktyce ubezpieczeniowej, od nowych kierowców bez danych telematycznych, po kierowców z różnym stażem i tych, którzy używają swojego pojazdu w różnym stopniu, generując zróżnicowane ilości danych telematycznych.
+
+## 5.2 Rozkłady Mieszane
+
+### 5.2.1 Heterogeniczność i Naddyspersja
+
+Ukryta informacja, jak również zależność szeregowa, mają tendencję do zawyżania wariancji liczby szkód ponad tę zakładaną przez wybrany rozkład ED.
+
+Stąd pominięcie istotnych zmiennych przy ustalaniu stawek nieuchronnie prowadzi do nadmiernej dyspersji.
+Mimo swojej popularności jako punkt wyjścia w analizie danych zliczeniowych, specyfikacja Poissona jest często nieodpowiednia z powodu nieobserwowanej heterogeniczności. Wygodnym sposobem uwzględnienia tego zjawiska jest wprowadzenie do modelu efektu losowego. Jest to zgodne z klasyczną konstrukcją wiarygodności w naukach aktuarialnych. Rysunek 5.1 przedstawia ważone średnie i wariancje dla zbioru danych dotyczących ubezpieczeń komunikacyjnych badanego w rozdziale 4.10. Wyraźnie widzimy, że pary średnia-wariancja dla klas o wysokiej ekspozycji leżą powyżej przekątnej, co sugeruje, że średnia rzeczywiście przekracza wariancję w rozważanym portfelu.
+Prawidłowe uwzględnienie nadmiernej dyspersji daje większe błędy standardowe i wartości p w porównaniu ze zwykłą regresją Poissona. Oznacza to, że regresja Poissona jest na ogół zbyt optymistyczna, przypisując zbyt duże znaczenie dostępnym cechom.
+
+W praktyce oznacza to, że cechy uznane za nieistotne przez regresję Poissona mogą być bezpiecznie zignorowane w dalszej analizie. Jednakże niektóre cechy wybrane przez regresję Poissona mogą zostać później odrzucone, gdy zastosuje się bardziej odpowiednie narzędzia inferencyjne.
+
+### 5.2.3 Mieszany rozkład Poissona
+
+#### 5.2.3.1 Definicja
+
+Mówiąc słowami, mieszany rozkład Poissona pojawia się, gdy istnieją różne grupy ubezpieczających, z których każda charakteryzuje się określoną średnią Poissona. Jeśli wszyscy członkowie grupy mają tę samą częstotliwość szkód, wówczas rozkład Poissona jest odpowiedni do modelowania liczby szkód. Jednakże, jeśli osoby mają różne poziomy skłonności do wypadków, to rozkład wypadków jest heterogeniczny w odniesieniu do osób, a mieszany rozkład Poissona zastępuje jednorodny rozkład Poissona przy rozważaniu liczby szkód zgłoszonych przez osobę losowo pobraną z grupy.
+
+Każdy mieszany model Poissona indukuje nadmierną dyspersję.
+
+#### 5.2.3.3 Rozkład ujemny dwumianowy NB1
+
+Zauważ, że quasi-Poisson GLM dostarcza średnio-wariancyjną zależność w postaci $V(\mu) = \phi\mu$ dla pewnego dodatniego parametru dyspersji $\phi$, który może być większy lub mniejszy niż 1. Jeśli $\phi > 1$ to odpowiada to nadmiernej dyspersji, ale możemy mieć również $\phi < 1$ tak, że model odpowiada poddyspersji, co oznacza, że wariancja jest mniejsza w porównaniu z rozkładem Poissona.
+
+Quasi-Poisson GLM dostarcza tego samego oszacowania punktowego $\hat{\beta}$ co zwykły Poisson GLM. Cena za wprowadzenie parametru dyspersji w quasi-Poisson GLM polega na tym, że wszystkie błędy standardowe parametrów są mnożone przez pierwiastek kwadratowy z $\phi$. Na przykład, jeśli $\phi=4$, to wszystkie błędy standardowe są podwajane, a parametry stają się mniej znaczące. Oznacza to, że niektóre cechy, które wydawały się znaczące, mogą stać się nieistotne w porównaniu z wynikiem w quasi-Poisson GLM, gdy $\phi$ jest duże. Uruchomienie analizy regresji opartej na rozkładzie ujemnym dwumianowym prowadzi do różnych wyników, gdy stosowana jest maksymalna wiarygodność.
+
+#### 5.2.3.6 Modele z nadmiarem zer
+
+Często obserwowana liczba zer w zbiorach danych ubezpieczeniowych jest znacznie większa niż w przypadku założenia Poissona. Na przykład w ubezpieczeniach komunikacyjnych można to wytłumaczyć niechęcią niektórych ubezpieczonych kierowców do zgłaszania wypadków. Ze względu na mechanizmy bonus-malus lub plany oceny doświadczenia, niektóre roszczenia nie są zgłaszane do towarzystwa ubezpieczeniowego, ponieważ dla ubezpieczonych taniej jest odfrunąć stronę trzecią (lub zapłacić za własne ubezpieczenie autocasco) niż płacić zwiększone składki. Udziały własne również zwiększają proporcję zer, ponieważ małe roszczenia nie są zgłaszane przez ubezpieczonych kierowców.
+
+Rozkład ujemny dwumianowy pośrednio odpowiada za to zjawisko, ponieważ zwiększa masę prawdopodobieństwa przy zerze w porównaniu z prawem Poissona z tą samą średnią. Inne, bardziej bezpośrednie podejście polega na zastosowaniu mieszaniny dwóch rozkładów. Rozkład Poissona z inflacją zer (ZIP) otrzymuje się w ten sposób, łącząc zdegenerowany rozkład dla przypadku zerowego z rozkładem Poissona. Funkcja prawdopodobieństwa ZIP jest wtedy dana przez
+
+$$
+p_Y(y) = 
+\begin{cases} 
+\pi + (1-\pi)\exp(-\lambda) & \text{dla } y=0 \\
+(1-\pi)\exp(-\lambda)\frac{\lambda^y}{y!} & \text{dla } y=1, 2, \ldots
+\end{cases} \quad (5.5)
+$$
+
+gdzie $\lambda$ jest parametrem Poissona, a $\pi$ jest dodatkową masą prawdopodobieństwa przy zerze.
+Modele z inflacją zer dopuszczają dwa różne źródła zerowych odpowiedzi. Jedno odpowiada osobom, które nigdy nie produkują roszczeń (reprezentując proporcję $\pi$ populacji), drugie osobom, które mogą zgłaszać roszczenia, ale skutkują zerową odpowiedzią. Nawet jeśli daje to lepsze dopasowanie do dostępnych danych, proces generujący dane jest nieco wątpliwy w zastosowaniach ubezpieczeniowych, ponieważ polisa ubezpieczeniowa nie ma wartości dla proporcji $\pi$ populacji, która nigdy nie zgłasza żadnych roszczeń. Ponadto, gdy aktuariusz stosuje seryjne dane, mieszanina zapada się w jeden rozkład Poissona, gdy tylko ubezpieczający zgłosi co najmniej jedno roszczenie (co uniemożliwia wiedzę, czy należy on do subpopulacji objętej ubezpieczeniem).
