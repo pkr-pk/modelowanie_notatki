@@ -1620,3 +1620,304 @@ $$
 
 gdzie $\lambda$ jest parametrem Poissona, a $\pi$ jest dodatkową masą prawdopodobieństwa przy zerze.
 Modele z inflacją zer dopuszczają dwa różne źródła zerowych odpowiedzi. Jedno odpowiada osobom, które nigdy nie produkują roszczeń (reprezentując proporcję $\pi$ populacji), drugie osobom, które mogą zgłaszać roszczenia, ale skutkują zerową odpowiedzią. Nawet jeśli daje to lepsze dopasowanie do dostępnych danych, proces generujący dane jest nieco wątpliwy w zastosowaniach ubezpieczeniowych, ponieważ polisa ubezpieczeniowa nie ma wartości dla proporcji $\pi$ populacji, która nigdy nie zgłasza żadnych roszczeń. Ponadto, gdy aktuariusz stosuje seryjne dane, mieszanina zapada się w jeden rozkład Poissona, gdy tylko ubezpieczający zgłosi co najmniej jedno roszczenie (co uniemożliwia wiedzę, czy należy on do subpopulacji objętej ubezpieczeniem).
+
+## 6.1 Wprowadzenie
+
+Widzieliśmy w rozdziale 4, że GLM oferują skuteczne rozwiązanie wielu problemów w naukach aktuarialnych. Jednakże założenie o liniowości dotyczące scoringu jest czasami wątpliwe: nieliniowe efekty ciągłych cech, takich jak wiek ubezpieczającego, mogą wymagać uwzględnienia w scoringu, aby odzwierciedlić rzeczywiste doświadczenie. Cechy ciągłe mogą efektywnie wchodzić do GLM tylko wtedy, gdy są odpowiednio przekształcone, aby odzwierciedlić ich prawdziwy wpływ na scoring. Niestety, rzadko jest jasne, jak zmienne powinny być przekształcone przed włączeniem ich do scoringu. Powszechną praktyką w firmach ubezpieczeniowych jest modelowanie nieliniowych efektów za pomocą wielomianów. Jednak wielomiany niskiego stopnia często nie są wystarczająco elastyczne, aby uchwycić strukturę obecną w danych, podczas gdy zwiększanie ich stopnia powoduje niestabilne oszacowania, zwłaszcza dla ekstremalnych wartości cech.
+
+Inne podejście powszechnie stosowane w praktyce polega na zastąpieniu cechy ciągłej cechą kategorialną, uzyskaną przez podzielenie jej dziedziny na umiarkowaną liczbę podprzedziałów i założenie, że cecha ma stały wpływ na scoring w każdym przedziale. Oznacza to, że funkcja dająca efekt cechy ciągłej na scoring jest zakładana jako odcinkowo stała. Takie grupowanie oczywiście skutkuje utratą informacji. Ponadto nie ma ogólnej zasady określającej optymalne punkty odcięcia, więc grupowanie może obciążać ocenę ryzyka.
+
+Uogólnione Modele Addytywne (GAM) weszły do zestawu narzędzi aktuariusza, aby radzić sobie z cechami ciągłymi w sposób elastyczny. W tym ujęciu cechy ciągłe wchodzą do modelu w semi-parametrycznym predyktorze addytywnym. W ubezpieczeniach majątkowych i osobowych, wpływ wieku ubezpieczającego, mocy pojazdu lub sumy ubezpieczonej można modelować za pomocą GAM. GAM pozwalają również aktuariuszowi analizować zmiany ryzyka według obszaru geograficznego, uwzględniając możliwą interakcję między cechami ciągłymi (szerokość i długość geograficzna dające położenie przestrzenne, w tym przypadku). Inne interakcje ogólnie obecne w danych obejmują wiek i moc, a także płeć i wiek w ubezpieczeniach komunikacyjnych. Mogą one być również uchwycone przez GAM.
+
+W ubezpieczeniach na życie statystyki śmiertelności są często agregowane dla grup ubezpieczonych o tych samych cechach (takich jak wiek, płeć czy rodzaj produktu), aby przeprowadzić analizę GLM przy użyciu regresji Poissona. Liczby zgonów pochodzące z danych ekspozycji mogą być następnie modelowane przy użyciu regresji Poissona. Kluczowym argumentem teoretycznym legitymizującym regresję Poissona dla GLM jest to, że przy łagodnych założeniach prawdopodobieństwo Poissona wydaje się być proporcjonalne do prawdziwego prawdopodobieństwa. Dlatego wnioskowanie statystyczne oparte na prawdopodobieństwie Poissona nie jest restrykcyjne. Jest to szczególnie interesujące z praktycznego punktu widzenia, ponieważ pozwala aktuariuszom uciekać się do dostępnego oprogramowania statystycznego wykonującego regresję Poissona do budowy tablic trwania życia.
+
+Gdy cechy ciągłe są uwzględniane w analizie przeżycia, takie jak suma ubezpieczona dla ubezpieczonych, agregacja według grup wymaga wstępnego, subiektywnego grupowania. Sprytniejsze wykorzystanie GAM pozwala uniknąć tego problematycznego kroku i pozwala aktuariuszowi analizować indywidualne dane o śmiertelności za pomocą regresji Poissona. Niezbędna baza danych zawiera jeden rekord na polisę i rok (ten sam format co w ubezpieczeniach komunikacyjnych, na przykład) z binarną zmienną wskazującą zgon i numerem referencyjnym łączącym wszystkie rekordy związane z tą samą polisą. Czasami wymaga to rozszerzenia bazy danych poprzez podzielenie każdej indywidualnej obserwacji na zestaw niezależnych realizacji zliczeń Poissona o tych samych niezmiennych w czasie zmiennych objaśniających, lub pozwolenie, aby ewoluowały one w czasie, gdy są dynamiczne (takie jak osiągnięty wiek, na przykład). To sprawia, że podejście GAM jest równie skuteczne w badaniach ubezpieczeń na życie i majątkowych.
+
+## 6.2 Struktura GAM
+
+### 6.2.1 Rozkład odpowiedzi
+
+Podobnie jak w przypadku GLM, rozważamy odpowiedzi $Y_1, Y_2, \ldots, Y_n$ mierzone na $n$ osobach. Dla każdej odpowiedzi aktuariusz ma wektor $\boldsymbol{x}_i = (1, x_{i1}, \ldots, x_{ip})^{\text{T}}$ o wymiarze $p+1$ zawierający odpowiednie cechy (uzupełnione o 1 z przodu, gdy w scoringu uwzględniony jest wyraz wolny). Cechy są teraz podzielone na $p_{\text{cat}}$ zmiennych kategorialnych $x_{i1}, \ldots, x_{ip_{\text{cat}}}$ i $p_{\text{cont}} = p - p_{\text{cat}}$ zmiennych ciągłych $x_{i, p_{\text{cat}}+1}, \ldots, x_{ip}$.
+Biorąc pod uwagę warunkową informację zawartą w $x_i$, zakładamy, że odpowiedzi $Y_i$ są niezależne z rozkładem warunkowym w rodzinie ED gruntownie przestudiowanej w rozdziale 2. W szczególności, $Y_i$ podlega rozkładowi (2.3) z kanonicznym parametrem $\theta_i$ i tym samym parametrem dyspersji $\phi$. Sposób, w jaki $\theta_i$ jest powiązany z informacją zawartą w $\boldsymbol{x}_i$, zostanie wyjaśniony w następnej kolejności.
+
+### 6.2.2 Addytywne scoringi
+
+W praktyce wiele cech jest kategorialnych i efektywnie wchodzi do GLM po zakodowaniu za pomocą zmiennych binarnych. Jednak niektóre ważne zmienne scoringowe są ciągłe: w taryfikacji ubezpieczeń komunikacyjnych, wiek lub moc samochodu są tego przykładem. W ubezpieczeniach na życie i zdrowie, wiek i suma ubezpieczona są cechami ciągłymi. W ogólności, ciągłość odnosi się tutaj do cechy ilościowej z wieloma odrębnymi, uporządkowanymi wartościami. Na przykład wiek jest generalnie rejestrowany jako wiek w ostatnie urodziny, więc przyjmuje tylko wartości całkowite (18, 19, 20, ... w ubezpieczeniach komunikacyjnych, na przykład). Niemniej jednak jest uważany za cechę ciągłą, ponieważ oczekujemy płynnego postępu ryzyka wraz z wiekiem, bez nagłych skoków.
+
+Wyjaśnijmy teraz ograniczenia analizy GLM, jeśli chodzi o rozpoznanie, że ciągła cecha $x^*$ ma nieliniowy wpływ na scoring. Wprowadzenie $x^*$ bezpośrednio do scoringu GLM sprowadza się do założenia liniowego wpływu $x^*$ na skali scoringu: z funkcją log-link, oznacza to, że średnia odpowiedź jest ograniczona do wykładniczego wzrostu wraz z $x^*$. Jednak takie monotoniczne zachowanie wykładnicze może nie być poparte danymi, jak pokazano w następnym przykładzie.
+
+**Przykład 6.2.1** Rozważmy na przykład wiek w taryfikacji ubezpieczeń komunikacyjnych. Wprowadzenie wieku bezpośrednio do scoringu GLM oznacza liniowy wpływ wieku na skalę scoringu. Rozważmy na przykład liczbę szkód $Y_i$ zgłoszonych przez ubezpieczającego $i$ i model Poissona GLM
+
+$$
+Y_i \sim \mathcal{Poi} \left( e_i \exp \left( \beta_0 + \sum_{j=1}^{p} \beta_j x_{ij} + \beta_{\text{age}} \text{age}_i \right) \right),
+$$
+
+gdzie $e_i$ to ekspozycja na ryzyko, a $x_i$ podsumowuje wszystkie dostępne informacje o ubezpieczającym $i$, oprócz osiągniętego wieku. Widzimy, że oczekiwana liczba szkód
+
+$$
+\mu_i = e_i \exp \left( \beta_0 + \sum_{j=1}^{p} \beta_j x_{ij} + \beta_{\text{age}} \text{age}_i \right)
+$$
+
+albo rośnie (jeśli $\beta_{\text{age}} > 0$) albo maleje (jeśli $\beta_{\text{age}} < 0$) wraz z wiekiem w sposób wykładniczy. Jednak wpływ wieku na oczekiwaną liczbę szkód w ubezpieczeniach komunikacyjnych ma zazwyczaj kształt litery U (co może być zniekształcone, ponieważ dzieci pożyczają samochód rodziców i powodują wypadki), co jest sprzeczne z wykładniczym zachowaniem implicite zakładanym przez GLM.
+
+Wprowadzenie ciągłej cechy $x^*$ w sposób liniowy na skali scoringu może prowadzić do błędnej oceny ryzyka, podczas gdy traktowanie jej jako cechy kategorialnej z wieloma poziomami może
+- wprowadzić dużą liczbę dodatkowych parametrów regresji;
+- nie rozpoznać oczekiwanej płynnej zmiany średniej odpowiedzi w $x^*$ (ponieważ parametry regresji odpowiadające każdemu poziomowi nie są ze sobą powiązane po zakodowaniu za pomocą zmiennych binarnych).
+
+Ogólnie rzecz biorąc, powoduje to dużą zmienność w oszacowanych współczynnikach regresji związanych z różnymi poziomami cechy ciągłej $x^*$, gdy jest ona traktowana jako cecha kategorialna.
+Zanim GAM weszły do zestawu narzędzi aktuariusza, klasyczne podejście do radzenia sobie z cechami ciągłymi było czysto parametryczne: każda cecha ciągła $x^*$ była przekształcana przed włączeniem do scoringu. Ogólnie rzecz biorąc, funkcja dająca wpływ $x^*$ na scoring jest znana, liniowa, wielomianowa lub odcinkowo stała. Tak więc funkcja jest znana z dokładnością do skończonej liczby parametrów do oszacowania na podstawie danych i wracamy do przypadku GLM. Jednakże, bez względu na to, jaką formę parametryczną określimy, zawsze wykluczamy wiele możliwych funkcji.
+Aktuariusze często oczekują płynnej zmiany średniej odpowiedzi wraz z $x^*$. Oczekuje się, że oczekiwana liczba szkód w ubezpieczeniach komunikacyjnych lub wskaźnik śmiertelności w ubezpieczeniach na życie będzie się zmieniać bardzo płynnie wraz z wiekiem, bez nagłych skoków z jednego wieku do drugiego. W tym rozdziale wyjaśniamy, jak dopasować model z addytywnym scoringiem pozwalającym na nieliniowe efekty ciągłych cech na skali scoringu, które są wyuczone z dostępnych danych. Poniższy przykład w ubezpieczeniach komunikacyjnych wyjaśnia wartość dodaną GAM w tym zakresie.
+
+**Przykład 6.2.2** Kontynuujmy z przykładem 6.2.1. Rozważmy dane $(Y_i, e_i, x_i)$. Możemy zobaczyć ekspozycje na ryzyko $e_i$ (w polisach-latach), a także wynik uzyskany przez traktowanie wieku liniowo na skali scoringu (linia prosta) lub jako cechy kategorialnej, z określonym współczynnikiem regresji dla każdego wieku (okręgi). Widzimy, że żadne z tych podejść nie jest zadowalające: efekt liniowy pomija efekt wieku w kształcie litery U, podczas gdy współczynniki regresji specyficzne dla wieku nie są wystarczająco gładkie.
+To jest powód, dla którego przechodzimy na
+
+$$
+\beta_0 + \sum_{j=1}^{p} \beta_j x_{ij} + b(\text{age}_i)
+$$
+
+dla pewnej nieznanej funkcji $b(\cdot)$. Nie zakłada się niczego o $b(\cdot)$ poza tym, że jest to gładka funkcja wieku. W istocie, $x \mapsto \hat{b}(x)$ jest wygładzoną wersją współczynników regresji $x \mapsto \hat{\beta}_x$ uzyskanych przez traktowanie wieku $x$ jako cechy kategorialnej (tak, że wiek jest zakodowany przez zestaw zmiennych binarnych, po jednej dla każdego obserwowanego wieku w bazie danych z wyjątkiem referencyjnego). W naszym przykładzie $\hat{\beta}_x$ są okręgami widocznymi w prawym górnym panelu Rys. 6.1. W szczególności wyjaśniamy, jak dopasować model
+
+$$
+Y_i \sim \mathcal{Poi} \left( e_i \exp \left( \beta_0 + \sum_{j=1}^{p} \beta_j x_{ij} + b(\text{age}_i) \right) \right).
+$$
+
+Wynik jest wyświetlony w prawym dolnym panelu Rys. 6.1. Widzimy, że $\hat{b}(\cdot)$ ładnie wygładza $\hat{\beta}_x$ z wyjątkiem starszych grup wiekowych, gdzie występuje duża zmienność (z powodu małych ekspozycji dla każdego wieku, jak widać na lewym górnym panelu Rys. 6.1).
+
+Kryterium używane do wyboru stopnia gładkości na podstawie danych wyświetlonych w lewym dolnym panelu, zwane LCV od Likelihood Cross Validation, zostanie wyjaśnione w następnej sekcji.
+
+Ta sama sytuacja występuje w ubezpieczeniach na życie. Biorąc pod uwagę Rys. 4.2, widzimy, że prawdopodobieństwa zgonu nie zależą liniowo od wieku w całym zakresie wiekowym. Prawdopodobieństwa zgonu są raczej wysokie dla noworodków, następnie gwałtownie spadają do niższego poziomu śmiertelności dla dzieci i nastolatków. Dla wieku 20-25 lat obserwuje się tak zwany "wzgórek wypadkowy", który jest szczególnie wyraźny u mężczyzn. Od 30 roku życia prawdopodobieństwa zgonu rosną niemal liniowo wraz z wiekiem (na skali scoringu). W starszym wieku roczne prawdopodobieństwa zgonu pozostają rosnące, ale o innym kształcie. Surowe $\hat{q}_x = D_x/l_x$ wyświetlone na Rys. 4.2 można postrzegać jako wynik binomialnego GLM, gdzie wiek $x$ jest traktowany jako cecha kategorialna. Wynikowe oszacowane prawdopodobieństwa zgonu nie są połączone, więc wyraźnie widoczne są tam nieregularne zmiany.
+
+Tradycyjnie wiek jest uwzględniany w modelu za pomocą wielomianu. Zostało to zrobione w rozdziale 4 przy użyciu kwadratowej formuły Perksa. Aby odtworzyć funkcjonalną formę wieku dla wskaźników śmiertelności, zwykle wymagany jest wielomian rzędu szóstego lub wyższego, jeśli brany jest pod uwagę cały okres życia. Jednak wielomiany wyższego rzędu mają tendencję do pokazywania dzikich fluktuacji w regionach ogonowych (to jest dla bardzo młodych i bardzo starych grup wiekowych), a pojedyncze obserwacje w regionach ogonowych mogą silnie wpływać na krzywą.
+
+Inne podejście polega na oszacowaniu funkcjonalnej formy wieku w sposób nieparametryczny. W przeciwieństwie do podejścia parametrycznego, aktuariusz nie określa z góry określonej funkcji, ale pozwala danym określić optymalną formę. Metody estymacji nieparametrycznej obejmują wygładzanie splajnami lub lokalne metody GLM, jak wyjaśniono w następnych sekcjach.
+
+### 6.2.3 Funkcja łącząca
+
+Jesteśmy teraz gotowi, aby podać definicję GAM. Podobnie jak w przypadku GLM, odpowiedź $Y_i$ ma rozkład z rodziny ED. Cechy kategorialne $x_{i1}, \ldots, x_{i,p_{\text{cat}}}$ są łączone z cechami ciągłymi $X_i, p_{\text{cat}}+1, \ldots, x_{ip}$, tworząc addytywny scoring
+
+$$
+\text{score}_i = \beta_0 + \sum_{j=1}^{p_{\text{cat}}} \beta_j x_{ij} + \sum_{j=p_{\text{cat}}+1}^{p} b_j(x_{ij}).
+$$
+
+Niech $g$ będzie funkcją łączącą. Średnia $\mu_i$ z $Y_i$ jest powiązana z nieliniowym scoringiem przez zależność
+
+$$
+g(\mu_i) = \beta_0 + \sum_{j=1}^{p_{\text{cat}}} \beta_j x_{ij} + \sum_{j=p_{\text{cat}}+1}^{p} b_j(x_{ij}).
+$$
+
+Gładkie, nieokreślone funkcje $b_j$ oraz współczynniki regresji $\beta_0, \beta_1, \ldots, \beta_{p_{\text{cat}}}$ są szacowane na podstawie dostępnych danych przy użyciu technik przedstawionych w następnej sekcji (lokalne GLM lub splajny).
+
+GLM zakładają określoną formę dla funkcji $b_j$, taką jak liniowa lub kwadratowa, która może być oszacowana parametrycznie. Przeciwnie, GAM nie określają żadnej sztywnej formy parametrycznej dla $b_j$, ale pozostawiają je nieokreślone. Jedyne założenie dotyczące $b_j$ to gładkość. Ta elastyczność jest często pożądana w badaniach ubezpieczeniowych, gdzie skoki lub gwałtowne przerwy rzadko występują. I to proste założenie wydaje się być wystarczające do oszacowania $b_j$ za pomocą podejść semi-parametrycznych, takich jak lokalne GLM lub splajny.
+
+Ponieważ funkcja $b_j$ wymaga niewielkiej ilości informacji, musimy narzucić $E[b_j(X_{ij})] = 0$, aby mieć model identyfikowalny. W przeciwnym razie moglibyśmy dodawać i odejmować stałe do jednowymiarowych funkcji $b_j$, pozostawiając scoring niezmieniony. Ograniczenie to jest generalnie uwzględniane po ostatnim kroku estymacji, poprzez centrowanie wszystkich oszacowanych funkcji $b_j$ (odejmując średnią wartość przekształconej cechy).
+
+Oprócz funkcji jednowymiarowych, do scoringu mogą również wchodzić terminy interakcji w postaci $b_{jk}(x_{ij}, x_{ik})$ lub $b_{jkl}(x_{ij}, x_{ik}, x_{il})$. Dla więcej niż trzech cech jest generalnie niemożliwe dopasowanie terminów interakcji wyższego rzędu. Czasami przydatne jest uwzględnienie ograniczonych terminów w postaci $b_{jk}(x_{ij}, x_{ik})$ z argumentem, że produkt cech $j$-tej z $k$-tą, zwłaszcza gdy wielkość próby jest umiarkowana. Poniższe przykłady ilustrują użycie funkcji z dwoma argumentami w analizie GAM.
+
+**Przykład 6.2.3** Obecnie stało się powszechną praktyką, aby składka za ryzyko na jednostkę ekspozycji zmieniała się w zależności od obszaru geograficznego, gdy utrzymywane są wszystkie inne czynniki ryzyka. Na przykład w ubezpieczeniach komunikacyjnych większość firm przyjęła klasyfikację ryzyka w zależności od strefy geograficznej, w której mieszka ubezpieczający (np. miasto vs. wieś). Jeśli ubezpieczyciel chce wdrożyć dokładniejsze podziały kraju zgodnie z kodami pocztowymi, wówczas zmienność przestrzenna związana z czynnikami geograficznymi (tj. czynnikami społeczno-demograficznymi) może być uchwycona na mapie, reprezentowanej przez szerokość i długość geograficzną. Główne założenie tego podejścia jest takie, że charakterystyki roszczeń mają tendencję do bycia podobnymi w sąsiednich obszarach kodów pocztowych (po uwzględnieniu innych czynników ryzyka). GAM wykorzystują tę przestrzenną gładkość, pozwalając na transfer informacji do i z sąsiednich regionów.
+Efekt geograficzny można uchwycić poprzez lokalizację miejsca zamieszkania ubezpieczającego, reprezentowaną przez szerokość i długość geograficzną. Scoring zawiera wtedy termin postaci
+
+$$
+\ldots + b_{\text{spat}}(\text{szerokość}_i, \text{długość}_i) + \ldots
+$$
+
+gdzie funkcja $b_{\text{spat}}(\cdot, \cdot)$ jest zakładana jako gładka i szacowana na podstawie danych.
+
+**Przykład 6.2.4** Powszechnie spotykana interakcja w ubezpieczeniach komunikacyjnych obejmuje wiek i moc samochodu. Potencjalnie niebezpieczne mogą być potężne samochody prowadzone przez niedoświadczonych kierowców, podczas gdy wpływ mocy zmienia się wraz z wiekiem. Oznacza to, że scoring zawiera wtedy termin postaci
+
+$$
+\ldots + b(\text{moc}_i, \text{wiek}_i) + \ldots
+$$
+
+gdzie funkcja $b(\cdot, \cdot)$ jest zakładana jako gładka i szacowana na podstawie danych.
+
+Interakcje między cechami kategorialnymi i ciągłymi mogą być również uwzględnione w scoringu, jak pokazano w następnym przykładzie.
+
+**Przykład 6.2.5** Aby uwzględnić możliwą interakcję między wiekiem ubezpieczającego a płcią ($\text{płeć}_i = 1$, jeśli ubezpieczający $i$ jest mężczyzną, a $\text{płeć}_i=0$ w przeciwnym razie), predyktor zawiera
+
+$$
+b_1(\text{wiek}_i) + b_2(\text{wiek}_i)\text{płeć}_i
+$$
+
+W tym modelu funkcja $b_1$ odpowiada (nieliniowemu) wpływowi wieku dla kobiet, a $b_2$ odchyleniu od tego wpływu dla mężczyzn. Wpływ dla mężczyzn jest zatem dany przez sumę $b_1 + b_2$.
+
+Podsumowując, modele addytywne są znacznie bardziej elastyczne niż modele liniowe, ale pozostają interpretowalne, ponieważ oszacowaną funkcję $b_j$ można wykreślić, aby zwizualizować marginalną zależność między cechą ciągłą $x_{ij}$ a odpowiedzią. W porównaniu z parametrycznymi przekształceniami cech, takimi jak wielomiany, modele addytywne określają najlepsze przekształcenie $b_j$ bez żadnych sztywnych założeń parametrycznych poza gładkością. GAM oferują zatem podejście oparte na danych, mające na celu odkrycie odrębnego wpływu każdej cechy na scoring, przy założeniu, że jest on addytywny.
+
+## 6.3 Wnioskowanie w modelach GAM
+
+### 6.3.2 Splajny (Funkcje Sklejane)
+
+#### 6.3.2.2 Splajny Sześcienne (Kubiczne)
+
+Ograniczone rozwinięcie Taylora uzasadnia użycie splajnów: splajny są wielomianami kawałkami połączonymi w węzłach, aby stworzyć jedną gładką krzywą. Podstawową ideą splajnów sześciennych jest zastąpienie ciągłej cechy $x$ nowymi, które są transformacjami $x$, a mianowicie $x, x^2, x^3$ oraz $(x-\xi_j)_+^3$, w oparciu o rozwinięcie Taylora.
+
+## 6.4 Klasyfikacja Ryzyka w Ubezpieczeniach Komunikacyjnych
+
+W tej sekcji przeprowadzimy studium przypadku w ubezpieczeniach komunikacyjnych, aby zademonstrować znaczenie modeli GAM w ocenie ryzyka w ubezpieczeniach majątkowych i osobowych (Property and Casualty).
+
+### 6.4.1 Opis Zbioru Danych
+
+Zbiór danych dotyczy portfela belgijskich ubezpieczeń komunikacyjnych od odpowiedzialności cywilnej (OC) obserwowanego w roku 1997, obejmującego 162 468 umów ubezpieczeniowych.
+
+#### 6.4.1.1 Dostępne Cechy i Odpowiedzi
+
+Zmienne zawarte w bazie danych są następujące. Po pierwsze, mamy informacje o ubezpieczającym:
+
+*   `Gender` płeć ubezpieczającego, cecha kategorialna z dwoma poziomami: Mężczyzna i Kobieta;
+*   `AgePh` wiek ubezpieczającego w dniu ostatnich urodzin, cecha ciągła mierzona w latach, od 18 do 90;
+*   `District` kod pocztowy dystryktu w Belgii, w którym mieszka ubezpieczający.
+
+Następnie mamy informacje o ubezpieczonym pojeździe:
+
+*   `AgeCar` wiek pojazdu (na dzień 1 stycznia 1997), zaokrąglony w dół, w latach, od 0 do 20;
+*   `Fuel` paliwo pojazdu, cecha kategorialna z dwoma poziomami: Benzyna i Diesel;
+*   `PowerCat` moc samochodu, cecha kategorialna z pięcioma poziomami od C1 do C5 o rosnącej mocy;
+*   `Use` przeznaczenie samochodu, cecha kategorialna z dwoma poziomami: Prywatne i Służbowe.
+
+Na koniec mamy informacje o umowie wybranej przez ubezpieczającego:
+
+*   `Cover` zakres ochrony wybrany przez ubezpieczającego, cecha kategorialna z trzema poziomami,
+    -   albo tylko ubezpieczenie OC (poziom TP. Only),
+    -   albo ograniczone uszkodzenie materialne lub kradzież oprócz obowiązkowego ubezpieczenia OC (poziom Limited.MD),
+    -   albo ubezpieczenie autocasco (AC) oprócz obowiązkowego ubezpieczenia OC (poziom Comprehensive);
+*   `Split` liczba płatności składki rocznie, cecha kategorialna z czterema poziomami,
+    -   albo składka płatna raz w roku, oznaczona jako Yearly,
+    -   albo składka płatna dwa razy w roku, oznaczona jako Half-Yearly,
+    -   albo składka płatna cztery razy w roku, oznaczona jako Quarterly,
+    -   albo składka płatna co miesiąc, oznaczona jako Monthly.
+
+Oprócz tych cech, baza danych rejestruje również:
+
+*   `ExpoR` ekspozycja na ryzyko w latach (na podstawie liczby dni obowiązywania polisy w 1997 r.);
+*   `Nclaim` liczba szkód zgłoszonych przez każdego ubezpieczającego w 1997 r.
+*   `Cclaim` wynikowa łączna kwota roszczeń. Koszty szkód są wyrażone we frankach belgijskich, ponieważ euro zostało wprowadzone w Belgii dopiero później: 1 euro to w przybliżeniu 40 franków belgijskich.
+
+W tym rozdziale rozważamy `Nclaim` i odkładamy analizę `Cclaim` do Rozdziału 9. Dzieje się tak, ponieważ bardzo kosztowne szkody pojawiające się w bazie danych nie mogą być poprawnie opisane przez rozkłady z rodziny ED, takie jak Gamma czy Odwrotny Gaussowski. Na przykład duże szkody muszą najpierw zostać wyizolowane (a Teoria Wartości Ekstremalnych oferuje w tym celu dobre ramy), zanim pozostałe będą mogły być modelowane za pomocą GAM.
+
+#### 6.4.1.2 Skład Portfela w Odniesieniu do Cech
+
+Lewy górny panel na Rys. 6.8 przedstawia rozkład ekspozycji na ryzyko w portfelu. Większość (około 80%) polis była obserwowana przez cały rok 1997. Biorąc pod uwagę rozkład ekspozycji na ryzyko, widzimy, że zawarcia i wygaśnięcia polis są losowo rozłożone w ciągu roku. Pamiętaj, że powszechną praktyką jest rozpoczynanie nowej umowy za każdym razem, gdy dochodzi do zmiany jednego z elementów (np. gdy ubezpieczający przenosi się lub kupuje nowy samochód), co również skutkuje skróconymi ekspozycjami. Struktura płci portfela jest również opisana na Rys. 6.8, podobnie jak skład zbioru danych pod względem wieku pojazdu, mocy i rodzaju paliwa, a także zakresu ochrony wybranego przez ubezpieczających. Na Rys. 6.9 widzimy skład portfela w odniesieniu do płatności składki, wieku ubezpieczającego i użytkowania pojazdu.
+Całkowite ekspozycje na ryzyko dla poszczególnych dystryktów w Belgii (w skali logarytmicznej) są widoczne na Rys. 6.10. Dokładnie, widzimy tam czas trwania (w dniach) wszystkich polis, których posiadacze mieszkają w danym dystrykcie. Oczywiście firma sprzedaje więcej polis w centralnej części kraju. Ekspozycja na ryzyko jest mniejsza w dystryktach południowych. Czasami duże różnice w ekspozycji na ryzyko między sąsiednimi dystryktami można przypisać sposobowi sprzedaży polis w Belgii (głównie przez niezależnych brokerów współpracujących z kilkoma firmami ubezpieczeniowymi).
+
+### 6.4.2 Modelowanie Liczby Szkód
+
+Przeprowadzane są oddzielne analizy dla częstości i ciężkości szkód, włączając koszty likwidacji szkód, w celu stworzenia czystej składki. Takie podejście jest szczególnie istotne w ubezpieczeniach komunikacyjnych, gdzie czynniki ryzyka wpływające na dwa składniki czystej składki są zazwyczaj różne i gdzie wymagany jest oddzielny model dla liczby szkód do budowy systemów oceny doświadczenia (takich jak system bonus-malus).
+
+Oznaczmy przez $Y_i$ liczbę szkód zgłoszonych przez ubezpieczającego $i, i=1, \dots, n$. Tutaj $Y_i$ reprezentuje liczbę wypadków, za które firma musiała wypłacić odszkodowanie, w których ubezpieczający $i$ został uznany za odpowiedzialnego w 1997 roku. Mamy obserwacje $(y_i, e_i, \boldsymbol{x}_i), i=1, 2, \dots, n$, gdzie $y_i$ reprezentuje obserwowaną liczbę szkód, $e_i$ ekspozycję na ryzyko, a $x_i$ zbiór dostępnych cech.
+
+#### 6.4.2.1 Marginalny Wpływ Cech na Liczbę Szkód
+
+Lewy górny panel na Rys. 6.11 przedstawia histogram obserwowanych liczb szkód na polisę. Widzimy tam, że większość polis (142 902 z 162 468) w portfelu nie wygenerowała żadnych szkód. Około 10% portfela wyprodukowało jedną szkodę (16 328 umów). Następnie 1539 umów wyprodukowało 2 szkody, 156 umów 3 szkody, 17 umów 4 szkody i były 2 polisy z 5 szkodami. Daje to średnią częstotliwość szkód równą 13.93% na poziomie portfela (co jest raczej wysokie w porównaniu do dzisiejszych doświadczeń, gdzie częstości szkód są o około połowę niższe, ale pamiętajmy, że doświadczenie portfela pochodzi z 1997 roku).
+
+Każde badanie ubezpieczeniowe zaczyna się od analiz jednowymiarowych, czyli marginalnych, podsumowujących dane odpowiedzi dla każdej wartości każdej cechy, ale bez uwzględniania wpływu innych cech. Marginalne wpływy cech na roczne częstości szkód są przedstawione na Rys. 6.11 i 6.12, z wyjątkiem wieku ubezpieczającego, który jest przedstawiony na Rys. 6.13. Uzupełniliśmy estymacje punktowe średniej częstości szkód o 95% przedziały ufności, aby ustalić, czy różnica marginalna jest istotna, czy nie.
+
+Możemy tam zobaczyć, że:
+- pojazdy z silnikiem diesla mają tendencję do zgłaszania większej liczby szkód. Można to wyjaśnić tym, że pojazdy te są droższe, ale oleje napędowe są tańsze w porównaniu do benzyny (przynajmniej taka była sytuacja, gdy dane były rejestrowane, pod koniec lat 90. w Belgii). W związku z tym ubezpieczający wybierający pojazdy z silnikiem diesla zazwyczaj przejeżdżają większe roczne przebiegi, co ogólnie zwiększa ekspozycję na wypadki.
+- kobiety-kierowcy mają tendencję do zgłaszania większej liczby szkód w porównaniu do mężczyzn (ale to odkrycie musi być rozpatrywane w kontekście interakcji między wiekiem ubezpieczającego a płcią, co jest opisane na Rys. 6.13, co doprecyzuje ten wniosek, jak wyjaśniono poniżej).
+- nowe samochody wydają się być bardziej ryzykowne, z plateau dla samochodów w średnim wieku i spadkiem średniej częstości szkód dla starszych pojazdów. Może to być związane z obowiązkowym corocznym przeglądem technicznym organizowanym w Belgii dla wszystkich pojazdów użytkowanych dłużej niż 3 lata. Ubezpieczający pokonujący dłuższe dystanse zazwyczaj skupiają się w niższych poziomach tej cechy (ponieważ mają tendencję do kupowania nowych samochodów, intensywnego ich użytkowania przez trzy lata, a następnie sprzedawania jako pojazdy używane).
+- średnia częstość szkód ma tendencję do wzrostu wraz z mocą samochodu. Efekt ten jest często widoczny w ubezpieczeniach komunikacyjnych i ogólnie tłumaczy się faktem, że mocniejsze samochody są trudniejsze w prowadzeniu. Należy zauważyć, że niektóre bardziej zaawansowane analizy jednocześnie uwzględniają moc i masę pojazdu, aby uwzględnić fakt, że cięższe pojazdy są zazwyczaj wyposażone w mocniejsze silniki.
+- jeśli dodatkowe gwarancje są wykupywane oprócz obowiązkowego ubezpieczenia OC, średnie częstości szkód są niższe w ubezpieczeniu OC. Sugeruje to, że kupowanie większej liczby gwarancji ujawnia niższy profil ryzyka (i wyklucza selekcję negatywną).
+- średnie częstości szkód są wyższe, gdy płatność składki jest rozłożona w ciągu roku. Zazwyczaj jest to przypisywane niższemu profilowi społeczno-ekonomicznemu, gdy rozłożenie płatności składki skutkuje wzrostem całkowitej kwoty składki. Ubezpieczający płacący składkę w kilku ratach są w ten sposób karani, a ten wybór ujawnia silne ograniczenia budżetowe, które mogą również opóźniać niezbędne naprawy ubezpieczonego pojazdu.
+- wydaje się, że nie ma wpływu sposobu użytkowania samochodu na średnią częstość szkód.
+
+Ponieważ wiek ubezpieczającego generalnie wchodzi w interakcję z płcią w ubezpieczeniach komunikacyjnych, w tym sensie, że młodzi kierowcy płci męskiej są bardziej niebezpieczni w porównaniu do młodych kierowców płci żeńskiej, na Rys. 6.13 przedstawiamy obserwowane częstości szkód oddzielnie dla kierowców płci męskiej i żeńskiej. Aby lepiej zwizualizować możliwą interakcję, oszacowaliśmy oddzielnie dla mężczyzn i kobiet średnie częstości szkód w zależności od wieku przy użyciu modelu GAM z pojedynczą cechą `AgePh` w interakcji z `Gender`. Daje to ostatni wykres na Rys. 6.13. Z tych wykresów jasno wynika, że istnieje interakcja między tymi dwiema cechami, ponieważ efekt wieku wyraźnie zależy od płci.
+
+Jednakże, te wykresy uzyskane z analiz jednowymiarowych są w najlepszym razie trudne do zinterpretowania. Rzeczywiście, z powodu ograniczonej ekspozycji w niektórych kategoriach, czasami obserwujemy raczej poszarpane zachowanie. Co więcej, te wykresy przedstawiają jednoczynnikowy wpływ dostępnych cech na roczną częstość szkód. Z powodu możliwych korelacji, pozornie wysokie częstości obserwowane na Rys. 6.11 i 6.12 mogą być przypisane mylącym efektom innych czynników ryzyka. Na przykład, wyższe częstości dla nowych samochodów mogą być tylko pozorne i wynikać z faktu, że nowe samochody są prowadzone w większości przez młodych, niedoświadczonych ubezpieczających. Dlatego musimy zbudować model wielowymiarowy, który wyizoluje wpływ każdego czynnika ryzyka i wygładzi wpływ cech ciągłych w ich zakresach.
+
+Rysunek 6.14 przedstawia średnią częstość szkód dla każdego belgijskiego dystryktu. Wstępne wygładzenie zostało wykonane, ponieważ mapa z surowymi częstościami szkód jest w najlepszym razie trudna do zinterpretowania, a nawet może być poważnie myląca (z powodu faktu, że surowe częstości mają tendencję do bycia znacznie bardziej ekstremalnymi w regionach o mniejszej ekspozycji na ryzyko). W związku z tym regiony z najmniej wiarygodnymi danymi zazwyczaj przyciągają główną uwagę wizualną. Jest to jeden z powodów, dla których w praktyce trudno jest próbować jakiegokolwiek wygładzania lub oceny "na oko".
+
+Z mapy nie wyłania się żaden wyraźny wzorzec, poza tym, że duże miasta są związane z wyższymi obserwowanymi częstościami szkód. Ponieważ profil ryzyka ubezpieczających mieszkających w tych dystryktach może się w dużym stopniu różnić, interpretacja takiej mapy nie jest możliwa, ponieważ miesza ona wiele różnych efektów. Model badany w następnym podrozdziale pozwala aktuariuszowi wyizolować efekty przestrzenne, po uwzględnieniu innych czynników ryzyka.
+
+#### 6.4.2.2 Model Regresji GAM dla Liczby Szkód
+
+Rozkład Poissona jest naturalnym kandydatem do modelowania liczby zgłaszanych szkód. Typowym założeniem w tych okolicznościach jest to, że warunkowa średnia częstość szkód może być zapisana jako funkcja wykładnicza addytywnego wyniku, który ma być oszacowany na podstawie danych.
+
+Zaczynamy od modelu uwzględniającego wszystkie dostępne informacje, pozwalającego na możliwą interakcję między wiekiem a płcią ubezpieczającego. Poziomy odniesienia dla cech kategorialnych są następujące: Benzyna dla `Fuel`, Mężczyzna dla `Gender`, C2 dla `Power`, TP. Only dla `Cover`, Yearly dla `Split` i Prywatne dla `Use`. Jest to zgodne z najliczniejszymi kategoriami widocznymi na Rys. 6.8 i 6.9. Domyślnie R porządkuje poziomy alfabetycznie, ale można to zmodyfikować za pomocą polecenia `C` określającego poziom bazowy lub odniesienia.
+
+Dopasowanie jest wykonywane za pomocą algorytmu `backfitting`. Procedura ta zbiegła się szybko: potrzebne były tylko trzy iteracje, z kryterium zatrzymania w postaci względnej różnicy w log-wiarygodnościach mniejszej niż $10^{-5}$. Rysunek 6.15 porównuje wartości parametrów uzyskanych w różnych iteracjach tego algorytmu dla cech kategorialnych. Rysunek 6.16 przedstawia estymowane efekty dla cech ciągłych. Widzimy, że początkowe estymacje są już bardzo bliskie ostatecznym. Rysunek 6.17 przedstawia różnicę między krokiem początkowym a ostatecznymi estymacjami dla poszczególnych dystryktów w Belgii. Ponownie widzimy, że różnica między początkowymi a ostatecznymi estymacjami jest raczej słaba.
+
+Niewielkie różnice między różnymi krokami algorytmu `backfitting` uzasadniają procedurę krok po kroku preferowaną przez wielu praktyków, którzy często zatrzymują się po pierwszym cyklu algorytmu `backfitting` i jedynie uwzględniają efekty w sposób progresywny, poprzez zamrażanie poprzednich estymacji.
+
+Skomentujmy krótko wynikowe dopasowanie. Zaczynamy od cech kategorialnych. Widzimy, że subskrybowanie większej liczby gwarancji niż obowiązkowe OC zmniejsza oczekiwaną liczbę szkód (co widać po ujemnych estymowanych współczynnikach regresji). Również prowadzenie pojazdu z silnikiem diesla wydaje się bardziej niebezpieczne. Badając nieliniową część wyniku (patrz Rys. 6.16), widzimy, że interakcja wiek-płeć jest istotna. Młodzi mężczyźni (poniżej 35 lat) mają tendencję do zgłaszania więcej wypadków niż młode kobiety, a także starsi mężczyźni (powyżej 80). Pomiędzy nimi, mężczyźni wydają się mniej niebezpieczni. Można to przypisać faktowi, że z powodu wysokich składek pobieranych od młodych posiadaczy polis, w Belgii powszechną praktyką było proszenie starszych krewnych (najczęściej ojca) o zakup polisy. Szczyt efektu wieku około 45 lat jest generalnie przypisywany wypadkom spowodowanym przez dzieci za kierownicą. Nowe samochody wydają się bardziej niebezpieczne niż starsze. Efekt staje się prawie stały po 4 latach. Pamiętaj, że w Belgii samochód nie podlega corocznemu przeglądowi technicznemu organizowanemu przez państwo przez pierwsze trzy lata. Kierowcy z wysokim rocznym przebiegiem często trzymają swój samochód tylko przez trzy lata, a następnie kupują nowy. Efekt geograficzny przedstawiony na Rys. 6.18 jest zgodny z naszymi oczekiwaniami, wskazując, że duże miasta są bardziej niebezpieczne pod względem częstotliwości szkód.
+
+Przeprowadźmy teraz analizę z pomocą funkcji `gam` zawartej w pakiecie R `mgcv`. Zaimplementowana jest tam ukarana estymacja największej wiarygodności, a optymalna wartość parametrów wygładzania jest wybierana za pomocą kryterium uogólnionej walidacji krzyżowej (GCV) podanej przez $D / (n - \text{edf})^2$, gdzie $D$ to dewiancja, a edf to równoważna liczba stopni swobody, lub przeskalowane $AIC$.
+
+Estymacje liniowej części wyniku, obejmujące cechy kategorialne, są przedstawione w Tabeli 6.1. Widzimy, że sposób użytkowania pojazdu nie ma istotnego wpływu na oczekiwaną liczbę szkód. Dlatego wykluczamy tę cechę z modelu i ponownie dopasowujemy model Poissona GAM. Wynikowe estymacje liniowej części wyniku są przedstawione w Tabeli 6.2. Widzimy, że pominięcie tej jednej zmiennej pozostawia pozostałe estymacje prawie niezmienione.
+
+Zauważ, że niektóre poziomy można by pogrupować. Na przykład, estymowane współczynniki regresji dla `Limited.MD` i `Comprehensive` nie różnią się istotnie, biorąc pod uwagę ich skojarzone błędy standardowe, więc moglibyśmy zdefiniować nową cechę `Cover2` z tylko dwoma poziomami, `TPL.Only` i `TPL+`, ta ostatnia łącząca poziomy `Limited.MD` i `Comprehensive`. Podobne grupowania można by osiągnąć dla `Split`.
+
+Rozważmy teraz dopasowanie nieliniowej części wyniku. Efekt wieku dla kobiet-kierowców ma edf równe 5.238 i jest wysoce istotny z $p$-wartością mniejszą niż $2 \times 10^{-16}$, podczas gdy edf związane z wiekiem dla mężczyzn-kierowców jest równe 6.132 z $p$-wartością mniejszą niż $2 \times 10^{-16}$. Pozostałe dwie cechy ciągłe są również wysoce istotne, z edf równym 7.878 i $p$-wartością $1.14 \times 10^{-13}$ dla wieku samochodu oraz edf równym 26.281 z $p$-wartością mniejszą niż $2 \times 10^{-16}$ dla efektu geograficznego. Estymowane funkcje są przedstawione na Rys. 6.19. Widzimy, że uzyskane wyniki są bardzo podobne do tych na Rys. 6.16, z wyjątkiem tego, że wartości są podane w skali logarytmicznej, a wynik dla efektu geograficznego nie jest narysowany na mapie z `gam`.
+
+**Tabela 6.1** Wynik funkcji `gam` z pakietu R `mgcv` dla dopasowania liczby szkód w ubezpieczeniu OC komunikacyjnym
+
+| Współczynnik        | Estymata   | Błąd Std. | wartość z | $\Pr(>\mid z\mid )$             |     |
+| ------------------- | ---------- | --------- | --------- | -------------------- | --- |
+| Intercept           | -2.12986   | 0.01641   | -129.812  | $<2 \times 10^{-16}$  | *** |
+| Fuel diesel         | 0.19219    | 0.01566   | 12.271    | $<2 \times 10^{-16}$  | *** |
+| Gender female       | 0.07499    | 0.01718   | 4.366     | $1.27 \times 10^{-5}$ | *** |
+| Cover comprehensive | -0.16264   | 0.02540   | -6.403    | $1.52 \times 10^{-10}$| *** |
+| Cover Limited.MD    | -0.15170   | 0.01796   | -8.444    | $<2 \times 10^{-16}$  | *** |
+| Split half-yearly   | 0.16614    | 0.01784   | 9.311     | $<2 \times 10^{-16}$  | *** |
+| Split monthly       | 0.30639    | 0.02212   | 13.854    | $<2 \times 10^{-16}$  | *** |
+| Split quarterly     | 0.36560    | 0.02545   | 14.365    | $<2 \times 10^{-16}$  | *** |
+| Use professional    | 0.03206    | 0.03349   | 0.957     | 0.338413             |     |
+| PowerCat C1         | -0.07913   | 0.01620   | -4.885    | $1.04 \times 10^{-6}$ | *** |
+| PowerCat C3         | 0.08000    | 0.02555   | 3.131     | 0.001741             | **  |
+| PowerCat C4         | 0.18747    | 0.04877   | 3.844     | 0.000121             | *** |
+| PowerCat C5         | 0.47399    | 0.18631   | 2.544     | 0.010955             | *   |
+
+**Tabela 6.2** Wynik funkcji `gam` z pakietu R `mgcv` dla dopasowania liczby szkód w ubezpieczeniu OC komunikacyjnym
+
+| Współczynnik        | Estymata   | Błąd Std. | wartość z | $\Pr(>\mid z\mid )$             |     |
+| ------------------- | ---------- | --------- | --------- | -------------------- | --- |
+| Intercept           | -2.12876   | 0.01637   | -130.075  | $<2 \times 10^{-16}$  | *** |
+| Fuel diesel         | 0.19320    | 0.01563   | 12.364    | $<2 \times 10^{-16}$  | *** |
+| Gender female       | 0.07484    | 0.01718   | 4.357     | $1.32 \times 10^{-5}$ | *** |
+| Cover comprehensive | -0.16073   | 0.02532   | -6.348    | $2.18 \times 10^{-10}$| *** |
+| Cover Limited.MD    | -0.15142   | 0.01796   | -8.430    | $<2 \times 10^{-16}$  | *** |
+| Split half-yearly   | 0.16565    | 0.01784   | 9.288     | $<2 \times 10^{-16}$  | *** |
+| Split monthly       | 0.30594    | 0.02211   | 13.837    | $<2 \times 10^{-16}$  | *** |
+| Split quarterly     | 0.36548    | 0.02545   | 14.360    | $<2 \times 10^{-16}$  | *** |
+| PowerCat C1         | -0.07956   | 0.01619   | -4.914    | $8.95 \times 10^{-7}$ | *** |
+| PowerCat C3         | 0.08150    | 0.02550   | 3.196     | 0.00139              | **  |
+| PowerCat C4         | 0.19092    | 0.04864   | 3.926     | $8.65 \times 10^{-5}$ | *** |
+| PowerCat C5         | 0.47702    | 0.18628   | 2.561     | 0.01045              | *   |
+
+## 6.6 Ilustracja numeryczna
+
+W celu zilustrowania podejścia zaproponowanego w poprzedniej sekcji, rozważmy następujący hipotetyczny portfel umów dożywotnich rent. Obejmuje on 100 000 polis bez duplikatów. Wiek rencistów wynosi od 65 do 105 lat. Są oni obserwowani przez trzy lata. Dostępne informacje składają się z dwóch cech ciągłych (osiągnięty wiek i suma ubezpieczenia) oraz cechy kategorycznej o dwóch poziomach (dwa możliwe kanały sprzedaży, oznaczone odpowiednio jako SC1 i SC2). Suma ubezpieczenia jest roczną kwotą świadczenia rentowego.
+
+Nadmieńmy, że portfel ten jest realistyczny, ale nie prawdziwy (ze względu na kwestie poufności). Śmiertelność została zasymulowana zgodnie z doświadczeniem rynku belgijskiego. W szczególności, referencyjne wskaźniki umieralności pochodzą z belgijskiej regulacyjnej tablicy trwania życia MR (specyfikacja Makehama), podczas gdy wpływ sumy ubezpieczenia jest inspirowany pracą Gschlossl i in. (2011).
+
+Rysunek 6.20 opisuje skład portfela. Przedstawione tam histogramy pokazują strukturę wieku, rozkład sumy ubezpieczenia oraz liczbę polis według kanału sprzedaży.
+
+Plik polis zawiera jeden rekord na umowę, jak pokazano w górnym panelu Tabeli 6.3. Każdy indywidualny rekord jest następnie dzielony na 1–3 rekordy (w zależności od pozostałego czasu życia), jak pokazano w drugim panelu Tabeli 6.3. Pierwszy rencista dożywa do końca okresu obserwacji i jest reprezentowany przez trzy roczne rekordy, każdy z całym rokiem ekspozycji i zerowym wskaźnikiem zgonu. Drugi rencista umiera w trzecim roku, będąc reprezentowanym przez trzy rekordy. Ostatni z nich uwzględnia zgon za pomocą wskaźnika, a ekspozycja jest zredukowana do czasu przeżycia w roku zgonu. Rencista umierający w drugim roku byłby reprezentowany podobnie, ale tylko przez dwa rekordy. Wreszcie, osoba umierająca w pierwszym roku byłaby reprezentowana przez pojedynczy rekord w rozszerzonej bazie danych. Należy zauważyć, że w Tabeli 6.3 suma ubezpieczenia (lub jakakolwiek inna cecha) może zmieniać się w czasie, jeśli jest to właściwe. Może to odzwierciedlać premie przyznawane przez towarzystwo ubezpieczeniowe uczestniczącym polisom lub uwzględniać dodatkowe składki opłacane przez ubezpieczającego, w zależności od rozważanego produktu. Przejście na roczne rekordy oferuje zatem dużą elastyczność aktuariuszowi analizującemu doświadczenie śmiertelności.
+
+Rysunek 6.21 przedstawia oszacowane efekty wieku i sumy ubezpieczenia, uzyskane przy użyciu funkcji `gam` z pakietu `mgcv` w darmowym oprogramowaniu statystycznym R. Zastosowano regresję spline cienkopłytową, z równoważnymi liczbami stopni swobody dla każdego członu wybranymi z danych za pomocą uogólnionej walidacji krzyżowej. Wszystkie człony modelu są istotne, z równoważnymi stopniami swobody wynoszącymi 1,008 dla wieku i 5,383 dla sumy ubezpieczenia. Widzimy tam oszacowania punktowe otoczone punktowymi przedziałami ufności. Zgodnie z oczekiwaniami, oszacowany efekt wieku wykazuje rosnący, prawie liniowy wzorzec (odziedziczony po specyfikacji Makehama), podczas gdy efekt sumy ubezpieczenia wykazuje malejący trend, wyraźnie nieliniowy.
+
+### Tabela 6.3 Opis początkowego portfela i powiązanej bazy danych do przeprowadzenia regresji Poissona
+
+**Portfel początkowy**
+
+| ID Polisy | Wiek (początkowy) | Suma ubezpieczenia | Kanał sprzedaży | Pozostały czas życia |
+| :--- | :--- | :--- | :--- | :--- |
+| A | 67 | €14 000 | SC1 | $\ge 3$ |
+| B | 82 | €36 000 | SC2 | 2.0655 |
+
+**Rozszerzona baza danych do przeprowadzenia regresji Poissona**
+
+| ID Polisy | Wiek (osiągnięty) | Suma ubezpieczenia | Kanał sprzedaży | Wskaźnik zgonu | Ekspozycja na ryzyko |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| A | 67 | €14 000 | SC1 | 0 | 1 |
+| A | 68 | €14 000 | SC1 | 0 | 1 |
+| A | 69 | €14 000 | SC1 | 0 | 1 |
+| B | 82 | €36 000 | SC2 | 0 | 1 |
+| B | 83 | €36 000 | SC2 | 0 | 1 |
+| B | 84 | €36 000 | SC2 | 1 | 0.0655 |
+
+## 6.7 Graduacja wskaźników zachorowalności
+
+### 6.7.4 Zastosowanie do ubezpieczenia kosztów leczenia
+
+Rysunek 6.22 przedstawia dane dostępne do graduacji wskaźników $\hat{\mu}_{01}(x)$. Rysunek 6.23 jest analogiczny dla $\hat{\mu}_{10}(x)$. Obserwacje przedstawione na Rys. 6.22 i 6.23 zostały zebrane przez dużą firmę ubezpieczeniową działającą w Unii Europejskiej pod koniec lat 90. Dotyczą one głównie męskich ubezpieczających. Ponieważ pobyty w szpitalu kompensowane przez ten produkt ubezpieczeniowy są raczej krótkoterminowe (warunki polisy jawnie wykluczają hospitalizacje związane z zaburzeniami psychicznymi, które mogą trwać znacznie dłużej), widzimy, że $y_x^{01} \approx y_x^{10}$ dla wszystkich grup wiekowych x, ponieważ pobyty w szpitalu rozpoczynające się w danym roku kalendarzowym prawie wszystkie zakończyły się w tym samym roku. Wyjaśnia to, dlaczego środkowe panele na Rys. 6.22 i 6.23 wyglądają podobnie.
+
+Rysunki 6.24 i 6.25 przedstawiają wykres LCV, odpowiadające mu kwadratowe dopasowanie Poissona GLM, jak również reszty dewiacji. W schematach rozpoznajemy klasyczny kształt zestawu wskaźników zachorowalności, z profilem wiekowym podobnym do wskaźników śmiertelności, ale o wyższej magnitudzie. Dla kobiet ubezpieczających garb porodowy nakłada się na garb wypadkowy w młodym wieku. Wyrównane wskaźniki powrotu do zdrowia $\hat{\mu}_{10}$ globalnie maleją wraz z osiągniętym wiekiem, odzwierciedlając zwiększony czas spędzany w szpitalu w miarę starzenia się ubezpieczonych. Lokalne minimum około 20 roku życia odpowiada garbowi wypadkowemu w śmiertelności/zachorowalności. Istnieje drugie lokalne minimum około 40 roku życia, które być może można przypisać kryzysowi wieku średniego, ale powinno zostać poddane weryfikacji przez lekarzy.
