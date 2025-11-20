@@ -1921,3 +1921,261 @@ Rysunek 6.21 przedstawia oszacowane efekty wieku i sumy ubezpieczenia, uzyskane 
 Rysunek 6.22 przedstawia dane dostępne do graduacji wskaźników $\hat{\mu}_{01}(x)$. Rysunek 6.23 jest analogiczny dla $\hat{\mu}_{10}(x)$. Obserwacje przedstawione na Rys. 6.22 i 6.23 zostały zebrane przez dużą firmę ubezpieczeniową działającą w Unii Europejskiej pod koniec lat 90. Dotyczą one głównie męskich ubezpieczających. Ponieważ pobyty w szpitalu kompensowane przez ten produkt ubezpieczeniowy są raczej krótkoterminowe (warunki polisy jawnie wykluczają hospitalizacje związane z zaburzeniami psychicznymi, które mogą trwać znacznie dłużej), widzimy, że $y_x^{01} \approx y_x^{10}$ dla wszystkich grup wiekowych x, ponieważ pobyty w szpitalu rozpoczynające się w danym roku kalendarzowym prawie wszystkie zakończyły się w tym samym roku. Wyjaśnia to, dlaczego środkowe panele na Rys. 6.22 i 6.23 wyglądają podobnie.
 
 Rysunki 6.24 i 6.25 przedstawiają wykres LCV, odpowiadające mu kwadratowe dopasowanie Poissona GLM, jak również reszty dewiacji. W schematach rozpoznajemy klasyczny kształt zestawu wskaźników zachorowalności, z profilem wiekowym podobnym do wskaźników śmiertelności, ale o wyższej magnitudzie. Dla kobiet ubezpieczających garb porodowy nakłada się na garb wypadkowy w młodym wieku. Wyrównane wskaźniki powrotu do zdrowia $\hat{\mu}_{10}$ globalnie maleją wraz z osiągniętym wiekiem, odzwierciedlając zwiększony czas spędzany w szpitalu w miarę starzenia się ubezpieczonych. Lokalne minimum około 20 roku życia odpowiada garbowi wypadkowemu w śmiertelności/zachorowalności. Istnieje drugie lokalne minimum około 40 roku życia, które być może można przypisać kryzysowi wieku średniego, ale powinno zostać poddane weryfikacji przez lekarzy.
+
+## 7.2 Rozkłady złożone Poissona Tweedie
+
+### 7.2.1 Rozkłady złożone
+
+Czasami aktuariusze dysponują jedynie sumami roszczeń, które są zerowe z dodatnim prawdopodobieństwem, ale w pozostałych przypadkach mają rozkład ciągły. Rozkład złożony jest dobrym kandydatem do modelowania takich odpowiedzi. W szczególności niech $N$ będzie zliczającą zmienną losową reprezentującą liczbę roszczeń, a $C_1, C_2, ..., C_N$ będą odpowiednimi kwotami tych $N$ roszczeń. Całkowita kwota roszczeń zapisuje się zatem
+
+$$
+Y = \sum_{k=1}^{N} C_k,
+$$
+
+z konwencją, że pusta suma równa się 0, tj.
+
+$$
+Y = 
+\begin{cases}
+0 & \text{if } N=0, \\
+C_1 + \dots + C_N & \text{if } N \ge 1.
+\end{cases}
+$$
+
+Dlatego $\mathrm{P}[Y=0] = \mathrm{P}[N=0] > 0$.
+Jeśli wysokości szkód $C_1, C_2, ..., C_N$ są założone jako niezależne i o identycznym rozkładzie, oraz niezależne od $N$, to mówi się, że $Y$ ma rozkład złożony. Średnia i wariancja $Y$ są wówczas odpowiednio dane przez
+
+$$
+\mathrm{E}[Y] = \mathrm{E}[\mathrm{E}[Y|N]] = \mathrm{E}[N\mathrm{E}[C_1]] = \mathrm{E}[N]\mathrm{E}[C_1]
+$$
+
+i
+
+$$
+\begin{aligned}
+\mathrm{Var}[Y] &= \mathrm{E}[\mathrm{Var}[Y|N]] + \mathrm{Var}[\mathrm{E}[Y|N]] \\
+&= \mathrm{E}[N\mathrm{Var}[C_1]] + \mathrm{Var}[N\mathrm{E}[C_1]] \\
+&= \mathrm{E}[N]\mathrm{Var}[C_1] + \mathrm{Var}[N](\mathrm{E}[C_1])^2.
+\end{aligned}
+$$
+
+### 7.2.2 Rozkłady złożone Poissona
+
+Jeśli $N \sim \mathcal{Poi}(\lambda)$, to $Y$ podlega rozkładowi złożonemu Poissona. W tym przypadku,
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= \lambda \mathrm{E}[C_1] \\
+\mathrm{Var}[Y] &= \lambda \mathrm{Var}[C_1] + \lambda(\mathrm{E}[C_1])^2 \\
+&= \lambda \mathrm{E}[C_1^2].
+\end{aligned}
+$$
+
+Rozkłady złożone Poissona odgrywają ważną rolę w naukach aktuarialnych, ponieważ stanowią konserwatywne przybliżenie do indywidualnego modelu w teorii ryzyka.
+
+### 7.2.3 Tweedie i złożony Poisson z składnikami Gamma
+
+Poprzez sprytny dobór rozkładów częstotliwości i wysokości szkód, możemy zobaczyć, że funkcja wariancji potęgowej definiująca rozkład Tweedie odpowiada rozkładowi złożonemu Poissona należącemu do rodziny ED, pod warunkiem $1 < \xi < 2$. W szczególności załóżmy, że
+
+$$
+Y = \sum_{k=1}^{N} C_k \quad \text{z} \quad N \sim \mathcal{Poi}(\lambda) \quad \text{i} \quad C_k \sim \mathcal{Gam}(\alpha, \tau),
+$$
+
+wszystkie zmienne losowe są niezależne.
+
+### 7.2.4 Parametr wykładnika
+
+W zastosowaniach aktuarialnych wykładnik $\xi$ pojawiający się w funkcji wariancji Tweedie jest generalnie ograniczony do przedziału $(1, 2)$, tak że odpowiadające rozkłady Tweedie odpowiadają złożonym sumom Poissona z szkodami o rozkładzie Gamma. Rozkłady Poissona ($\xi=1$) i Gamma ($\xi=2$) można wtedy uzyskać jako granice tej ograniczonej klasy Tweedie.
+
+Ogólnie $\xi$ jest nieznane i musi być oszacowane na podstawie danych. Z definicji
+
+$$
+\xi = \frac{\alpha+2}{\alpha+1}
+$$
+
+jest funkcją współczynnika Gamma zmienności. Wartości $\xi$ znalezione w modelowaniu ubezpieczeniowym i badaniach aktuarialnych zazwyczaj mieszczą się w przedziale 1.5 i 1.8. Kiedy używany jest rozkład Tweedie, wybór $\xi = 1.65$ wydaje się być dogodnym punktem wyjścia.
+
+### 7.2.5 Ograniczenie złożonego modelu Poissona Tweedie GLM
+
+Istnieje ukryte ograniczenie przy używaniu złożonego modelu Poissona Tweedie GLM, które jest często pomijane przez analityków. Przypomnijmy z Sekcji 2.5, że w tym przypadku mamy
+
+$$
+\mu = \lambda \frac{\alpha}{\tau}, \quad \xi = \frac{\alpha+2}{\alpha+1} \quad \text{i} \quad \phi = \frac{\mu^{2-\xi}}{\lambda(2-\xi)} = \frac{\lambda^{1-\xi}(\frac{\alpha}{\tau})^{2-\xi}}{2-\xi}.
+$$
+
+W modelach GLM parametr dyspersji $\phi$ jest stały, tak że
+
+$$
+\phi = \text{stała} \implies \frac{(\frac{\alpha}{\tau})^{2-\xi}}{\lambda^{\xi-1}} = \text{stała}.
+\tag{7.2}
+$$
+
+W związku z tym każdy czynnik ryzyka zwiększający oczekiwaną wysokość szkody $\alpha$ musi również zwiększyć oczekiwaną częstotliwość szkód $\lambda$, aby spełnić (7.2). Podobnie, każdy czynnik ryzyka zmniejszający oczekiwaną wysokość szkody musi również zmniejszyć oczekiwaną częstotliwość szkód, aby (7.2) pozostało w mocy. W szczególności każdy czynnik ryzyka oddziałujący na jedną z tych dwóch zmiennych musi również oddziaływać na drugą w tym samym kierunku.
+
+Jednak często tak nie jest w zastosowaniach ubezpieczeniowych. W rezerwacji szkodowej, czynniki geograficzne zazwyczaj mają przeciwne skutki dla częstotliwości i wysokości szkód, przy wyższych, ale mniejszych szkodach w dużych miastach i odwrotnie na obszarach wiejskich. Tutaj modelowanie strat za pomocą złożonego modelu Poissona Tweedie nie rozpoznaje tych dwóch sprzecznych efektów.
+Użycie modelu Tweedie GLM często wymaga zatem przejścia do ustawienia podwójnego GLM, w którym parametr dyspersji $\phi$ zależy również od informacji zawartych w $x_i$. W tym przypadku iterujemy między GLM dla średniej a Gamma GLM dla dyspersji, uruchamianym na resztach dewiacyjnych (zobacz następną sekcję 7.3, aby uzyskać więcej szczegółów).
+
+## 7.3 Modelowanie dyspersji: Podwójne modele GLM
+
+Modele GLM narzucają wymóg, aby parametr dyspersji $\phi$ był taki sam dla każdej obserwacji. W związku z tym, wariancja $\mathrm{Var}[Y_i] = \frac{\phi}{v_i}V(\mu_i)$ może zmieniać się wraz z czynnikami ryzyka tylko jako funkcja średniej $\mu_i$. Podwójne modele GLM pozwalają uniknąć tego ograniczenia. Dokładniej, w podwójnym modelu GLM parametr dyspersji
+
+$$
+\phi_i = \phi(\mathbf{x}_i)
+$$
+
+również zależy od dostępnych cech poprzez określony wynik (score), co czyni go teraz specyficznym dla każdej obserwacji. Zatem, nie tylko średnia odpowiedź zależy od dostępnych cech, ale również współczynnik dyspersji.
+
+Dokładniej, dopasowanie podwójnego modelu GLM uzyskuje się poprzez iterację następujących kroków:
+
+1.  dopasuj model GLM dla średniej odpowiedzi, ze stałym $\phi$ dla wszystkich obserwacji, to jest,
+    $$
+    \begin{aligned}
+    g(\mathrm{E}[Y_i]) &= \mathbf{x}_i^T \boldsymbol{\beta} \\
+    \mathrm{Var}[Y_i] &= \frac{\phi}{v_i} V(\mathrm{E}[Y_i]).
+    \end{aligned}
+    $$
+
+2.  oblicz wkład każdej obserwacji do dewiacji i oblicz kwadraty reszt Pearsona lub dewiacyjnych $R_i^2$.
+
+3.  dopasuj model GLM dla dyspersji, przyjmując jako odpowiedź wkład $R_i^2$ każdej obserwacji do dewiacji. Rozkład jest Gamma i w tym kroku nie uwzględnia się żadnych wag. Dopasowane wartości są nowym parametrem dyspersji dla każdego rekordu. Dokładniej, modelowanie dyspersji wykorzystuje model Gamma GLM z
+    $$
+    \begin{aligned}
+    g_d(\mathrm{E}[R_i^2]) &= \mathbf{x}_i^T \boldsymbol{\gamma} \\
+    \mathrm{Var}[R_i^2] &= \tau (\mathrm{E}[R_i^2])^2 \\
+    \phi_i &= g_d^{-1}(\mathbf{x}_i^T \boldsymbol{\gamma}).
+    \end{aligned}
+    $$
+
+4.  dopasuj model GLM dla średniej, ale tym razem używając specyficznego parametru dyspersji dla każdego rekordu (dzieląc wagę przez specyficzny dla odpowiedzi parametr dyspersji uzyskany w poprzednim kroku), to jest,
+    $$
+    \begin{aligned}
+    g(\mathrm{E}[Y_i]) &= \mathbf{x}_i^T \boldsymbol{\beta} \\
+    \mathrm{Var}[Y_i] &= \frac{\phi_i}{v_i} V(\mathrm{E}[Y_i]).
+    \end{aligned}
+    $$
+
+5.  oblicz kwadraty reszt Pearsona lub dewiacyjnych $R_i^2$ i powtórz poprzednie kroki.
+
+Ten proces iteracyjny jest kontynuowany, aż do spełnienia pewnego warunku zatrzymania. Związek między dwoma modelami GLM jest następujący: model dla średniej generuje odpowiedź $R_i^2$ używaną do dopasowania modelu dyspersji, który z kolei generuje dyspersję dla modelu średniej.
+
+Podwójny model GLM może poprawić estymację średniej w przypadku, gdy pewne klasy biznesu wydają się być bardziej zmienne w porównaniu z innymi. W tym ustawieniu model ma na celu nadanie mniejszej wagi bardziej zmiennym obserwacjom z przeszłości i większej wagi stabilniejszemu biznesowi, którego dane są bardziej informatywne. Dlatego model staje się zdolny do ignorowania większego szumu, gdy jest to konieczne, a tym samym do wychwytywania większej ilości sygnału. Podwójny model GLM w pewnym sensie określa wynik liniowy w celu zdefiniowania optymalnych wag, maksymalizując jakość dopasowania. Czasami cecha, która wydawała się nieistotna w ustawieniu GLM, staje się istotna, gdy aktuariusz przechodzi do ram podwójnego GLM.
+
+Podwójny model GLM jest szczególnie istotny w modelowaniu Tweedie, ze względu na ukryte ograniczenie nieodłącznie związane z tymi modelami, omówione w Sekcji 7.2.5. Rozważmy ponownie zastosowanie do rezerwacji szkodowej, z danymi przedstawionymi w formie trójkątnej, indeksowanymi rokiem wypadku AY i rokiem rozwoju DY. Załóżmy, że kwota pojawiająca się w komórce odpowiadającej $AY=j$ i $DY=k$ ma rozkład Tweedie ze średnią wyrażoną jako funkcja czynników związanych z rokiem wypadku $j$ i rokiem rozwoju $k$. Dane przedstawione w trójkątach run-off zazwyczaj wykazują następujące dwa przeciwstawne efekty:
+*   ogólnie, większość roszczeń jest zgłaszana na wczesnym etapie rozwoju, więc składnik częstotliwości ma malejący trend w trakcie rozwoju;
+*   średni koszt na roszczenie wzrasta w latach rozwoju, więc składnik wysokości szkody wykazuje rosnący trend.
+
+Ponieważ częstotliwości i wysokości szkód mają przeciwstawne trendy, modele ze stałą dyspersją są podatne na błędy. W przypadku modelu Tweedie, stałe $\phi$ oznacza, że wpływ $j$ i $k$ na składniki zarówno częstotliwości, jak i wysokości szkody musi iść w tym samym kierunku. Dlatego pożądane jest przejście na podwójny model GLM, w którym zarówno średnia, jak i wariancja zależą od efektów $j$ i $k$.
+
+## 7.4 Modelowanie dyspersji w graduacji śmiertelności z duplikatami
+
+### 7.4.1 Duplikaty
+
+W praktyce często zdarza się, że osoby fizyczne posiadają więcej niż jedną polisę, a zatem pojawiają się w liczbie osób narażonych na ryzyko lub zgonów więcej niż raz. W takim przypadku mówi się, że portfel zawiera duplikaty: obejmuje on kilka polis dotyczących tych samych osób.
+
+Zjawisko to można łatwo skorygować na poziomie każdej firmy ubezpieczeniowej, ale pozostaje problematyczne, gdy dane rynkowe są gromadzone i zestawiane przez jakąś agencję centralną. Dzieje się tak za sprawą Biura Ciągłych Badań Śmiertelności (Continuous Mortality Investigation - CMI) w Wielkiej Brytanii lub organów regulacyjnych (takich jak Bank Narodowy w Belgii). Nawet jeśli dane są deduplikowane przez każdego uczestnika przed przekazaniem statystyk śmiertelności do agencji centralnej, to jest, wszystkie polisy posiadane przez tę samą osobę są konsolidowane w jedną obserwację, nie można tego zrobić w odniesieniu do firm, ponieważ agencja centralna odpowiedzialna za gromadzenie danych (ponieważ dane są anonimizowane przez uczestniczące firmy przed ich przekazaniem) nie jest w stanie tego zrobić. Dane rynkowe generalnie zawierają wiele duplikatów, tak że zgony są mylone z roszczeniami z polis: śmierć ubezpieczającego posiadającego $m$ polis jest liczona jako $m$ zgonów w danych. Wobec braku informacji o rozkładzie polis na ubezpieczoną osobę, oszacowanie prawdopodobieństw zgonu staje się trudniejsze.
+
+Gdy w portfelu występują duplikaty, aktuariusz zna liczbę roszczeń $c_x$, tj. liczbę polis, których posiadacz zmarł w wieku $x$ w okresie obserwacji, a nie rzeczywistą liczbę zgonów $d_x$ spośród $l_x$ osób w wieku $x$. Wiemy, że gdy w danych o śmiertelności występują duplikaty, nierówność $c_x \ge d_x$ jest prawdziwa. Ponadto, niech $n_x$ oznacza liczbę polis, których posiadacz ma wiek $x$ odnotowany w bazie danych, przy czym $n_x > l_x$, dolna granica odpowiada brakowi duplikatów.
+
+### 7.4.2 Liczba umów, żyć, zgonów i roszczeń
+
+Formalnie, oznaczmy przez $l_x$ liczbę ubezpieczających w wieku $x$ i przez $D_x$ liczbę zgonów odnotowanych wśród nich. Dla ułatwienia prezentacji załóżmy, że każdy ubezpieczający był objęty ochroną przez cały rok. Liczba zgonów $D_x$ ma zatem rozkład dwumianowy o wielkości $l_x$ i prawdopodobieństwie $q_x$.
+Ponadto, zdefiniujmy zmienne losowe
+
+$$
+\begin{aligned}
+N_{xi} &= \text{liczba umów posiadanych przez ubezpieczającego } i, \text{ w wieku } x \\
+N_x &= \text{liczba umów posiadanych przez wszystkich ubezpieczających w wieku } x \\
+&= \sum_{i=1}^{l_x} N_{xi}.
+\end{aligned}
+$$
+
+Oznaczmy przez $C_{xi}$ liczbę roszczeń odpowiadającą ubezpieczającemu $i$, w wieku $x$. Ta zmienna losowa jest równa zero, jeśli ubezpieczający $i$ przeżyje, i jest równa $N_{xi}$ w przypadku jego lub jej śmierci.
+
+### 7.4.3 Zależność między średnią a wariancją
+
+Zakładamy, że zmienne losowe $C_{xi}$ są niezależne i mają identyczny rozkład z
+
+$$
+\mathrm{P}[C_{xi} = 0] = p_x
+$$
+
+i dla $k \ge 1$,
+
+$$
+\mathrm{P}[C_{xi} = k] = q_x \psi_x(k)
+$$
+
+gdzie $\psi_x(k) = \mathrm{P}[N_{xi}=k]$ oznacza prawdopodobieństwo, że osoba $i$ w wieku $x$ posiada $k$ polis, $k=1, 2, \dots$, z
+
+$$
+1 = \sum_{k=1}^\infty \psi_x^{(k)}.
+$$
+
+Innymi słowy, $\psi_x(k)$ odpowiada prawdopodobieństwu, że pojedynczy zgon zostanie zarejestrowany jako $k$ roszczeń.
+
+### 7.4.4 Naddyspersyjny rozkład dwumianowy
+
+Gdy w zbiorze danych nie ma duplikatów, $\psi_x(1)=1$ i $\psi_x(k)=0$ dla wszystkich $k \ge 2$. Wtedy mamy
+
+$$
+\phi_x=1, \quad r_x = l_x \quad \text{i} \quad C_x = D_x \sim \mathcal{Bin}(l_x, q_x).
+$$
+
+Gdy występują duplikaty, $\psi_x(k)>0$ dla pewnego $k \ge 2$. Wariancja liczby umów na ubezpieczoną osobę w wieku $x$ wynosi $\bar{\psi}_x^{[2]} - (\bar{\psi}_x^{[1]})^2.$ Im większa zmienność w tym zakresie, tym większa wariancja i mniejszy stosunek $(\bar{\psi}_x^{[1]})^2 / \bar{\psi}_x^{[2]}$. W przypadku granicznym, gdy każdy ubezpieczający ma tylko jedną umowę, otrzymujemy $\phi_x=1$. Sugeruje to użycie przybliżenia
+
+$$
+\phi_x \approx \frac{\bar{\psi}_x^{[2]}}{\bar{\psi}_x^{[1]}} > 1
+\tag{7.3}
+$$
+
+które wydaje się być dokładne, o ile $q_x$ pozostaje małe. Ponieważ jest to prawdą z wyjątkiem najstarszych grup wiekowych, przybliżenie (7.3) jest skuteczne w badaniach ubezpieczeniowych. Zgodnie z (7.3), $C_x$ podlega naddyspersyjnemu rozkładowi dwumianowemu.
+
+### 7.4.5 Modelowanie dyspersji
+
+Niech $\hat{\psi}_x(k)$ będzie proporcją osób w wieku $x$ posiadających $k$ polis. Wariancja $vr_x$, zdefiniowana jako
+
+$$
+vr_x = \frac{\sum_{k \ge 1} k^2 \hat{\psi}_x(k)}{\sum_{k \ge 1} k \hat{\psi}_x(k)}
+$$
+
+może być użyta jako estymator dla $\phi_x$. Badania przeprowadzone na rynku brytyjskim ujawniają wskaźniki wariancji w przedziale $(1, 2)$.
+
+W przypadku braku informacji o wielokrotnym posiadaniu polis, nierealistycznym podejściem jest założenie, że $vr_x$ jest stałe w odniesieniu do $x$ (co jest oczywiście nierealistyczne) i użycie naddyspersyjnego modelu dwumianowego ze stałym parametrem dyspersji $\phi > 1$. Bardziej skutecznym podejściem jest uzupełnienie modelu dwumianowego GLM/GAM dla liczby zgonów o modelowanie dyspersji, w którym $\phi_x$ jest wyuczane z danych.
+Gdy występują duplikaty, graduacja śmiertelności przebiega w dwóch etapach, w ramach podwójnego modelu GLM. W pierwszym etapie (modelowanie średniej), liczba roszczeń $C_x$ jest modelowana zgodnie z naddyspersyjnym rozkładem dwumianowym z
+
+$$
+\mathrm{E}[C_x] = r_x q_x \quad \text{i} \quad \mathrm{Var}[C_x] = \phi_x r_x q_x (1-q_x).
+$$
+
+Alternatywnie, dla otwartych grup, przydatne może być przybliżenie Poissona, z odpowiednią ekspozycją na ryzyko opartą na polisach $n_x$ i $q_x$ zastąpionym siłą śmiertelności $\mu_x$. W drugim etapie parametr dyspersji $\phi_x$ jest estymowany w modelu regresji Gamma z kwadratami reszt dewiacyjnych jako zmiennymi odpowiedzi. Ponieważ $\phi_x \in [1, 1+\kappa)$ dla pewnego $\kappa$ (gdzie $\kappa=1$ jest wspierane przez badania przeprowadzone na rynku brytyjskim), funkcja łącząca drugiego etapu $g_d$ powinna uwzględniać ten konkretny rynek. Dla $\kappa=1$ osiąga się to za pomocą przesuniętej komplementarnej funkcji log-log
+
+$$
+\phi_x = 2 - \exp(-\exp(\text{score}_x)),
+$$
+
+przesuniętej funkcji logitowej
+
+$$
+\phi_x = \frac{1+2\exp(\text{score}_x)}{1+\exp(\text{score}_x)},
+$$
+
+lub przesuniętej funkcji probitowej
+
+$$
+\phi_x = 1 + \Phi(\text{score}_x)
+$$
+
+gdzie, jak poprzednio, $\Phi(\cdot)$ oznacza dystrybuantę rozkładu $\mathcal{N}(0,1)$. Wynik (score) zaangażowany w modelowanie dyspersji jest zazwyczaj kwadratową funkcją wieku $x$, to jest,
+
+$$
+\text{score}_x = \gamma_0 + \gamma_1 x + \gamma_2 x^2,
+$$
+
+lub funkcją liniową $r_x$, to jest,
+
+$$
+\text{score}_x = \gamma_0 + \gamma_1 r_x.
+$$
+
+Wielką zaletą tego podejścia jest to, że znajomość prawdopodobieństw wielokrotnego posiadania polis $\psi_x(\cdot)$ nie jest koniecznie potrzebna do przeprowadzenia graduacji śmiertelności. Obecność duplikatów jest uwzględniana przez użycie specyficznych dla wieku parametrów dyspersji $\phi_x$, zastępujących empiryczne wskaźniki wariancji $vr_x$, w ramach podwójnego modelu GLM.
+Na zakończenie wspomnijmy, że to samo podejście można zastosować do graduacji kwot w momencie zgonu, to jest, rozważając kwotę świadczeń wypłacanych przez towarzystwa ubezpieczeniowe zamiast rzeczywistej liczby zgonów.
