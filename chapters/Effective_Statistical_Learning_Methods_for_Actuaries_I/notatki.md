@@ -2179,3 +2179,435 @@ $$
 
 Wielką zaletą tego podejścia jest to, że znajomość prawdopodobieństw wielokrotnego posiadania polis $\psi_x(\cdot)$ nie jest koniecznie potrzebna do przeprowadzenia graduacji śmiertelności. Obecność duplikatów jest uwzględniana przez użycie specyficznych dla wieku parametrów dyspersji $\phi_x$, zastępujących empiryczne wskaźniki wariancji $vr_x$, w ramach podwójnego modelu GLM.
 Na zakończenie wspomnijmy, że to samo podejście można zastosować do graduacji kwot w momencie zgonu, to jest, rozważając kwotę świadczeń wypłacanych przez towarzystwa ubezpieczeniowe zamiast rzeczywistej liczby zgonów.
+
+## 9.1 Wprowadzenie
+
+Podobnie jak w innych dziedzinach wrażliwych na obserwacje ekstremalne, na przykład w hydrologii i klimatologii, standardowe techniki statystyczne zawodzą przy analizie dużych szkód znajdujących się daleko w ogonie rozkładu ciężkości szkód. Dzieje się tak, ponieważ aktuariusz chce wnioskować o ekstremalnym zachowaniu rozkładów szkód, czyli w obszarze próby, w którym jest bardzo mało punktów danych, jeśli w ogóle.
+
+Teoria Wartości Ekstremalnych (w skrócie **EVT**), wraz z modelem „nadwyżek ponad próg” oraz Uogólnionym Rozkładem Pareto, oferuje zunifikowane podejście do modelowania ogona rozkładu szkód. Metoda ta nie opiera się wyłącznie na dostępnych danych, ale zawiera probabilistyczny argument dotyczący zachowania ekstremalnych wartości z próby, co pozwala na ekstrapolację poza zakres danych, czyli w obszary, w których w ogóle nie ma obserwacji.
+
+Omówmy krótko typowe sytuacje, w których aktuariusze zajmują się wartościami ekstremalnymi. W ubezpieczeniach odpowiedzialności cywilnej aktuariusze często napotykają trudności podczas analizy ciężkości szkód, ponieważ:
+
+* występuje ograniczona liczba obserwacji, jako że tylko polisy, z których zgłoszono szkody, dostarczają informacji o ich kosztach.
+* likwidacja szkody może trwać długo, przez co ostateczny koszt szkody jest w tym okresie nieznany firmie.
+* kwoty wypłacane przez firmę w dużej mierze zależą od cech charakterystycznych strony trzeciej, które są nieznane w momencie obliczania składki.
+
+Co więcej, kilka dużych szkód w portfelu często stanowi znaczną część świadczeń ubezpieczeniowych wypłacanych przez firmę. Te ekstremalne zdarzenia są zatem przedmiotem szczególnego zainteresowania aktuariuszy. Stanowią one również materiał statystyczny do:
+
+* wyceny umów reasekuracyjnych, takich jak traktaty **reasekuracji nadwyżki szkody** (w ramach których reasekurator musi zapłacić za nadwyżkę szkody ponad ustalony próg, zwany franszyzą redukcyjną).
+* szacowania wysokich kwantyli (nazywanych również **Wartością Narażoną na Ryzyko** w zarządzaniu ryzykiem finansowym).
+* wyznaczania **prawdopodobnej szkody maksymalnej** (w skrócie $\widehat{PML}$), która ma być używana jako robocza górna granica wielkości szkody w obliczaniu miar ryzyka.
+
+Gdy głównym przedmiotem zainteresowania jest ogon rozkładu ciężkości szkód, kluczowe jest posiadanie dobrego modelu dla największych szkód. Rozkłady, które zapewniają dobre ogólne dopasowanie, takie jak rozkłady z rodziny wykładniczej (ED), mogą być szczególnie nieodpowiednie do modelowania ogonów. Teoria Wartości Ekstremalnych (EVT) koncentruje się właśnie na ogonach, opierając się na solidnych podstawach teoretycznych. Zasada leżąca u podstaw EVT polega na przeprowadzeniu analizy w oparciu o tę część próby, która niesie informację o zachowaniu ekstremalnym, czyli wyłącznie na największych wartościach z próby. W tym rozdziale przypomniano podstawy EVT, przydatne w zastosowaniach aktuarialnych.
+
+## 9.2 Podstawy EVT
+
+### 9.2.1 Średnie z próby i maksima
+
+Rozważając ciąg niezależnych zmiennych losowych o jednakowym rozkładzie (powiedzmy, wysokości szkód lub pozostałe długości życia) $Y_1, Y_2, Y_3, \dots$, większość klasycznych wyników z rachunku prawdopodobieństwa i statystyki, które są istotne dla ubezpieczeń, opiera się na sumach $S_n = \sum_{i=1}^n Y_i$.
+
+Inną interesującą, choć mniej standardową statystyką dla aktuariusza jest
+
+$$
+M_n = \max\{Y_1, \dots, Y_n\}
+$$
+
+maksimum z $n$ zmiennych losowych $Y_1, \dots, Y_n$. EVT odnosi się do następującego pytania: jak zachowuje się $M_n$ w dużych próbach (tj. gdy $n$ dąży do nieskończoności)? 
+
+Wiemy, że
+
+$$
+P[M_n \le y] = P[Y_i \le y \text{ dla wszystkich } i=1, \dots, n] = (F(y))^n.
+$$
+
+### 9.2.2 Rozkład skrajnych wartości
+
+Gdy $M_n$ jest odpowiednio wycentrowane i znormalizowane, może jednak zbiegać do pewnego konkretnego rozkładu granicznego (jednego z trzech różnych typów, w zależności od grubości ogonów $F$). Wraz z stałymi normalizującymi, ten rozkład graniczny określa asymptotyczne zachowanie maksimum z próby $M_n$.
+
+Uogólniona funkcja rozkładu wartości ekstremalnych (GEV) z indeksem ogona $\xi$ pojawiającym się jako granica w (9.1) ma postać
+
+$$
+H_\xi(y) = 
+\begin{cases} 
+\exp\left(-(1+\xi y)_+^{-1/\xi}\right) & \text{jeśli } \xi \ne 0, \\
+\exp(-\exp(-y)) & \text{jeśli } \xi = 0, 
+\end{cases}
+$$
+
+gdzie $z_+ = \max\{z, 0\}$ jest dodatnią częścią $z$. Nośnik $H_\xi$ jest
+
+$$
+\begin{cases} 
+(-1/\xi, \infty) & \text{jeśli } \xi > 0 \\
+(-\infty, -1/\xi) & \text{jeśli } \xi < 0 \\
+(-\infty, \infty) & \text{jeśli } \xi = 0. 
+\end{cases}
+$$
+
+Tutaj parametr $\xi$ kontrolujący prawy ogon rozkładu nazywany jest indeksem ogona lub indeksem wartości ekstremalnej. Trzy klasyczne rozkłady wartości ekstremalnych są szczególnymi przypadkami rodziny GEV:
+
+* jeśli $\xi > 0$, mamy rozkład Frecheta,
+* jeśli $\xi < 0$, mamy rozkład Weibulla, a
+* jeśli $\xi = 0$, mamy rozkład Gumbela.
+
+Rozkład GEV wydaje się być jedynym niezdegenerowanym rozkładem granicznym dla odpowiednio znormalizowanych maksimów z próby, co formalnie stwierdzono w następnej sekcji.
+
+### 9.2.3 Twierdzenie Fishera-Tippetta
+
+Jeśli odpowiednio znormalizowane maksima z próby $M_n$ zbiegają w rozkładzie do niezdegenerowanego rozkładu granicznego $H$ w (9.1), mówi się, że funkcja rozkładu $F$ należy do dziedziny przyciągania rozkładu GEV $H.$ Klasa rozkładów, dla których zachowuje się takie asymptotyczne zachowanie, jest duża: obejmuje wszystkie powszechnie spotykane rozkłady ciągłe. Wyniki szeroko omówione do tej pory można podsumować w następującym twierdzeniu.
+
+**Twierdzenie 9.2.1 (Twierdzenie Fishera-Tippetta)** Jeśli istnieją ciągi stałych rzeczywistych $c_n$ i $d_n$ takie, że (9.1) zachodzi dla jakiegoś niezdegenerowanego rozkładu $H$ (tj. nieskoncentrowanego w jednym punkcie), to $H$ musi być rozkładem GEV, tj.
+
+$$
+H = H_\xi \text{ dla pewnego } \xi.
+$$
+
+Parametr $\xi$ jest znany jako indeks wartości ekstremalnej (lub indeks Pareto, lub indeks ogona).
+
+Rozkład Pareto jest typowym przykładem elementu należącego do klasy Frecheta.
+
+Zatem indeks wartości ekstremalnej rozkładu $\mathcal{Par}(\alpha, \tau)$ wynosi $\xi = 1/\alpha$. Zauważ, że ograniczenie $1 + \frac{y}{n^{1/\alpha}} \ge n^{-1/\alpha}$ staje się $1 + \frac{y}{\alpha} > 0$ w granicy, więc dziedzina jest dobrze dopasowana do postaci $(-1/\xi, \infty)$, jak zapowiedziano. To pokazuje, że rozkład $\mathcal{Par}(\alpha, \tau)$ należy do dziedziny przyciągania rozkładu Frecheta z indeksem wartości ekstremalnej $\xi = 1/\alpha$, który jest dodatni.
+
+Oczywiście, klasa Frecheta ($\xi > 0$) nie ogranicza się do rozkładu Pareto. Można ją opisać w szerokim ujęciu w następujący sposób. Twierdzenie Fishera-Tippetta zachodzi z $H_\xi, \xi > 0$, wtedy i tylko wtedy, gdy reprezentacja
+
+$$
+1 - F(y) = y^{-1/\xi} \ell(y) \quad (9.2)
+$$
+
+zachodzi dla pewnej wolno zmieniającej się funkcji $\ell(\cdot)$, takiej że
+
+$$
+\lim_{y \to \infty} \frac{\ell(ty)}{\ell(y)} = 1 \text{ dla wszystkich } t > 0.
+$$
+
+Innymi słowy, zasadniczo oznacza to, że jeśli $1-F$ zanika jak funkcja potęgowa, to rozkład należy do dziedziny przyciągania rozkładu Frecheta. Wzór (9.2) jest często przyjmowany jako definicja rozkładów o grubych ogonach. Oprócz rozkładu Pareto, którego ogony maleją wielomianowo, przykłady rozkładów należących do klasy Frecheta obejmują rozkłady Burr, Log-Gamma, Cauchy'ego i Studenta $t$. Nie wszystkie momenty są skończone.
+Stosowność rozkładów o grubych ogonach w klasie Frecheta do modelowania ryzyka katastroficznego przejawia się w relacji asymptotycznej
+
+$$
+\lim_{t \to \infty} \frac{P[M_n > t]}{P[S_n > t]} = 1.
+$$
+
+Ta relacja opisuje sytuację, w której suma $S_n$ roszczeń staje się duża wtedy i tylko wtedy, gdy maksymalne roszczenie $M_n$ staje się duże. Rozkłady spełniające ten warunek są zwykle określane w literaturze aktuarialnej jako sub-wykładnicze.
+Rozkłady o grubych ogonach są najczęściej spotykane w zastosowaniach ubezpieczeń majątkowych. Rozkłady o lżejszych ogonach (zazwyczaj z wykładniczym spadkiem w ogonach) należą do klasy Gumbela. 
+
+Zauważ, że ograniczenie $y \ge -\ln n$ nie jest już wiążące w granicy, więc dziedzina rozszerza się na całą prostą rzeczywistą $(-\infty, \infty)$. Zatem rozkład $\mathcal{Exp}(\tau)$ należy do dziedziny przyciągania rozkładu Gumbela z zerowym indeksem wartości ekstremalnej.
+
+Charakteryzacja rozkładów Gumbela $\xi = 0$ jest bardziej skomplikowana. Z grubsza mówiąc, ona zawiera rozkłady, których ogony zanikają wykładniczo do 0 (rozkłady o lekkich ogonach). Wszystkie momenty są skończone. Przykłady obejmują rozkłady Normalny, LogNormalny i Gamma (w szczególności ujemny rozkład wykładniczy).
+
+Klasa Weibulla ($\xi < 0$) wydaje się być szczególnie użyteczna w ubezpieczeniach na życie, ponieważ jej elementy mają ograniczony nośnik. To zachowanie będzie badane w następnych sekcjach poświęconych modelowaniu pozostałych długości życia w starszym wieku.
+
+### 9.2.4 Ekstremalne długości życia
+
+Przeformułujmy teraz centralny wynik EVT w kontekście ubezpieczeń na życie, dla modelowania śmiertelności w najstarszych grupach wiekowych. Odpowiedzi $Y$ zazwyczaj reprezentują długości życia w kontekście ubezpieczeń na życie i są w związku z tym oznaczane jako $T$. Rozważmy ciąg niezależnych indywidualnych długości życia $T_1, T_2, T_3, \dots$ z wspólną dystrybuantą
+
+$$
+F(x) = {}_xq_0 = P[T_i \le x], \quad x \ge 0,
+$$
+
+dla $i=1, \dots, n$, spełniającą $F(0) = 0$. Tutaj $T_i$ reprezentuje całkowitą długość życia, od urodzenia do śmierci. W wielu zastosowaniach ubezpieczeniowych może również reprezentować pozostałą długość życia po osiągnięciu danego wieku $\alpha$, ze wspólną dystrybuantą $F_\alpha(x) = {}_xq_\alpha$. W słowach, $M_n$ reprezentuje w tym ujęciu wiek najstarszej osoby zmarłej w jednorodnej grupie $n$ osób podlegających tej samej tablicy trwania życia $x \mapsto {}_xq_0$. EVT bada asymptotyczne zachowanie $M_n$, gdy $n$ dąży do nieskończoności, pod warunkiem spełnienia pewnych warunków technicznych dotyczących $x \mapsto {}_xq_0$.
+
+Gdy $M_n$ jest odpowiednio wycentrowane i znormalizowane, może jednak zbiegać do pewnego konkretnego rozkładu granicznego, jak w (9.1). Gdy $\xi > 0$, mamy do czynienia z rozkładami o grubych ogonach, co jest sprzeczne z danymi empirycznymi dla ludzkich długości życia (w tym przypadku siły śmiertelności zmniejszałyby się wraz z wiekiem). Zatem przypadki $\xi=0$ i $\xi < 0$ są interesujące dla zastosowań w ubezpieczeniach na życie. Zauważ, że jeśli (9.1) zachodzi z $\xi < 0$, to $\omega < \infty$, więc ujemna wartość $\xi$ potwierdza istnienie skończonego ostatecznego wieku $\omega$.
+Przypomnijmy, że
+
+$$
+\mu_x = \lim_{\Delta x \searrow 0} \frac{P[x < T \le x + \Delta x | T > x]}{\Delta x} = \frac{\frac{d}{dx}{}_xq_0}{{}_xp_0}
+$$
+
+jest siłą śmiertelności w wieku $x$. Określa ona ryzyko natychmiastowej śmierci dla osoby żyjącej w wieku $x$. Warunkiem wystarczającym, aby (9.1) zachodziło jest
+
+$$
+\lim_{x \to \omega} \frac{d}{dx}\left(\frac{1}{\mu_x}\right) = \xi. \quad (9.3)
+$$
+
+Intuicyjnie, $\frac{1}{\mu_x}$ można uznać za siłę oporu wobec śmiertelności, lub siłę witalności w wieku $x$. Opór wobec śmiertelności musi się stabilizować, gdy $\xi = 0$ lub staje się ostatecznie liniowy. Ujemna wartość $\xi$ wskazuje, że opór ostatecznie maleje w starszym wieku. Dla $\xi < 0$ mamy $\omega < \infty$ i warunek (9.3) implikuje
+
+$$
+\lim_{x \to \omega} (\omega - x)\mu_x = -\frac{1}{\xi}.
+$$
+
+## 9.3 Nadwyżka ponad próg i funkcja średniej nadwyżki
+
+### 9.3.1 Rozkład nadwyżki
+
+Biorąc pod uwagę ciąg niezależnych zmiennych losowych o identycznym rozkładzie $Y_1, Y_2, \dots$ oraz próg $u$, uważany za duży, aktuariusze są często zainteresowani nadwyżkami $Y_i - u$ ponad $u$ dla $Y_i > u$. Zauważmy, że tutaj ograniczamy się do tych elementów $Y_i$, dla których spełniony jest warunek $Y_i > u$, tzn. $Y_i$ osiąga próg $u$ będący przedmiotem rozważań.
+
+Niech $F_u$ oznacza dystrybuantę nadwyżki losowej zmiennej $Y$ ponad próg $u$, pod warunkiem, że próg $u$ jest osiągnięty, to znaczy,
+
+$$
+\begin{align*}
+F_u(y) &= P[Y - u \le y | Y > u] \\
+&= \frac{F(y+u) - F(u)}{1 - F(u)} \\
+&= 1 - \frac{\bar{F}(y+u)}{\bar{F}(u)}, \quad y \ge 0,
+\end{align*}
+$$
+
+gdzie $\bar{F} = 1 - F$ jest funkcją nadwyżki (lub komplementarną do dystrybuanty, lub funkcją przeżycia) powiązaną z (skumulowaną) funkcją dystrybuanty $F$.
+
+### 9.3.2 Funkcja średniej nadwyżki
+
+Pod warunkiem, że $E[Y] < \infty$, funkcja średniej nadwyżki $e(\cdot)$ powiązana z $Y$ jest zdefiniowana jako
+
+$$
+e(u) = E[Y - u | Y > u] = \int_0^\infty \bar{F}_u(t)dt
+$$
+
+gdzie $\bar{F}_u = 1 - F_u$. Zatem $e(u)$ reprezentuje oczekiwaną nadwyżkę ponad próg $u$, pod warunkiem, że próg ten jest osiągnięty. Łatwo jest udowodnić, że jeśli $Y$ ma rozkład wykładniczy, jego funkcja średniej nadwyżki jest stała, to znaczy
+
+$$
+Y \sim \mathcal{Exp}(\tau) \iff e(u) = E[Y] = \frac{1}{\tau}.
+$$
+
+Jest to bezpośrednia konsekwencja właściwości braku pamięci charakteryzującej Ujemny Rozkład Wykładniczy. W konsekwencji, wykres $e(u)$ w funkcji $u$ będzie linią poziomą. Rozkłady o cienkich ogonach będą wykazywać trend spadkowy. Z drugiej strony, trend wzrostowy będzie wskazówką zachowania gruboogonowego. Trend spadkowy jest typowy dla rozkładów o skończonych nośnikach.
+
+Zazwyczaj funkcja średniej nadwyżki $e(\cdot)$ nie jest znana, ale można ją łatwo oszacować na podstawie próby losowej, a jej empiryczny estymator $\hat{e}_n$ może być wykreślony. Dokładniej, funkcja średniej nadwyżki z próby losowej $\{y_1, y_2, \dots, y_n\}$ jest określona przez
+
+$$
+\hat{e}_n(u) = \frac{\sum_{i=1}^n Y_i I[Y_i > u]}{\#\{i | Y_i > u\}} - u = \frac{\sum_{i=1}^n (Y_i - u)I[Y_i > u]}{\#\{i | Y_i > u\}}
+$$
+
+gdzie $\#\{i | y_i > u\}$ oznacza liczbę obserwacji przekraczających $u$, a $I[\cdot]$ jest funkcją wskaźnikową. Innymi słowy, $e(u)$ jest szacowane przez sumę wszystkich nadwyżek ponad próg $u$ podzieloną przez liczbę punktów danych przekraczających próg $u$. Zazwyczaj funkcja średniej nadwyżki jest oceniana w obserwacjach z próby. Dokładniej, oznaczmy obserwacje z próby w porządku rosnącym (statystyki pozycyjne) jako
+
+$$
+y_{(1)} \le y_{(2)} \le \dots \le y_{(n)}.
+$$
+
+Mamy wtedy
+
+$$
+\hat{e}_n(y_{(k)}) = \frac{1}{n-k} \sum_{j=1}^{n-k} (y_{(k+j)} - y_{(k)}).
+$$
+
+### 9.3.3 Ilustracja w ubezpieczeniach majątkowych
+
+Rozważmy wysokości szkód w belgijskim portfelu ubezpieczeń OC komunikacyjnych rozważanym w Rozdz. 6. Informacje o kwotach szkód w bazie danych zostały zarejestrowane 6 miesięcy po zakończeniu okresu obserwacji. Stąd większość "małych" szkód została rozliczona, a ich ostateczny koszt jest znany. Jednak dla dużych szkód pracowaliśmy tutaj ze szkodami poniesionymi (wypłacone odszkodowania plus rezerwy). Wszystkie koszty są wyrażone we frankach belgijskich, walucie obowiązującej w Belgii pod koniec lat 90. (jedno euro to około czterdzieści franków belgijskich).
+
+Statystyki opisowe dla kosztów szkód są przedstawione w Tabeli 9.1. Mamy do dyspozycji 18 042 obserwowane indywidualne koszty szkód, w zakresie od 1 do ponad 80 000 000 franków belgijskich, ze średnią 72 330,7 franków belgijskich. Widzimy w Tabeli 9.1, że 25% zarejestrowanych kosztów szkód jest mniejszych niż 5 850 franków belgijskich, a 90% z nich jest mniejszych niż 121 902 franków belgijskich. Pozostałe 10% obserwowanych wysokości szkód rozciąga się zatem do ponad 80 milionów, co sugeruje, że zbiór danych zawiera bardzo duże kwoty w ogonie rozkładu.
+
+Ponieważ dane są znacznie skośne w prawo, zdecydowaliśmy się na reprezentację logarytmiczną, aby przedstawić wysokości szkód. Histogram wyświetlony na Rys. 9.1 pokazuje, że prawa część rozkładu ujawnia obecność bardzo dużych strat nawet w skali logarytmicznej. Zachowanie ogona danych jest dalej badane za pomocą wykresu $\hat{e}_n$. Empiryczna funkcja średniej nadwyżki wyświetlona na Rys. 9.2 pokazuje gruboogonowe zachowanie wysokości szkód, które materializuje się w widocznym trendzie wzrostowym. Ten wykres został uzyskany za pomocą funkcji `mrlplot` z pakietu R `POT`.
+
+Wiemy, że funkcja średniej nadwyżki jest stała, jeśli wysokości szkód podlegają Ujemnemu Rozkładowi Wykładniczemu. Rozkłady o cienkich ogonach wykazują trend spadkowy, podczas gdy trend wzrostowy wskazuje na zachowanie gruboogonowe. Rosnący trend $\hat{e}_n$, który jest wyraźnie widoczny na Rys. 9.2, wspiera zachowanie gruboogonowe. Dlatego oczekuje się dodatniej wartości indeksu ogona $\xi$.
+
+Ujemny Rozkład Wykładniczy służy również jako punkt odniesienia na wykresie kwantylowo-kwantylowym (QQ-plot) wykładniczym. Interpretacja takiego wykresu jest prosta. Jeśli dane są zgodne z Ujemnym Rozkładem Wykładniczym, punkty powinny leżeć w przybliżeniu wzdłuż linii prostej. Wypukłe odchylenie od kształtu liniowego wskazuje na rozkład o grubszym ogonie w tym sensie, że kwantyle empiryczne rosną szybciej niż teoretyczne.
+
+---
+**Tabela 9.1** Statystyki opisowe kosztów szkód (tylko wartości ściśle dodatnie) dla belgijskiego portfela ubezpieczeń OC komunikacyjnych obserwowanego pod koniec lat 90., wszystkie wartości kosztów wyrażone we frankach belgijskich.
+
+| | |
+| :--- | :--- |
+| **Liczba obserwacji** | 18 042 |
+| **Minimum** | 1 |
+| **Maksimum** | 80 258 970 |
+| **Średnia** | 72 331 |
+| **Odchylenie standardowe** | 710 990,5 |
+| **25. percentyl** | 5 850 |
+| **Mediana** | 23 242 |
+| **75. percentyl** | 58 465 |
+| **90. percentyl** | 121 902 |
+| **95. percentyl** | 170 530,9 |
+| **99. percentyl** | 794 900,9 |
+
+Przeciwnie, wklęsłość wskazuje na rozkład o cieńszym ogonie. Wypukły wzór wykresu kwantylowo-kwantylowego wykładniczego przedstawionego na Rys. 9.3 potwierdza gruboogonowe zachowanie rozkładu wysokości szkód.
+
+### 9.3.4 Ilustracja w ubezpieczeniach na życie
+
+Techniki EVT są również przydatne do badania samego końca tablic trwania życia. Ubezpieczyciele muszą być w stanie oszacować śmiertelność w najstarszych grupach wiekowych, aby wycenić renty dożywotnie i odwrócone hipoteki, na przykład. Do dopasowania statystyk śmiertelności często używano modeli parametrycznych, w tym:
+
+- Model Gompertza:
+  $$ \mu_x = a \exp(bx) \quad \text{z} \quad a, b > 0; $$
+- Model Makehama:
+  $$ \mu_x = c + a \exp(bx) \quad \text{z} \quad a, b, c > 0. $$
+
+Wykładniczy wzrost siły śmiertelności w modelach Gompertza i Makehama jest ogólnie odpowiedni dla dorosłych i osób wczesnej starości, ale śmiertelność ma tendencję do spowalniania w starszych grupach wiekowych, zazwyczaj około 85. roku życia, więc modele te zwykle zawodzą w opisie końca życia (przeszacowując śmiertelność w najstarszych grupach wiekowych, co wydaje się być problematyczne na przykład dla rent dożywotnich). Zaproponowano alternatywne modele w celu uwzględnienia spowolnienia śmiertelności obserwowanego w starszym wieku w uprzemysłowionych krajach. Płaskowyż, który pojawia się w tych zaawansowanych grupach wiekowych, jest często przypisywany wcześniejszej selekcji bardziej odpornych osób w heterogenicznych kohortach. Ten empiryczny dowód wspiera model logistyczny uzyskany przez włączenie losowego współczynnika kruchości (frailty) o rozkładzie Gamma w celu uwzględnienia heterogeniczności w modelu Gompertza, jak wyjaśniono dalej.
+
+Kruchość jest zdefiniowana jako nieujemna zmienna losowa, której wartość wyraża nieobserwowalne czynniki ryzyka wpływające na indywidualną śmiertelność. Podstawową ideą jest to, że osoby o wyższej kruchości umierają średnio wcześniej niż inne. Niech $Z$ oznacza kruchość odpowiadającą dożywotniej $T$. Biorąc pod uwagę $Z=z$, siła śmiertelności w multiplikatywnym modelu kruchości jest zdefiniowana jako
+$$ \mu_x(z) = z \mu_x $$
+gdzie $\mu_x$ reprezentuje siłę śmiertelności dla osoby ze standardowym profilem $Z=1; \mu_x$ jest uważana za standardową siłę śmiertelności. Jeśli $z < 1$, wtedy $\mu_x(z) < \mu_x$, co sugeruje, że osoba jest w dobrej kondycji; odwrotnie, jeśli $z > 1$. Teraz załóżmy, że $Z \sim \mathcal{Gam}(\delta, \theta)$. Odnosząc się do dorosłych, możemy założyć model Gompertza do opisu standardowej siły śmiertelności, tak że
+$$ \mu_x(z) = z a \exp(bx). $$
+Populacyjna siła śmiertelności jest wtedy dana przez
+$$ \frac{a \delta \exp(bx)}{(\theta - \frac{a}{b}) + \frac{a}{b} \exp(bx)} = \frac{1}{\theta - \frac{a}{b}} \frac{a \delta \exp(bx)}{1 + \frac{a}{b\theta - a} \exp(bx)}. $$
+
+---
+**Tabela 9.2** Statystyki opisowe dla obserwowanego wieku w chwili śmierci powyżej 95 lat, kohorty urodzone w Belgii w latach 1886-1904.
+
+| | Mężczyźni | Kobiety |
+| :--- | :--- | :--- |
+| **Liczba obserwacji** | 10 050 | 36 616 |
+| **Średnia** | 97,35 | 97,75 |
+| **Odchylenie standardowe** | 2,05 | 2,37 |
+| **25. percentyl** | 95,77 | 95,91 |
+| **Mediana** | 96,79 | 97,12 |
+| **75. percentyl** | 98,36 | 98,99 |
+| **Maksimum** | 111,47 | 112,58 |
+
+Definiując $\frac{a \delta}{\theta - \frac{a}{b}} = a'$ i $\frac{a}{b\theta - a} = \delta'$, otrzymujemy model logistyczny
+
+$$ \frac{a' \exp(bx)}{1 + \delta' \exp(bx)} $$
+
+dla populacyjnej siły śmiertelności, który tworzy wcześniej wspomniany płaskowyż śmiertelności.
+
+Gdy głównym celem jest śmiertelność w najstarszych grupach wiekowych, wnioskowanie prowadzone jest na podstawie próby, w której zakres danych jest bardzo mały. Co więcej, ekstrapolacja poza zakres danych jest często pożądaną procedurą. W takiej sytuacji niezbędne jest posiadanie dobrego modelu dla najdłuższych okresów życia. Zatem EVT wydaje się naturalnym kandydatem do analizy śmiertelności w najstarszych grupach wiekowych. Ponadto, EVT jest ściśle powiązane z granicznymi rozkładami resztkowymi życia i oferuje jednolite podejście do modelowania prawego ogona rozkładu czasu życia. Na przykład funkcja średniej nadwyżki odpowiada oczekiwanej pozostałej długości życia jako funkcji osiągniętego wieku.
+
+Biorąc pod uwagę analizowane dane, mamy do dyspozycji zgony w każdym indywidualnym wieku dla kobiet i mężczyzn, którzy zmarli w wieku 95 lat lub więcej, a także listę osób, które przeżyły wiek 95 lat i zmarły na końcu okresu obserwacji. Jest 46 666 obserwacji dotyczących osób urodzonych w Belgii, które zmarły po 1981 roku. Baza danych zawiera 22% mężczyzn i 78% kobiet. Dla każdej osoby znamy dokładną datę urodzenia i śmierci.
+
+Podstawowe statystyki opisowe zbiorów danych podano w Tabeli 9.2. Średni wiek śmierci dla kobiet jest większy niż dla mężczyzn, zgodnie z oczekiwaniami. Różnice są jednak raczej umiarkowane, w porównaniu do różnic w całkowitej długości życia od urodzenia, z wyjątkiem znacznie wyższej liczby kobiet osiągających wiek 95 lat w porównaniu z mężczyznami.
+
+Dane kohortowe są przedstawione w Tabeli 9.3, oddzielnie dla każdej płci. Możemy tam odczytać początkową liczbę osób włączonych do analizy, dla każdej kohorty urodzonej w latach 1886 i 1904 (czyli liczbę $L_{95}$ osób w kalendarzowym roku $c \in \{1886, \dots, 1904\}$ wciąż żyjących w wieku 95 lat) oraz wiek śmierci $M_{L_{95}}$ ostatniej osoby, która przeżyła dla każdej kohorty. Widzimy, że $L_{95}$ wzrasta w miarę upływu czasu, zgodnie z oczekiwaniami połączonego efektu rosnącej populacji i malejącej śmiertelności w młodszych grupach wiekowych w czasie. Ponadto liczba osób
+
+---
+**Tabela 9.3** Początkowa wielkość dla każdej kohorty $L_{95}$, obserwowany najwyższy wiek śmierci $M_{L_{95}}$ oraz średni wiek śmierci $95 + \hat{e}(95)$ dla każdej kohorty urodzonej w roku kalendarzowym $c$ od 1886 do 1904.
+
+| Kohorta | Mężczyźni | | | Kobiety | | |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **c** | **$L_{95}$** | **$M_{L_{95}}$** | **$95 + \hat{e}(95)$** | **$L_{95}$** | **$M_{L_{95}}$** | **$95 + \hat{e}(95)$** |
+| 1886 | 359 | 108.17 | 97.35 | 1045 | 107.78 | 97.70 |
+| 1887 | 418 | 105.13 | 97.41 | 1130 | 110.45 | 97.64 |
+| 1888 | 412 | 106.33 | 97.20 | 1242 | 110.32 | 97.68 |
+| 1889 | 462 | 105.58 | 97.53 | 1208 | 110.16 | 97.69 |
+| 1890 | 425 | 107.70 | 97.50 | 1311 | 112.58 | 97.60 |
+| 1891 | 428 | 105.81 | 97.35 | 1368 | 109.72 | 97.70 |
+| 1892 | 444 | 105.44 | 97.29 | 1510 | 110.89 | 97.72 |
+| 1893 | 492 | 110.29 | 97.46 | 1544 | 107.75 | 97.63 |
+| 1894 | 498 | 106.19 | 97.22 | 1760 | 107.41 | 97.71 |
+| 1895 | 526 | 106.62 | 97.24 | 1852 | 109.38 | 97.86 |
+| 1896 | 545 | 106.27 | 97.43 | 1894 | 109.79 | 97.85 |
+| 1897 | 568 | 106.43 | 97.33 | 2009 | 109.85 | 97.72 |
+| 1898 | 572 | 105.74 | 97.26 | 2149 | 110.89 | 97.71 |
+| 1899 | 630 | 106.88 | 97.35 | 2301 | 111.60 | 97.72 |
+| 1900 | 576 | 111.47 | 97.27 | 2460 | 111.70 | 97.78 |
+| 1901 | 635 | 103.77 | 97.23 | 2787 | 110.36 | 97.89 |
+| 1902 | 632 | 106.79 | 97.42 | 2829 | 112.36 | 97.82 |
+| 1903 | 669 | 104.71 | 97.46 | 2980 | 109.96 | 97.81 |
+| 1904 | 759 | 106.15 | 97.32 | 3237 | 110.18 | 97.74 |
+---
+
+wchodzących do bazy danych jest większa dla kobiet w porównaniu z mężczyznami z powodu niższych wskaźników śmiertelności dla kobiet w porównaniu z mężczyznami we wszystkich grupach wiekowych. Maksima $M_{L_{95}}$ są stosunkowo stabilne w kohortach i są wyższe dla kobiet w porównaniu z mężczyznami. Zauważ, że dla każdej kohorty ostatnią osobą, która przeżyła, była kobieta. Najwyższy wiek w chwili śmierci obserwowany w Belgii dla tych kohort to 112,58 lat dla kobiet i 111,47 dla mężczyzn. Przypomnijmy, że Jeanne Calment zmarła w wieku 122 lat w 1997 roku. Po tym rekordzie tylko jedna osoba, Sarah Knauss, żyła 119 lat i zmarła w 1999 roku. Od tego czasu trzy kobiety żyły ponad 117 lat, a trzy inne wciąż żyją w wieku 116 lat. Biorąc pod uwagę ograniczony rozmiar populacji belgijskiej, maksima zawarte w bazie danych są zgodne z tymi światowymi rekordami.
+
+Widzimy również z Tabeli 9.3, że nie ma widocznego trendu w średnim wieku w chwili śmierci, ani oczekiwanej długości życia $95 + \hat{e}(95)$ dla osób żyjących w wieku 95 lat. Pozostaje on nawet stabilny na poziomie około 97 lat zarówno dla kohort męskich, jak i żeńskich. Obserwacja, że $\hat{e}(95)$ nie poprawiła się w 19 kohortach urodzonych jest dość niezwykła. Wydaje się to sugerować, że nie ma potencjalnego zysku w ekstremalnej długowieczności przez pokolenia w tych zaawansowanych grupach wiekowych. Można to potwierdzić za pomocą formalnego testu (jak wykonano w Gbari i in. 2017a).
+
+Ograniczmy teraz zbiór danych do wieku 98 lat i więcej. Powód jest następujący: statystyki śmiertelności rynkowej są dostępne w Belgijskim Banku Narodowym, działającym jako regulator ubezpieczeniowy, do wieku 98 lat (ostatnia kategoria jest otwarta i obejmuje wiek 99 lat i więcej). Ponieważ celem jest dostarczenie aktuariuszom ekstrapolacji rynkowych tablic trwania życia na starsze grupy wiekowe, naturalne jest skoncentrowanie się na grupach wiekowych nieobjętych rynkowymi tablicami trwania życia. Histogramy są wyświetlone na Rys. 9.4. Wykresy te zostały uzyskane z obserwowanych wieków w chwili śmierci $\{t_1, t_2, \dots, t_n\}$ z $t_i \ge 98$ zawartych w bazie danych. Widzimy, że te histogramy sugerują, że pozostałe okresy życia powyżej 98 roku życia mają malejącą funkcję gęstości prawdopodobieństwa, z pewnymi obserwacjami znajdującymi się daleko w ogonie rozkładów.
+
+Empiryczna wersja oczekiwanej pozostałej długości życia $\hat{e}(x)$ jako funkcja osiągniętego wieku $x$ jest przedstawiona na Rys. 9.5. Wiemy, że jeśli pozostałe okresy życia podlegają Ujemnemu Rozkładowi Wykładniczemu, to funkcja średniej nadwyżki jest stała. W konsekwencji wykres $e(x)$ w funkcji wieku $x$ będzie linią poziomą. Rozkłady o cienkich ogonach będą wykazywać trend spadkowy. Przeciwnie, trend wzrostowy będzie wskazówką zachowania gruboogonowego.
+
+Malejący kształt $\hat{e}(x)$ widoczny na Rys. 9.5 zaprzecza zachowaniu Ujemnego Rozkładu Wykładniczego dla pozostałego czasu życia. Trend spadkowy jest wyraźnie widoczny na Rys. 9.5, wspierając zachowanie o cienkim ogonie. Dlatego oczekuje się ujemnej wartości indeksu ogona $\xi$, co skutkuje skończonym ostatecznym wiekiem $\omega$.
+
+Porównanie z rozkładem Ujemnym Wykładniczym długości życia można przeprowadzić za pomocą wykresu kwantylowo-kwantylowego (QQ-plot) wykładniczego, jak wyjaśniono wcześniej przy omawianiu wysokości szkód w ubezpieczeniach komunikacyjnych. Jeśli dane są niezależną i identycznie rozłożoną próbą z rozkładu Ujemnego Wykładniczego, powinien być widoczny trend liniowy. Wypukłe odchylenie od tego kształtu wskazuje na rozkład o grubszym ogonie w tym sensie, że kwantyle empiryczne rosną szybciej niż teoretyczne. Przeciwnie, wklęsłość wskazuje na rozkład o cieńszym ogonie. Wklęsły wzór wykresu kwantylowo-kwantylowego wykładniczego widoczny na Rys. 9.6 potwierdza zachowanie o cienkim ogonie rozkładu czasu życia dla obu płci.
+
+## 9.4 Uogólniony rozkład Pareto
+
+### 9.4.1 Definicja
+
+Uogólnione rozkłady Pareto odgrywają ważną rolę w EVT, w związku z rozkładem nadwyżek ponad wysokie progi. Ta rodzina ciągłych rozkładów prawdopodobieństwa obejmuje dwa parametry: parametr skali $\tau$ i parametr kształtu $\xi$. Czasami dopuszcza się również parametr lokalizacji. Dokładniej, funkcja dystrybuanty $G_{\xi;\tau}$ Uogólnionego Rozkładu Pareto $\mathcal{GPar}(\xi, \tau)$ jest dana przez
+
+$$
+G_{\xi;\tau}(y) = 
+\begin{cases} 
+1 - \left(1 + \xi \frac{y}{\tau}\right)_+^{-1/\xi} & \text{jeśli } \xi \neq 0 \\
+1 - \exp\left(-\frac{y}{\tau}\right) & \text{jeśli } \xi = 0 
+\end{cases}
+$$
+
+gdzie $\tau > 0$ oraz
+
+$$
+y \in [0, \infty) \text{ gdy } \xi \ge 0
+$$
+
+$$
+y \in \left[0, -\frac{\tau}{\xi}\right) \text{ gdy } \xi < 0.
+$$
+
+Jako szczególne przypadki Uogólnionych Rozkładów Pareto, znajdujemy rozkład Pareto gdy $\xi > 0$, rozkład Pareto typu II gdy $\xi < 0$ oraz Ujemny Rozkład Wykładniczy gdy $\xi = 0$. Odpowiadająca funkcja gęstości prawdopodobieństwa to
+
+$$
+g_{\xi;\tau}(y) = 
+\begin{cases} 
+\frac{1}{\tau}\left(1 + \xi \frac{y}{\tau}\right)_+^{-1/\xi-1} & \text{jeśli } \xi \neq 0 \\
+\frac{1}{\tau}\exp\left(-\frac{y}{\tau}\right) & \text{jeśli } \xi = 0. 
+\end{cases}
+$$
+
+## 9.5 Podejście POT (Peak Over Threshold)
+
+### 9.5.1 Zasada
+
+Tradycyjne podejście do EVT opiera się na granicznych rozkładach wartości ekstremalnych. W tym ujęciu model dla ekstremalnych strat bazuje na możliwej parametrycznej formie granicznego rozkładu maksimów. Bardziej elastyczny model jest znany jako metoda „Peak Over Threshold” (w skrócie POT). To podejście jest alternatywą dla analizy maksimów w badaniu zachowań ekstremalnych. Zasadniczo, POT analizuje serię nadwyżek ponad wysoki próg $u$. 
+
+Okazuje się, że Uogólniony Rozkład Pareto stanowi dla aktuariusza przybliżenie rozkładu nadwyżek $F_u$ ponad dostatecznie wysokie progi. 
+
+**Twierdzenie 9.5.1 (Twierdzenie Pickandsa-Balkemy-de Haana)**
+*Twierdzenie Fishera-Tippetta zachodzi z $H_\xi$ wtedy i tylko wtedy, gdy możemy znaleźć dodatnią funkcję $\tau(u)$ taką, że*
+
+$$ \lim_{u \to \omega} \sup_{0 \le y \le \omega - u} |F_u(y) - G_{\xi, \tau(u)}(y)| = 0. $$
+
+Twierdzenie 9.5.1 wskazuje, że rozkład $\mathcal{GPar}(\xi, \tau)$ stanowi dobre przybliżenie rozkładu nadwyżek ponad dostatecznie wysokie progi $u$.
+
+---
+### 9.5.5 Wybór Progu dla Uogólnionego Rozkładu Pareto
+
+#### 9.5.5.1 Zasada
+Wybór odpowiedniego progu $u$, powyżej którego przybliżenie Uogólnionym Rozkładem Pareto ma zastosowanie, jest z pewnością bardzo trudnym zadaniem. W tej sekcji przedstawiamy czytelnikowi pewne ogólne zasady w tym zakresie, odsyłając do literatury po szczegółowe podejścia stosowane w konkretnych sytuacjach. Często techniki wyboru progu dostarczają jedynie zakresu rozsądnych wartości, dlatego zaleca się jednoczesne stosowanie kilku z nich w celu uzyskania bardziej wiarygodnych wyników. 
+
+Przy wyborze optymalnego progu $u$, powyżej którego przybliżenie Uogólnionym Rozkładem Pareto jest słuszne dla rozkładu nadwyżek, należy wziąć pod uwagę dwa czynniki: 
+
+* Zbyt duża wartość $u$ skutkuje małą liczbą nadwyżek, a w konsekwencji niestabilnymi estymatami górnych kwantyli. Aktuariusz traci również możliwość szacowania mniejszych kwantyli. 
+* Zbyt mała wartość $u$ oznacza, że Uogólniony Rozkład Pareto nie jest właściwy dla umiarkowanych obserwacji, co prowadzi do obciążonych estymat kwantyli. Obciążenie to może być znaczne, ponieważ umiarkowane obserwacje zazwyczaj stanowią największą część próby. 
+
+Naszym celem jest zatem określenie minimalnej wartości progu, powyżej którego Uogólniony Rozkład Pareto staje się rozsądnym przybliżeniem ogona rozkładu będącego przedmiotem badania. 
+
+Wiemy, że Uogólniony Rozkład Pareto posiada wygodną właściwość stabilności progowej, która zapewnia, że
+
+$$ Y \sim \mathcal{GPar}(\xi, \tau) \implies P[Y - u > t | Y > u] = 1 - G_{\xi, \tau + \xi u}(t) $$
+
+z tym samym parametrem indeksu $\xi$, dla dowolnego $u > 0$. Mówiąc prościej, jeśli $Y$ ma Uogólniony Rozkład Pareto, to nadwyżki $Y$ ponad dowolny próg nadal mają Uogólniony Rozkład Pareto. Ta właściwość jest wykorzystywana przez większość procedur wyboru optymalnego progu $u$, powyżej którego przybliżenie Uogólnionym Rozkładem Pareto ma zastosowanie. 
+
+Właściwość stabilności (9.7) Uogólnionego Rozkładu Pareto zapewnia, że wykres estymatorów $\hat{\xi}$ obliczonych przy rosnących progach ujawnia estymacje, które stabilizują się, gdy osiągnięty zostanie najmniejszy próg, dla którego zachowanie Uogólnionego Rozkładu Pareto jest słuszne. Można to sprawdzić graficznie i pozwala to aktuariuszowi określić najmniejszy próg $u$, powyżej którego Uogólniony Rozkład Pareto stanowi dobre przybliżenie ogona. 
+
+#### 9.5.5.2 Zastosowanie do Ciężkości Szkód
+Zgodnie z praktyką rynkową, koncentrujemy się na ciężkościach szkód przekraczających 1 000 000 franków belgijskich (około 25 000 €), co odpowiada 13.83-krotności obserwowanej średniej ciężkości szkody. Kwantyl 97.5% rozkładu Gamma o średniej i wariancji odpowiadających ich empirycznym odpowiednikom wynosi 360 481.7 franków belgijskich, podczas gdy kwantyle 99% i 99.5% wynoszą odpowiednio 1 937 007 i 4 004 094 franków belgijskich. Odpowiednie wartości dla rozkładu Odwrotnego Gaussa to 409 671.3 franków belgijskich, 1 403 344 franków belgijskich i 2 952 146 franków belgijskich. Widzimy więc, że rozkłady ED używane do modelowania umiarkowanych strat znacznie wykraczają poza najniższy rozważany próg, jeśli analiza POT rozpoczyna się od 1 000 000 franków belgijskich. 
+
+Wykres indeksu Pareto dla ciężkości szkód w ubezpieczeniach komunikacyjnych przedstawiono na Rys. 9.7. Został on wygenerowany za pomocą funkcji `tcplot` z pakietu R `POT`. Widzimy tam, że oszacowane indeksy wydają się być względnie stabilne, co jest zgodne z twierdzeniem Pickandsa-Balkemy-de Haana. Przedziały ufności są jednak dość szerokie. Ogólnie rzecz biorąc, wykres ten nie dostarcza aktuariuszowi wielu wskazówek co do wyboru progu. 
+
+Wykres Gertensgarbe'a to kolejne narzędzie graficzne, które można wykorzystać do oszacowania progu definiującego duże straty. Opiera się on na założeniu, że optymalny próg można znaleźć jako punkt zwrotny w serii odstępów między uporządkowanymi kosztami szkód. Kluczową ideą jest to, że można rozsądnie oczekiwać, iż zachowanie różnic odpowiadających obserwacjom ekstremalnym będzie inne niż to odpowiadające obserwacjom nieekstremalnym. Zatem powinien istnieć punkt zwrotny, jeśli analiza POT ma zastosowanie, a ten punkt zwrotny można zidentyfikować za pomocą sekwencyjnej wersji testu Manna-Kendalla jako punkt przecięcia znormalizowanych statystyk rang progresywnych i retrogradywnych. Jest on zaimplementowany w funkcji `ggplot` pakietu R `tea`. Dokładniej, biorąc pod uwagę serię różnic $\Delta_i = y_{(i)} − y_{(i−1)}$, punkt początkowy regionu ekstremalnego zostanie wykryty jako punkt zwrotny serii $\{\Delta_i, i = 2, 3,..., n\}$. W tym teście określa się dwie znormalizowane serie $U_p$ i $U_r$, najpierw na podstawie serii $\Delta_1, \Delta_2,...$ a następnie na podstawie serii różnic od końca do początku, $\Delta_n, \Delta_{n−1},...$, zamiast od początku do końca. Punkt przecięcia tych dwóch serii określa kandydata na punkt zwrotny, który będzie istotny, jeśli przekroczy wysoki percentyl rozkładu normalnego. 
+
+Wykres Gertensgarbe'a przedstawiono na Rys. 9.8. Wskazuje on próg 2 471 312 franków belgijskich (co oznacza, że 29 szkód kwalifikuje się jako duże). Wartość $p$-value testu Manna-Kendalla wynosi $1.299018 \times 10^{−4}$, więc wynik jest istotny. Jest to zgodne z wnioskiem wyciągniętym z wykresu indeksu Pareto przedstawionego na Rys. 9.7, dlatego wybieramy próg $u = 2 471 312$ dla ciężkości szkód w ubezpieczeniach komunikacyjnych. 
+
+Teraz, gdy wartość progu została wybrana, istnieje kilka metod szacowania odpowiednich parametrów Uogólnionego Rozkładu Pareto. Wymienić można metodę największej wiarygodności (z karą lub bez), (nieobciążone) ważone momenty probabilistyczne, momenty, estymatory Pickandsa, minimalnej dywergencji potęgowej gęstości, mediany i maksymalnej dobroci dopasowania, wszystkie dostępne w funkcji `fitgpd` pakietu R `POT`. Tutaj przyjmujemy podejście największej wiarygodności. Aby dopasować model Uogólnionego Rozkładu Pareto do nadwyżek ponad próg $u$, maksymalizujemy funkcję wiarygodności
+
+$$ \mathcal{L}(\xi, \tau) = \prod_{i|y_i > u} \frac{1}{\tau} \left( 1 + \frac{\xi}{\tau}(y_i - u) \right)^{-1/\xi - 1} $$
+
+lub odpowiadającą jej funkcję log-wiarygodności
+
+$$ L(\xi, \tau) = \ln \mathcal{L}(\xi, \tau) = -N_u \ln \tau - \left( 1 + \frac{1}{\xi} \right) \sum_{i|y_i > u} \ln \left( 1 + \frac{\xi}{\tau}(y_i - u) \right) $$
+
+gdzie $N_u = \text{\#} {y_i\mid y_i > u}$ jest liczbą dużych szkód zaobserwowanych w portfelu, jak wprowadzono wcześniej. 
+
+Ten problem optymalizacyjny wymaga algorytmów numerycznych i odpowiednich wartości początkowych dla parametrów $\xi$ i $\tau$. Średnia i wariancja Uogólnionego Rozkładu Pareto wynoszą odpowiednio $\tau/(1 - \xi)$ pod warunkiem $\xi < 1$, oraz $\tau^2/((1 - \xi)^2(1 - 2\xi))$ pod warunkiem $\xi < 1/2$. Wartości początkowe metodą momentów to
+
+$$ \hat{\xi}_0 = \frac{1}{2} \left( 1 - \frac{\bar{y}^2}{s^2} \right) \quad \text{i} \quad \hat{\tau}_0 = \frac{1}{2} \bar{y} \left( \frac{\bar{y}^2}{s^2} + 1 \right), $$
+
+gdzie $\bar{y}$ i $s^2$ są średnią i wariancją z próby. Można również wykorzystać wartości $\tau$ i $\xi$ pochodzące z dopasowania liniowego do prawej części wykresu empirycznej funkcji średniej nadwyżki. 
+
+Przy progu ustalonym na 2 471 312 franków belgijskich, otrzymujemy $\hat{\xi} = 0.2718819$, co oznacza, że mamy do czynienia z rozkładem o grubym ogonie. Odpowiadające mu $\tau = 7 655 438$. Należy zauważyć, że $\hat{\xi}$ rzeczywiście odpowiada plateau widocznemu na wykresie indeksu Pareto przedstawionym na Rys. 9.7. 
+
+#### 9.5.5.3 Zastosowanie w Ubezpieczeniach na Życie
+Przejdźmy teraz do modelowania skrajnych czasów życia. Wykresy indeksu Pareto dla czasów życia przedstawiono na Rys. 9.9, oddzielnie dla mężczyzn i kobiet. Narzędzia graficzne są trudniejsze do interpretacji w porównaniu z ciężkościami szkód. Odsyłamy czytelnika do Gbari i in. (2017a) w celu określenia progu wiekowego $x^*$ takiego że przybliżenie (9.5) jest wystarczająco dokładne dla $x \ge x^*$ za pomocą kilku zautomatyzowanych procedur. Zgodnie z ich wnioskami, możemy ustawić $x^*$ na 98.89 dla mężczyzn i 100.89 dla kobiet. Wartości te wydają się rozsądne, biorąc pod uwagę wykresy indeksu Pareto przedstawione na Rys. 9.9. Estymaty największej wiarygodności parametrów Uogólnionego Rozkładu Pareto można znaleźć w Tabeli 9.4 wraz z błędami standardowymi. 
+
+Oszacowany wiek graniczny ω jest dany wzorem
+
+$$ \hat{\omega} = x^* - \frac{\hat{\tau}}{\hat{\xi}} = \begin{cases} 114.82 & \text{dla mężczyzn,} \\ 122.73 & \text{dla kobiet.} \end{cases} $$
+
+Populacja kobiet ma najwyższy oszacowany wiek graniczny. Estymacje są zgodne z najwyższymi zaobserwowanymi wiekami zgonu 112.58 dla kobiet i 111.47 dla mężczyzn dla rozważanych kohort urodzonych w Belgii. Wyniki te są spójne z maksymalnymi obserwowanymi na świecie wiekami zgonu. Co ciekawe, uzyskany wiek graniczny dla kobiet jest bliski rekordowi Jeanne Calment wynoszącemu 122.42 (122 lata i 164 dni, urodzona w Arles we Francji 21 lutego 1875 r., zmarła w tym samym miejscu 4 sierpnia 1997 r.). 
+
+Każda miara dobroci dopasowania może być użyta w celu sprawdzenia, czy dane są zgodne z Uogólnionym Rozkładem Pareto powyżej wybranego progu. W tym celu często używa się wykresu kwantylowo-kwantylowego (QQ-plot) dla Uogólnionego Rozkładu Pareto. Na tym wykresie kwantyle empiryczne są przedstawione w odniesieniu do oszacowanych kwantyli Uogólnionego Rozkładu Pareto. Jeśli Uogólniony Rozkład Pareto skutecznie dopasowuje się do rozważanych danych, wykreślone pary powinny znajdować się blisko linii o nachyleniu 45 stopni. Funkcja `qqgpd` z pakietu R `tea` może być użyta do wykreślenia obserwacji empirycznych powyżej danego progu w odniesieniu do teoretycznych kwantyli Uogólnionego Rozkładu Pareto. Wykresy QQ dla Uogólnionego Rozkładu Pareto dla skrajnych czasów życia przedstawiono na Rys. 9.10. Wyraźnie liniowy wzorzec na wykresie QQ potwierdza, że model Uogólnionego Rozkładu Pareto adekwatnie opisuje rozkład pozostałego czasu życia powyżej $x^*$.
+
+Główną trudnością przy pracy z danymi zagregowanymi jest wybór odpowiedniego wieku progowego, powyżej którego zachowanie Uogólnionego Rozkładu Pareto staje się widoczne.
+
+## 9.6 Model Poissona-Uogólnionego Pareto dla Nadwyżek Ponad Wysoki Próg
+
+### 9.6.1 Rozkład Maksimum z Próby Poissona o Rozmiarze z Uogólnionego Rozkładu Pareto
+
+Liczba $N_u$ nadwyżek ponad próg $u$ podlega rozkładowi $\mathcal{Bin}(n, \bar{F}(u))$. Pod warunkiem, że $u$ i $n$ są wystarczająco duże, ten rozkład dwumianowy może być przybliżony rozkładem Poissona. W związku z tym interesujące jest rozważenie próby o losowym, poissnowsko rozłożonym rozmiarze. Jest to dokładnie temat badany w tej sekcji.
+
+### 9.6.2 Prawdopodobna Maksymalna Strata
+
+Prawdopodobna maksymalna strata (PML) to najgorsza strata, jaka prawdopodobnie wystąpi. Jest ona definiowana jako wysoki kwantyl rozkładu maksimum wszystkich wysokości szkód uderzających w portfel w danym okresie referencyjnym (zazwyczaj jeden rok). Ponieważ to maksimum przekroczy tak zdefiniowaną PML z niewielkim, kontrolowanym prawdopodobieństwem, jest bardzo mało prawdopodobne, że indywidualna kwota szkody zarejestrowana w tym portfelu przyjmie wartość większą niż PML.
